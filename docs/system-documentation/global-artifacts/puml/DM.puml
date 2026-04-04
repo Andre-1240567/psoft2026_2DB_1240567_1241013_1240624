@@ -1,0 +1,73 @@
+@startuml DM
+title Domain Model - AISafe (Phase 0)
+
+skinparam classAttributeIconSize 0
+hide circle
+hide methods
+
+left to right direction
+
+' --- CLASSES ---
+
+class AircraftModel {
+    - manufacturer
+    - modelName
+    - seatingCapacity
+    - fuelCapacity
+    - maxRange
+    - cruisingSpeed
+}
+
+class Aircraft {
+    - registrationNumber
+    - manufacturingDate
+    - operationalStatus
+}
+
+class Airport {
+    - iataCode
+    - name
+    - city
+    - country
+    - timezone
+    - coordinates
+    - operationalStatus
+}
+
+class Runway {
+    - designation
+    - length
+    - orientation
+}
+
+class FlightRoute {
+    - estimatedFlightTime
+    - distance
+}
+
+class RouteRequirement {
+    - minRangeRequired
+    - minCapacityRequired
+}
+
+class RouteHistory {
+    - changeDate
+    - description
+}
+
+' --- RELATIONS ---
+
+AircraftModel "1" -- "0..*" Aircraft : describes >
+
+Airport "1" *-- "1..*" Runway : has >
+Airport "0..*" -- "0..*" AircraftModel : certified for >
+
+FlightRoute "0..*" -- "1" Airport : starts at >
+FlightRoute "0..*" -- "1" Airport : ends at >
+FlightRoute "1" -- "1" RouteRequirement : defined by >
+FlightRoute "1" -- "0..*" RouteHistory : tracked by >
+
+' A logic connection to link Aircraft to Routes in the future
+Aircraft "0..*" -- "0..*" FlightRoute : assigned to >
+
+@enduml
