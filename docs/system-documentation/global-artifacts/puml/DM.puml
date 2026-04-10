@@ -8,7 +8,6 @@ hide methods
 left to right direction
 
 ' --- SHARED VALUE OBJECTS ---
-' Como o Operational Status é usado em 2 sítios (Aircraft e Airport), declaramos aqui em cima
 class OperationalStatus <<Value Object>> {
     - status
 }
