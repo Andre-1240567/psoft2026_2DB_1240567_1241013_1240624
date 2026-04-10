@@ -1,5 +1,5 @@
 @startuml DM
-title Domain Model - AISafe (Phase 0)
+title Domain Model - AISafe (Phase 0 - WP1, WP2, WP3)
 
 skinparam classAttributeIconSize 0
 hide circle
@@ -7,67 +7,91 @@ hide methods
 
 left to right direction
 
-' --- CLASSES ---
+' --- AIRCRAFT AGGREGATE ---
+package "Aircraft Aggregate" {
+    class AircraftModel <<Aggregate Root>> <<Entity>> {
+        - manufacturer
+        - modelName
+        - fuelCapacity
+        - maxRange
+        - cruisingSpeed
+    }
 
-class AircraftModel {
-    - manufacturer
-    - modelName
-    - seatingCapacity
-    - fuelCapacity
-    - maxRange
-    - cruisingSpeed
+    class SeatConfiguration <<Value Object>> {
+        - configurationName
+        - capacity
+    }
+
+    class Aircraft <<Aggregate Root>> <<Entity>> {
+        - registrationNumber
+        - manufacturingDate
+        - operationalStatus
+    }
+
+    AircraftModel "1" *-- "1..*" SeatConfiguration : has >
+    Aircraft "1" --> "1" AircraftModel : is instance of >
+    Aircraft "1" --> "1" SeatConfiguration : configured with >
 }
 
-class Aircraft {
-    - registrationNumber
-    - manufacturingDate
-    - operationalStatus
+' --- AIRPORT AGGREGATE ---
+package "Airport Aggregate" {
+    class Airport <<Aggregate Root>> <<Entity>> {
+        - iataCode
+        - name
+        - timezone
+        - operationalStatus
+    }
+
+    class Location <<Value Object>> {
+        - city
+        - country
+        - coordinates
+    }
+
+    class Runway <<Entity>> {
+        - name
+        - length
+        - orientation
+    }
+
+    Airport "1" *-- "1" Location : located at >
+    Airport "1" *-- "1..*" Runway : has >
 }
 
-class Airport {
-    - iataCode
-    - name
-    - city
-    - country
-    - timezone
-    - coordinates
-    - operationalStatus
+' --- FLIGHT OPERATIONS AGGREGATE ---
+package "Flight Operations Aggregate" {
+    class FlightRoute <<Aggregate Root>> <<Entity>> {
+        - routeId
+        - estimatedFlightTime
+        - routeStatus
+    }
+
+    class RouteRequirement <<Value Object>> {
+        - minRangeRequired
+        - minCapacityRequired
+    }
+
+    class RouteHistory <<Entity>> {
+        - changeDate
+        - description
+    }
+
+    class ScheduledFlight <<Aggregate Root>> <<Entity>> {
+        - flightNumber
+        - scheduledDateTime
+        - status
+    }
+
+    FlightRoute "1" *-- "1" RouteRequirement : defined by >
+    FlightRoute "1" *-- "0..*" RouteHistory : tracked by >
+
+    ScheduledFlight "0..*" --> "1" FlightRoute : follows >
+    ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
 }
 
-class Runway {
-    - designation
-    - length
-    - orientation
-}
-
-class FlightRoute {
-    - estimatedFlightTime
-    - distance
-}
-
-class RouteRequirement {
-    - minRangeRequired
-    - minCapacityRequired
-}
-
-class RouteHistory {
-    - changeDate
-    - description
-}
-
-' --- RELATIONS ---
-
-AircraftModel "1" -- "0..*" Aircraft : describes >
-
-Airport "1" *-- "1..*" Runway : has >
-Airport "0..*" -- "0..*" AircraftModel : certified for >
-
-FlightRoute "0..*" -- "1" Airport : starts at >
-FlightRoute "0..*" -- "1" Airport : ends at >
-FlightRoute "1" -- "1" RouteRequirement : defined by >
-FlightRoute "1" -- "0..*" RouteHistory : tracked by >
-
-' A logic connection to link Aircraft to Routes in the future
-Aircraft "0..*" -- "0..*" FlightRoute : assigned to >
+' --- EXTERNAL AGGREGATE RELATIONS ---
+Airport "0..*" --> "0..*" AircraftModel : certified for >
+FlightRoute "0..*" --> "1" Airport : origin >
+FlightRoute "0..*" --> "1" Airport : destination >
 
 @enduml
