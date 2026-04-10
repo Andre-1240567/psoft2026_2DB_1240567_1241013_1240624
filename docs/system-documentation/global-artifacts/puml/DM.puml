@@ -7,8 +7,8 @@ hide methods
 
 left to right direction
 
-' --- AIRCRAFT AGGREGATE ---
-package "Aircraft Aggregate" {
+' --- MODULE: AIRCRAFT MANAGEMENT (WP1) ---
+package "Aircraft Management" {
     class AircraftModel <<Aggregate Root>> <<Entity>> {
         - manufacturer
         - modelName
@@ -29,12 +29,12 @@ package "Aircraft Aggregate" {
     }
 
     AircraftModel "1" *-- "1..*" SeatConfiguration : has >
-    Aircraft "1" --> "1" AircraftModel : is instance of >
-    Aircraft "1" --> "1" SeatConfiguration : configured with >
+    Aircraft "0..*" --> "1" AircraftModel : is instance of >
+    Aircraft "0..*" --> "1" SeatConfiguration : configured with >
 }
 
-' --- AIRPORT AGGREGATE ---
-package "Airport Aggregate" {
+' --- MODULE: AIRPORT MANAGEMENT (WP2) ---
+package "Airport Management" {
     class Airport <<Aggregate Root>> <<Entity>> {
         - iataCode
         - name
@@ -54,12 +54,18 @@ package "Airport Aggregate" {
         - orientation
     }
 
+    class AirplaneCertification <<Value Object>> {
+        - certificationDate
+    }
+
     Airport "1" *-- "1" Location : located at >
     Airport "1" *-- "1..*" Runway : has >
+    Airport "1" *-- "0..*" AirplaneCertification : grants >
+    AirplaneCertification "0..*" --> "1" AircraftModel : authorizes >
 }
 
-' --- FLIGHT OPERATIONS AGGREGATE ---
-package "Flight Operations Aggregate" {
+' --- MODULE: FLIGHT OPERATIONS (WP3) ---
+package "Flight Operations" {
     class FlightRoute <<Aggregate Root>> <<Entity>> {
         - routeId
         - estimatedFlightTime
@@ -71,7 +77,7 @@ package "Flight Operations Aggregate" {
         - minCapacityRequired
     }
 
-    class RouteHistory <<Entity>> {
+    class RouteHistory <<Value Object>> {
         - changeDate
         - description
     }
@@ -89,8 +95,7 @@ package "Flight Operations Aggregate" {
     ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
 }
 
-' --- EXTERNAL AGGREGATE RELATIONS ---
-Airport "0..*" --> "0..*" AircraftModel : certified for >
+' --- EXTERNAL RELATIONS ---
 FlightRoute "0..*" --> "1" Airport : origin >
 FlightRoute "0..*" --> "1" Airport : destination >
 
