@@ -7,8 +7,13 @@ hide methods
 
 left to right direction
 
-' --- MODULE: AIRCRAFT MANAGEMENT (WP1) ---
-package "Aircraft Management" {
+' --- SHARED VALUE OBJECTS ---
+class OperationalStatus <<Value Object>> {
+    - status
+}
+
+' --- AGGREGATE: AIRCRAFT MODEL ---
+package "Aircraft Model Aggregate" <<Rectangle>> {
     class AircraftModel <<Aggregate Root>> <<Entity>> {
         - manufacturer
         - modelName
@@ -22,24 +27,28 @@ package "Aircraft Management" {
         - capacity
     }
 
+    AircraftModel "1" *-- "1..*" SeatConfiguration : has >
+}
+
+' --- AGGREGATE: AIRCRAFT ---
+package "Aircraft Aggregate" <<Rectangle>> {
     class Aircraft <<Aggregate Root>> <<Entity>> {
         - registrationNumber
         - manufacturingDate
-        - operationalStatus
     }
 
-    AircraftModel "1" *-- "1..*" SeatConfiguration : has >
-    Aircraft "0..*" --> "1" AircraftModel : is instance of >
-    Aircraft "0..*" --> "1" SeatConfiguration : configured with >
+    Aircraft "1" *-- "1" OperationalStatus : has >
 }
 
-' --- MODULE: AIRPORT MANAGEMENT (WP2) ---
-package "Airport Management" {
+' --- AGGREGATE: AIRPORT ---
+package "Airport Aggregate" <<Rectangle>> {
     class Airport <<Aggregate Root>> <<Entity>> {
-        - iataCode
         - name
         - timezone
-        - operationalStatus
+    }
+
+    class IATACode <<Value Object>> {
+        - code
     }
 
     class Location <<Value Object>> {
@@ -58,14 +67,15 @@ package "Airport Management" {
         - certificationDate
     }
 
+    Airport "1" *-- "1" IATACode : identified by >
     Airport "1" *-- "1" Location : located at >
     Airport "1" *-- "1..*" Runway : has >
     Airport "1" *-- "0..*" AirplaneCertification : grants >
-    AirplaneCertification "0..*" --> "1" AircraftModel : authorizes >
+    Airport "1" *-- "1" OperationalStatus : has >
 }
 
-' --- MODULE: FLIGHT OPERATIONS (WP3) ---
-package "Flight Operations" {
+' --- AGGREGATE: FLIGHT ROUTE ---
+package "Flight Route Aggregate" <<Rectangle>> {
     class FlightRoute <<Aggregate Root>> <<Entity>> {
         - routeId
         - estimatedFlightTime
@@ -82,20 +92,27 @@ package "Flight Operations" {
         - description
     }
 
+    FlightRoute "1" *-- "1" RouteRequirement : defined by >
+    FlightRoute "1" *-- "0..*" RouteHistory : tracked by >
+}
+
+' --- AGGREGATE: SCHEDULED FLIGHT ---
+package "Scheduled Flight Aggregate" <<Rectangle>> {
     class ScheduledFlight <<Aggregate Root>> <<Entity>> {
         - flightNumber
         - scheduledDateTime
         - status
     }
-
-    FlightRoute "1" *-- "1" RouteRequirement : defined by >
-    FlightRoute "1" *-- "0..*" RouteHistory : tracked by >
-
-    ScheduledFlight "0..*" --> "1" FlightRoute : follows >
-    ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
 }
 
-' --- EXTERNAL RELATIONS ---
+' --- EXTERNAL RELATIONS (BETWEEN AGGREGATES) ---
+Aircraft "0..*" --> "1" AircraftModel : is instance of >
+Aircraft "0..*" --> "1" SeatConfiguration : configured with >
+AirplaneCertification "0..*" --> "1" AircraftModel : authorizes >
+
+ScheduledFlight "0..*" --> "1" FlightRoute : follows >
+ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
+
 FlightRoute "0..*" --> "1" Airport : origin >
 FlightRoute "0..*" --> "1" Airport : destination >
 
