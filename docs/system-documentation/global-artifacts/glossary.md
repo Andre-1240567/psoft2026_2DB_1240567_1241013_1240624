@@ -1,21 +1,28 @@
 # Glossary - AISafe Flight Management System
 
-This document defines the core domain concepts for the AISafe system, focusing on Aircraft Management, Airports, and Flight Routes.
+This document defines the core domain concepts for the AISafe system, focusing on Aircraft Management, Airports, and Flight Routes (Work Packages 1, 2, and 3).
 
-| Concept                    | Definition                                                                                                                                               | Classification              |
-|:---------------------------|:---------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------|
-| **Aircraft**               | A specific physical instance of a plane, identified by its unique registration number (tail number), manufacturing date, and current operational status. | **Entity**                  |
-| **Aircraft Model**         | Technical specifications for a type of airplane, including manufacturer, model name, seating capacity, fuel capacity, maximum range, and cruising speed. | **Entity / Aggregate Root** |
-| **Airplane Certification** | A record or rule specifying that a particular Aircraft Model is authorized to operate (take off and land) at a specific Airport.                         | **Value Object**            |
-| **Airport**                | A registered aviation facility identified by a unique IATA code, containing details such as name, city, country, timezone, coordinates, and runways.     | **Entity / Aggregate Root** |
-| **Flight Route**           | A planned connection between a registered origin airport and a destination airport, including estimated duration and technical requirements.             | **Entity / Aggregate Root** |
-| **IATA Code**              | A unique three-letter identifier for an airport (e.g., LIS, OPO), following international aviation standards.                                            | **Value Object**            |
-| **Location**               | Geographical data of an airport including city, country and coordinates                                                                                  | **Value Object**            |
-| **Operational Status**     | The current availability or state of a resource (e.g., "Active", "Under Maintenance" for Aircraft; "Operational", "Closed" for Airports).                | **Value Object**            |
-| **Route History**          | A chronological log of all modifications, updates, or historical states associated with a specific flight route.                                         | **Value Object**            |
-| **Route Requirements**     | The minimum technical constraints (e.g., minimum range and passenger capacity) that an aircraft must satisfy to be assigned to a specific route.         | **Value Object**            |
-| **Runway**                 | Technical data regarding a landing strip at an airport, including its designation/name, length (meters), and orientation.                                | **Value Object**            |
-| **Scheduled Flight**       | A specific instance of a flight route scheduled for a specific date and time, with an assigned status                                                    | **Entity / Aggregate Root** |
-| **Seat Configuration**     | Details the seating arrangement and capacity associated with a specific Aircraft Model                                                                   | **Value Object**            |
-
-
+| Concept                    | Definition                                                                                                                                                          | Classification              |
+|:---------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------|
+| **Aircraft**               | A specific physical instance of a plane, identified by a unique registration number. It belongs to a "Fleet" and is configured with a specific seating arrangement. | **Entity / Aggregate Root** |
+| **Aircraft Feature**       | Specific technical or comfort characteristics of a model (e.g., WiFi-enabled, engine type) that can be freely added to the system by the user.                      | **Value Object**            |
+| **Aircraft Model**         | Technical specifications for a type of airplane (synonymous with **Aircraft Type**). Defines manufacturer, baseline capacity, range, and possible configurations.   | **Entity / Aggregate Root** |
+| **Airplane Certification** | Authorization record specifying that a particular Aircraft Model is technically cleared and authorized to operate at a specific Airport.                            | **Value Object**            |
+| **Airport**                | A registered aviation facility. It is the central hub for operations, containing infrastructure details, contact info, and operational hours.                       | **Entity / Aggregate Root** |
+| **Contact**                | Communication details for an airport, supporting multiple entries (email, phone, fax) associated with specific departments or descriptions.                         | **Value Object**            |
+| **Facility Service**       | Structured information about services available at an airport (e.g., lounges, parking, specialized passenger assistance).                                           | **Value Object**            |
+| **Fleet**                  | The complete set of all Aircraft managed by the Air Transport Company (ATC).                                                                                        | **Domain Concept**          |
+| **Flight Route**           | A fixed point-to-point connection between an origin and a destination airport. Includes a fixed distance calculated at the moment of creation.                      | **Entity / Aggregate Root** |
+| **Flight Status**          | The specific lifecycle stage of a scheduled flight (e.g., Scheduled, Delayed, In-Flight, Completed, Canceled).                                                      | **Value Object**            |
+| **Gate**                   | A specific departure or arrival point located within an airport Terminal.                                                                                           | **Entity**                  |
+| **IATA Code**              | A unique three-letter identifier for an airport (e.g., LIS, OPO) following international aviation standards.                                                        | **Value Object**            |
+| **Location**               | Geographical data of an airport including its **Region** (e.g., Europe, SE Asia), Country, City, and coordinates.                                                   | **Value Object**            |
+| **Network**                | The collection/graph of all active Flight Routes operated by the company.                                                                                           | **Domain Concept**          |
+| **Operational Hours**      | The specific timeframe (opening and closing times) during which an airport is operational for flight traffic.                                                       | **Value Object**            |
+| **Operational Status**     | The current availability state of a physical resource (e.g., "Active" or "Under Maintenance" for Aircraft; "Operational" or "Closed" for Airports).                 | **Value Object**            |
+| **Route History**          | A chronological log of all modifications, updates, or historical states associated with a specific flight route.                                                    | **Value Object**            |
+| **Route Requirements**     | Minimum technical constraints (range and seating capacity) that an aircraft must satisfy to be assigned to a specific route.                                        | **Value Object**            |
+| **Runway**                 | Technical data regarding a landing strip, including its name/designator, length (meters), and orientation.                                                          | **Entity**                  |
+| **Scheduled Flight**       | A specific instance of a Flight Route planned for a specific date and time, assigned to a specific Aircraft and tracked via its Flight Status.                      | **Entity / Aggregate Root** |
+| **Seat Configuration**     | A specific arrangement of seats and capacity. Note that different aircraft of the same model can have different configurations.                                     | **Value Object**            |
+| **Terminal**               | A major physical building or infrastructure area within an airport that houses gates and facilities.                                                                | **Entity**                  |

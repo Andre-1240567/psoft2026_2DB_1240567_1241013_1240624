@@ -1,5 +1,5 @@
 @startuml DM
-title Domain Model - AISafe (Phase 0 - WP1, WP2, WP3)
+title Domain Model - AISafe (Phase 0 - Full Integration)
 
 skinparam classAttributeIconSize 0
 hide circle
@@ -20,6 +20,7 @@ package "Aircraft Model Aggregate" <<Rectangle>> {
         - fuelCapacity
         - maxRange
         - cruisingSpeed
+        - seatingCapacity
     }
 
     class SeatConfiguration <<Value Object>> {
@@ -27,7 +28,12 @@ package "Aircraft Model Aggregate" <<Rectangle>> {
         - capacity
     }
 
+    class AircraftFeature <<Value Object>> {
+        - featureDescription
+    }
+
     AircraftModel "1" *-- "1..*" SeatConfiguration : has >
+    AircraftModel "1" *-- "0..*" AircraftFeature : possesses >
 }
 
 ' --- AGGREGATE: AIRCRAFT ---
@@ -52,9 +58,22 @@ package "Airport Aggregate" <<Rectangle>> {
     }
 
     class Location <<Value Object>> {
-        - city
+        - region
         - country
+        - city
         - coordinates
+    }
+
+    class OperationalHours <<Value Object>> {
+        - openingTime
+        - closingTime
+        - notes
+    }
+
+    class Contact <<Value Object>> {
+        - type (phone, email, fax, etc.)
+        - value
+        - departmentOrDescription
     }
 
     class Runway <<Entity>> {
@@ -67,17 +86,36 @@ package "Airport Aggregate" <<Rectangle>> {
         - certificationDate
     }
 
+    class Terminal <<Entity>> {
+        - name
+    }
+
+    class Gate <<Entity>> {
+        - gateNumber
+    }
+
+    class FacilityService <<Value Object>> {
+        - name
+        - type
+    }
+
     Airport "1" *-- "1" IATACode : identified by >
     Airport "1" *-- "1" Location : located at >
+    Airport "1" *-- "1" OperationalHours : operates during >
+    Airport "1" *-- "1..*" Contact : reached via >
     Airport "1" *-- "1..*" Runway : has >
     Airport "1" *-- "0..*" AirplaneCertification : grants >
     Airport "1" *-- "1" OperationalStatus : has >
+    Airport "1" *-- "0..*" Terminal : has >
+    Terminal "1" *-- "1..*" Gate : contains >
+    Airport "1" *-- "0..*" FacilityService : provides >
 }
 
 ' --- AGGREGATE: FLIGHT ROUTE ---
 package "Flight Route Aggregate" <<Rectangle>> {
     class FlightRoute <<Aggregate Root>> <<Entity>> {
         - routeId
+        - distance
         - estimatedFlightTime
         - routeStatus
     }
@@ -101,8 +139,13 @@ package "Scheduled Flight Aggregate" <<Rectangle>> {
     class ScheduledFlight <<Aggregate Root>> <<Entity>> {
         - flightNumber
         - scheduledDateTime
+    }
+
+    class FlightStatus <<Value Object>> {
         - status
     }
+
+    ScheduledFlight "1" *-- "1" FlightStatus : has >
 }
 
 ' --- EXTERNAL RELATIONS (BETWEEN AGGREGATES) ---
