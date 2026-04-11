@@ -12,6 +12,11 @@ class OperationalStatus <<Value Object>> {
     - status
 }
 
+class SeatConfiguration <<Value Object>> {
+    - configurationName
+    - capacity
+}
+
 ' --- AGGREGATE: AIRCRAFT MODEL ---
 package "Aircraft Model Aggregate" <<Rectangle>> {
     class AircraftModel <<Aggregate Root>> <<Entity>> {
@@ -21,11 +26,6 @@ package "Aircraft Model Aggregate" <<Rectangle>> {
         - maxRange
         - cruisingSpeed
         - seatingCapacity
-    }
-
-    class SeatConfiguration <<Value Object>> {
-        - configurationName
-        - capacity
     }
 
     class AircraftFeature <<Value Object>> {
