@@ -20,16 +20,16 @@ class SeatConfiguration <<Value Object>> {
 ' --- AGGREGATE: AIRCRAFT MODEL ---
 package "Aircraft Model Aggregate" <<Rectangle>> {
     class AircraftModel <<Aggregate Root>> <<Entity>> {
-        - manufacturer
-        - modelName
-        - fuelCapacity
-        - maxRange
-        - cruisingSpeed
-        - seatingCapacity
+        - manufacturer : String
+        - modelName : String
+        - fuelCapacity : Double
+        - maxRange : Double
+        - cruisingSpeed : Double
+        - seatingCapacity : Int
     }
 
     class AircraftFeature <<Value Object>> {
-        - featureDescription
+        - featureDescription : String
     }
 
     AircraftModel "1" *-- "1..*" SeatConfiguration : has >
@@ -39,8 +39,8 @@ package "Aircraft Model Aggregate" <<Rectangle>> {
 ' --- AGGREGATE: AIRCRAFT ---
 package "Aircraft Aggregate" <<Rectangle>> {
     class Aircraft <<Aggregate Root>> <<Entity>> {
-        - registrationNumber
-        - manufacturingDate
+        - registrationNumber : Int
+        - manufacturingDate : Date
     }
 
     Aircraft "1" *-- "1" OperationalStatus : has >
@@ -49,54 +49,54 @@ package "Aircraft Aggregate" <<Rectangle>> {
 ' --- AGGREGATE: AIRPORT ---
 package "Airport Aggregate" <<Rectangle>> {
     class Airport <<Aggregate Root>> <<Entity>> {
-        - name
-        - timezone
+        - name : String
+        - timezone : String
     }
 
     class IATACode <<Value Object>> {
-        - code
+        - code : Int
     }
 
     class Location <<Value Object>> {
-        - region
-        - country
-        - city
-        - coordinates
+        - region : String
+        - country : String
+        - city : String
+        - coordinates : fazer value object
     }
 
     class OperationalHours <<Value Object>> {
-        - openingTime
-        - closingTime
-        - notes
+        - openingTime : LocalTime
+        - closingTime : LocalTime
+        - notes : String
     }
 
     class Contact <<Value Object>> {
-        - type (phone, email, fax, etc.)
-        - value
-        - departmentOrDescription
+        - type (phone, email, fax, etc.) : String
+        - value : Int
+        - departmentOrDescription : String
     }
 
     class Runway <<Entity>> {
-        - name
-        - length
-        - orientation
+        - name : String
+        - length : Double
+        - orientation : String
     }
 
     class AirplaneCertification <<Value Object>> {
-        - certificationDate
+        - certificationDate : Date
     }
 
     class Terminal <<Entity>> {
-        - name
+        - name : String
     }
 
     class Gate <<Entity>> {
-        - gateNumber
+        - gateNumber : Int
     }
 
     class FacilityService <<Value Object>> {
-        - name
-        - type
+        - name : String
+        - type : String
     }
 
     Airport "1" *-- "1" IATACode : identified by >
@@ -114,20 +114,20 @@ package "Airport Aggregate" <<Rectangle>> {
 ' --- AGGREGATE: FLIGHT ROUTE ---
 package "Flight Route Aggregate" <<Rectangle>> {
     class FlightRoute <<Aggregate Root>> <<Entity>> {
-        - routeId
-        - distance
-        - estimatedFlightTime
-        - routeStatus
+        - routeId : Int
+        - distance : Double
+        - estimatedFlightTime : Duration
+        - routeStatus : String
     }
 
     class RouteRequirement <<Value Object>> {
-        - minRangeRequired
-        - minCapacityRequired
+        - minRangeRequired : Double
+        - minCapacityRequired : Int
     }
 
     class RouteHistory <<Value Object>> {
-        - changeDate
-        - description
+        - changeDate : Date
+        - description : String
     }
 
     FlightRoute "1" *-- "1" RouteRequirement : defined by >
@@ -137,12 +137,12 @@ package "Flight Route Aggregate" <<Rectangle>> {
 ' --- AGGREGATE: SCHEDULED FLIGHT ---
 package "Scheduled Flight Aggregate" <<Rectangle>> {
     class ScheduledFlight <<Aggregate Root>> <<Entity>> {
-        - flightNumber
-        - scheduledDateTime
+        - flightNumber : Int
+        - scheduledDateTime : Date
     }
 
     class FlightStatus <<Value Object>> {
-        - status
+        - status : String
     }
 
     ScheduledFlight "1" *-- "1" FlightStatus : has >
