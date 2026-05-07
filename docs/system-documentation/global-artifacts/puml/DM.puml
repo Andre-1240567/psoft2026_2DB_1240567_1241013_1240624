@@ -7,7 +7,7 @@ hide methods
 
 left to right direction
 
-' --- SHARED VALUE OBJECTS ---
+
 class OperationalStatus <<Value Object>> {
     - status
 }
@@ -42,6 +42,10 @@ package "Aircraft Aggregate" <<Rectangle>> {
         - registrationNumber
         - manufacturingDate
     }
+
+
+
+
 
     Aircraft "1" *-- "1" OperationalStatus : has >
 }
