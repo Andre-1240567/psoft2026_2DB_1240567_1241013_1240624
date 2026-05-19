@@ -98,12 +98,12 @@ package "Airport Aggregate" {
         - value : String
         - department : String
     }
-    class Runway <<Entity>> {
+    class Runway <<Value Object>> {
         - name : String
         - length : Double
-        - orientation : String
     }
     class AirplaneCertification <<Value Object>> {
+
         - certificationDate : Date
     }
     class Terminal <<Entity>> {
@@ -116,6 +116,16 @@ package "Airport Aggregate" {
         - name : String
         - type : String
     }
+    class Orientation <<Enum>> {
+        N
+        S
+        E
+        W
+        NW
+        NE
+        SW
+        SE
+        }
 
     Airport "1" *-- "1" IATACode : identified by >
     Airport "1" *-- "1" Location : located at >
@@ -129,6 +139,7 @@ package "Airport Aggregate" {
     Airport "1" *-- "0..*" Terminal : has >
     Terminal "1" *-- "1..*" Gate : contains >
     Airport "1" *-- "0..*" FacilityService : provides >
+    Runway "1" *-- "1" Orientation : points >
 }
 
 ' --- AGGREGATE: FLIGHT OPERATIONS ---
