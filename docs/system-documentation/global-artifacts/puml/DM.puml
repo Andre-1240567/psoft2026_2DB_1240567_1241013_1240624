@@ -1,161 +1,191 @@
 @startuml DM
-title Domain Model - AISafe (Phase 0 - Full Integration)
+title Domain Model - AISafe (Phase 0 - Refined WP1, WP2, WP3)
 
 skinparam classAttributeIconSize 0
 hide circle
 hide methods
 
-left to right direction
+skinparam nodesep 50
+skinparam ranksep 50
+skinparam packageStyle rectangle
 
-' --- SHARED VALUE OBJECTS ---
-class OperationalStatus <<Value Object>> {
-    - status
-}
-
-class SeatConfiguration <<Value Object>> {
-    - configurationName
-    - capacity
+' --- AGGREGATE: USER (WP#0A) ---
+package "User Aggregate" {
+    enum Role <<Enum>> {
+        ADMIN
+        BACKOFFICE_OPERATOR
+        ATCC
+    }
+    class User <<Aggregate Root>> <<Entity>> {
+        - username : String
+        - passwordHash : String
+    }
+    User "1" *-- "1" Role : has >
 }
 
 ' --- AGGREGATE: AIRCRAFT MODEL ---
-package "Aircraft Model Aggregate" <<Rectangle>> {
+package "Aircraft Model Aggregate" {
     class AircraftModel <<Aggregate Root>> <<Entity>> {
-        - manufacturer
-        - modelName
-        - fuelCapacity
-        - maxRange
-        - cruisingSpeed
-        - seatingCapacity
+        - manufacturer : String
+        - modelName : String
+        - fuelCapacity : Double
+        - maxRange : Double
+        - cruisingSpeed : Double
+        - seatingCapacity : Int
+        - technicalImage : String
     }
-
+    class SeatConfiguration <<Value Object>> {
+        - configurationName : String
+        - capacity : Int
+    }
     class AircraftFeature <<Value Object>> {
-        - featureDescription
+        - featureDescription : String
     }
-
     AircraftModel "1" *-- "1..*" SeatConfiguration : has >
     AircraftModel "1" *-- "0..*" AircraftFeature : possesses >
 }
 
 ' --- AGGREGATE: AIRCRAFT ---
-package "Aircraft Aggregate" <<Rectangle>> {
-    class Aircraft <<Aggregate Root>> <<Entity>> {
-        - registrationNumber
-        - manufacturingDate
+package "Aircraft Aggregate" {
+    enum AircraftStatus <<Enum>> {
+        AVAILABLE
+        INACTIVE
+        UNDER_MAINTENANCE
+        IN_FLIGHT
     }
-
-    Aircraft "1" *-- "1" OperationalStatus : has >
+    class Aircraft <<Aggregate Root>> <<Entity>> {
+        - registrationNumber : String
+        - manufacturingDate : Date
+        - activeConfigurationName : String
+    }
+    Aircraft "1" *-- "1" AircraftStatus : current status >
 }
 
 ' --- AGGREGATE: AIRPORT ---
-package "Airport Aggregate" <<Rectangle>> {
+package "Airport Aggregate" {
+    enum AirportStatus <<Enum>> {
+        OPERATIONAL
+        CLOSED
+        UNDER_MAINTENANCE
+    }
+    enum ContactType <<Enum>> {
+        PHONE
+        EMAIL
+        FAX
+    }
     class Airport <<Aggregate Root>> <<Entity>> {
-        - name
-        - timezone
+        - name : String
+        - timezone : String
+        - airportPhoto : String
     }
-
     class IATACode <<Value Object>> {
-        - code
+        - code : String
     }
-
     class Location <<Value Object>> {
-        - region
-        - country
-        - city
-        - coordinates
+        - region : String
+        - country : String
+        - city : String
     }
-
+    class GPSCoordinates <<Value Object>> {
+        - latitude : Double
+        - longitude : Double
+    }
     class OperationalHours <<Value Object>> {
-        - openingTime
-        - closingTime
-        - notes
+        - openingTime : LocalTime
+        - closingTime : LocalTime
     }
-
     class Contact <<Value Object>> {
-        - type (phone, email, fax, etc.)
-        - value
-        - departmentOrDescription
+        - value : String
+        - department : String
     }
-
-    class Runway <<Entity>> {
-        - name
-        - length
-        - orientation
+    class Runway <<Value Object>> {
+        - name : String
+        - length : Double
     }
-
     class AirplaneCertification <<Value Object>> {
-        - certificationDate
-    }
 
+        - certificationDate : Date
+    }
     class Terminal <<Entity>> {
-        - name
+        - name : String
     }
-
     class Gate <<Entity>> {
-        - gateNumber
+        - gateNumber : Int
     }
-
     class FacilityService <<Value Object>> {
-        - name
-        - type
+        - name : String
+        - type : String
     }
+    class Orientation <<Enum>> {
+        N
+        S
+        E
+        W
+        NW
+        NE
+        SW
+        SE
+        }
 
     Airport "1" *-- "1" IATACode : identified by >
     Airport "1" *-- "1" Location : located at >
+    Location "1" *-- "1" GPSCoordinates : defined by >
     Airport "1" *-- "1" OperationalHours : operates during >
     Airport "1" *-- "1..*" Contact : reached via >
+    Contact "1" *-- "1" ContactType : is of type >
     Airport "1" *-- "1..*" Runway : has >
     Airport "1" *-- "0..*" AirplaneCertification : grants >
-    Airport "1" *-- "1" OperationalStatus : has >
+    Airport "1" *-- "1" AirportStatus : has >
     Airport "1" *-- "0..*" Terminal : has >
     Terminal "1" *-- "1..*" Gate : contains >
     Airport "1" *-- "0..*" FacilityService : provides >
+    Runway "1" *-- "1" Orientation : points >
 }
 
-' --- AGGREGATE: FLIGHT ROUTE ---
-package "Flight Route Aggregate" <<Rectangle>> {
+' --- AGGREGATE: FLIGHT OPERATIONS ---
+package "Flight Operations Aggregate" {
+    enum RouteStatus <<Enum>> {
+        ACTIVE
+        DEACTIVATED
+    }
+    enum FlightStatus <<Enum>> {
+        SCHEDULED
+        DELAYED
+        IN_FLIGHT
+        COMPLETED
+        CANCELED
+    }
     class FlightRoute <<Aggregate Root>> <<Entity>> {
-        - routeId
-        - distance
-        - estimatedFlightTime
-        - routeStatus
+        - routeId : String
+        - distance : Double
+        - estimatedFlightTime : Duration
     }
-
+    class ScheduledFlight <<Entity>> {
+        - flightNumber : String
+        - scheduledDeparture : DateTime
+        - scheduledArrival : DateTime
+        - actualDeparture : DateTime
+        - actualArrival : DateTime
+    }
     class RouteRequirement <<Value Object>> {
-        - minRangeRequired
-        - minCapacityRequired
+        - minRangeRequired : Double
+        - minCapacityRequired : Int
     }
-
     class RouteHistory <<Value Object>> {
-        - changeDate
-        - description
+        - changeDate : Date
+        - description : String
     }
 
+    FlightRoute "1" *-- "0..*" ScheduledFlight : has >
     FlightRoute "1" *-- "1" RouteRequirement : defined by >
     FlightRoute "1" *-- "0..*" RouteHistory : tracked by >
+    FlightRoute "1" *-- "1" RouteStatus : current status >
+    ScheduledFlight "1" *-- "1" FlightStatus : current status >
 }
 
-' --- AGGREGATE: SCHEDULED FLIGHT ---
-package "Scheduled Flight Aggregate" <<Rectangle>> {
-    class ScheduledFlight <<Aggregate Root>> <<Entity>> {
-        - flightNumber
-        - scheduledDateTime
-    }
-
-    class FlightStatus <<Value Object>> {
-        - status
-    }
-
-    ScheduledFlight "1" *-- "1" FlightStatus : has >
-}
-
-' --- EXTERNAL RELATIONS (BETWEEN AGGREGATES) ---
+' --- EXTERNAL RELATIONS ---
 Aircraft "0..*" --> "1" AircraftModel : is instance of >
-Aircraft "0..*" --> "1" SeatConfiguration : configured with >
-AirplaneCertification "0..*" --> "1" AircraftModel : authorizes >
-
-ScheduledFlight "0..*" --> "1" FlightRoute : follows >
 ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
-
 FlightRoute "0..*" --> "1" Airport : origin >
 FlightRoute "0..*" --> "1" Airport : destination >
 
