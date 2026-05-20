@@ -1,0 +1,64 @@
+@startuml SD_US105
+autonumber
+title Sequence Diagram - US105: Update Aircraft Operational Status
+
+actor "ATCC" as Actor
+participant "Postman / UI" as UI
+box "AISafe Backend (Spring Boot)" #LightCyan
+participant "AircraftController" as Ctrl
+participant "UpdateAircraftStatusDTO" as DTO
+participant "AircraftService" as Service
+participant "AircraftRepository" as Repo
+participant "Aircraft" as Domain
+end box
+database "H2 Database" as DB
+
+Actor -> UI: Inputs registration number and new status (e.g., UNDER_MAINTENANCE)
+activate UI
+
+UI -> Ctrl: PATCH /api/aircrafts/{registrationNumber} (JSON)
+activate Ctrl
+
+Ctrl -> DTO**: creates and @Validates
+activate DTO
+DTO --> Ctrl: dto
+deactivate DTO
+
+Ctrl -> Service: updateAircraftStatus(registrationNumber, dto.status)
+activate Service
+
+Service -> Repo: findByRegistrationNumber(registrationNumber)
+activate Repo
+Repo -> DB: SELECT * FROM aircraft WHERE registration_number = ?
+activate DB
+DB --> Repo: Aircraft record
+deactivate DB
+Repo --> Service: aircraft Entity
+deactivate Repo
+
+Service -> Domain: updateStatus(newStatus)
+activate Domain
+note right of Domain: Business rule validation\n(e.g., checking valid transitions)
+Domain --> Service: success
+deactivate Domain
+
+Service -> Repo: save(aircraft)
+activate Repo
+note right of Repo: Optimistic Locking active\n(checks @Version field)
+Repo -> DB: UPDATE aircraft SET status = ?, version = version + 1 WHERE ...
+activate DB
+DB --> Repo: Returns updated entity
+deactivate DB
+Repo --> Service: updatedAircraft
+deactivate Repo
+
+Service --> Ctrl: updatedAircraft
+deactivate Service
+
+Ctrl --> UI: 200 OK (JSON representation)
+deactivate Ctrl
+
+UI --> Actor: Displays Success Message & Updated Details
+deactivate UI
+
+@enduml

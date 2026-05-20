@@ -1,0 +1,53 @@
+@startuml SD_US101
+autonumber
+title Sequence Diagram - US101: Register an Aircraft Model
+
+actor "Backoffice Operator" as Actor
+participant "Postman / UI" as UI
+box "AISafe Backend (Spring Boot)" #LightCyan
+participant "AircraftModelController" as Ctrl
+participant "CreateAircraftModelDTO" as DTO
+participant "AircraftModelService" as Service
+participant "AircraftModel" as Domain
+participant "AircraftModelRepository" as Repo
+end box
+database "H2 Database" as DB
+
+Actor -> UI: Inputs Aircraft Model details (manufacturer, modelName, etc.)
+activate UI
+
+UI -> Ctrl: POST /api/aircraft-models (JSON)
+activate Ctrl
+
+Ctrl -> DTO**: creates and @Validates
+activate DTO
+DTO --> Ctrl: dto
+deactivate DTO
+
+Ctrl -> Service: createAircraftModel(dto)
+activate Service
+
+Service -> Domain**: new AircraftModel(manufacturer, modelName, fuelCapacity, maxRange, cruisingSpeed)
+activate Domain
+Domain --> Service: newModel
+deactivate Domain
+
+Service -> Repo: save(newModel)
+activate Repo
+Repo -> DB: INSERT INTO aircraft_model...
+activate DB
+DB --> Repo: Returns saved entity (with ID)
+deactivate DB
+Repo --> Service: savedModel
+deactivate Repo
+
+Service --> Ctrl: savedModel
+deactivate Service
+
+Ctrl --> UI: 201 Created (JSON representation)
+deactivate Ctrl
+
+UI --> Actor: Displays Success Message & Details
+deactivate UI
+
+@enduml

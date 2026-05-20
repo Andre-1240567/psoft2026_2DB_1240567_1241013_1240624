@@ -1,0 +1,43 @@
+@startuml SD_US104
+autonumber
+title Sequence Diagram - US104: Search for Aircraft
+
+actor "ATCC" as Actor
+participant "Postman / UI" as UI
+box "AISafe Backend (Spring Boot)" #LightCyan
+participant "AircraftController" as Ctrl
+participant "AircraftService" as Service
+participant "AircraftRepository" as Repo
+end box
+database "H2 Database" as DB
+
+Actor -> UI: Inputs search criteria (model, status, or year)
+activate UI
+
+UI -> Ctrl: GET /api/aircrafts?model={m}&status={s}&year={y}
+activate Ctrl
+
+Ctrl -> Service: searchAircraft(model, status, year)
+activate Service
+
+Service -> Repo: findByModelOrStatusOrYear(model, status, year)
+activate Repo
+
+Repo -> DB: SELECT * FROM aircraft WHERE model_name=? OR status=? OR ...
+activate DB
+DB --> Repo: List of Aircraft records
+deactivate DB
+
+Repo --> Service: List<Aircraft>
+deactivate Repo
+
+Service --> Ctrl: List<Aircraft>
+deactivate Service
+
+Ctrl --> UI: 200 OK (JSON array representation)
+deactivate Ctrl
+
+UI --> Actor: Displays List of matching Aircraft
+deactivate UI
+
+@enduml

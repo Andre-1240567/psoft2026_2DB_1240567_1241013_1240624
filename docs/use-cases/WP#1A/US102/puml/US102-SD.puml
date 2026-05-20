@@ -1,0 +1,66 @@
+@startuml SD_US102
+autonumber
+title Sequence Diagram - US102: Register a Specific Aircraft Instance
+
+actor "Air Transport Company Collaborator (ATCC)" as Actor
+participant "Postman / UI" as UI
+box "AISafe Backend (Spring Boot)" #LightCyan
+participant "AircraftController" as Ctrl
+participant "CreateAircraftDTO" as DTO
+participant "AircraftService" as Service
+participant "AircraftModelRepository" as ModelRepo
+participant "Aircraft" as Domain
+participant "AircraftRepository" as Repo
+end box
+database "H2 Database" as DB
+
+Actor -> UI: Inputs Aircraft details (registrationNumber, modelName, etc.)
+activate UI
+
+UI -> Ctrl: POST /api/aircrafts (JSON)
+activate Ctrl
+
+Ctrl -> DTO**: creates and @Validates
+activate DTO
+DTO --> Ctrl: dto
+deactivate DTO
+
+Ctrl -> Service: createAircraft(dto)
+activate Service
+
+' The crucial step: Find the existing Aircraft Model
+Service -> ModelRepo: findByModelName(dto.modelName)
+activate ModelRepo
+ModelRepo -> DB: SELECT * FROM aircraft_model WHERE model_name = ?
+activate DB
+DB --> ModelRepo: AircraftModel record
+deactivate DB
+ModelRepo --> Service: aircraftModel
+deactivate ModelRepo
+
+' Create the physical Aircraft entity
+Service -> Domain**: new Aircraft(registrationNumber, aircraftModel, manufacturingDate, activeConfigurationName)
+activate Domain
+Domain --> Service: newAircraft
+deactivate Domain
+
+' Save to the database
+Service -> Repo: save(newAircraft)
+activate Repo
+Repo -> DB: INSERT INTO aircraft...
+activate DB
+DB --> Repo: Returns saved entity
+deactivate DB
+Repo --> Service: savedAircraft
+deactivate Repo
+
+Service --> Ctrl: savedAircraft
+deactivate Service
+
+Ctrl --> UI: 201 Created (JSON representation)
+deactivate Ctrl
+
+UI --> Actor: Displays Success Message & Details
+deactivate UI
+
+@enduml

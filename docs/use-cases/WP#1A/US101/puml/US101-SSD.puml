@@ -1,0 +1,17 @@
+@startuml SSD_US101
+autonumber
+title System Sequence Diagram (SSD) - US101: Register an Aircraft Model
+
+actor "Backoffice Operator" as Operator
+participant "AISafe System" as System <<System>>
+
+activate Operator
+
+Operator -> System: inputs new aircraft model details (manufacturer, modelName, fuelCapacity, maxRange, cruisingSpeed)
+activate System
+
+System --> Operator: validates data, registers the model and returns success confirmation (201 Created)
+deactivate System
+
+deactivate Operator
+@enduml
