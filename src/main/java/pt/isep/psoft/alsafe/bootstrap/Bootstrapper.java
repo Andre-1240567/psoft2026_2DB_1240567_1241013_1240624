@@ -9,13 +9,18 @@ import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Location;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
+import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
+import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftModelRepository;
+
 @Component
 public class Bootstrapper implements CommandLineRunner {
 
     private final AirportRepository airportRepository;
-    
-    public Bootstrapper(AirportRepository airportRepository) {
+    private final AircraftModelRepository aircraftModelRepository;
+
+    public Bootstrapper(AirportRepository airportRepository, AircraftModelRepository aircraftModelRepository) {
         this.airportRepository = airportRepository;
+        this.aircraftModelRepository = aircraftModelRepository;
     }
 
     @Override
@@ -23,8 +28,9 @@ public class Bootstrapper implements CommandLineRunner {
         System.out.println("Launching Bootstrapper...");
         bootstrapAirports();
         bootstrapFlightRoutes();
+        bootstrapAircraftModels();
         bootstrapAircrafts();
-        System.out.println("Bootstraper deployed!");
+        System.out.println("Bootstrapper deployed!");
     }
 
     private void bootstrapAirports() {
@@ -37,8 +43,18 @@ public class Bootstrapper implements CommandLineRunner {
 
             Location locMad = new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.4719, -3.5626));
             airportRepository.save(new Airport(new IATACode("MAD"), "Barajas", locMad));
-            
+
             System.out.println(" -> Airports loaded.");
+        }
+    }
+
+    private void bootstrapAircraftModels() {
+        if (aircraftModelRepository.count() == 0) {
+            aircraftModelRepository.save(new AircraftModel("Boeing", "737 MAX", 26000.0, 6500.0, 840.0));
+            aircraftModelRepository.save(new AircraftModel("Airbus", "A320neo", 24000.0, 6300.0, 828.0));
+            aircraftModelRepository.save(new AircraftModel("Boeing", "777X", 35000.0, 8000.0, 900.0));
+
+            System.out.println(" -> Aircraft Models loaded.");
         }
     }
 
