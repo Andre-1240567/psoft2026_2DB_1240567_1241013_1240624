@@ -1,0 +1,43 @@
+@startuml SD_US103
+autonumber
+title Sequence Diagram - US103: View Aircraft Details
+
+actor "Backoffice Operator / ATCC" as Actor
+participant "Postman / UI" as UI
+box "AISafe Backend (Spring Boot)" #LightCyan
+participant "AircraftController" as Ctrl
+participant "AircraftService" as Service
+participant "AircraftRepository" as Repo
+end box
+database "H2 Database" as DB
+
+Actor -> UI: Inputs registration number (e.g., "CS-TPA")
+activate UI
+
+UI -> Ctrl: GET /api/aircrafts/{registrationNumber}
+activate Ctrl
+
+Ctrl -> Service: getAircraftByRegistration(registrationNumber)
+activate Service
+
+Service -> Repo: findByRegistrationNumber(registrationNumber)
+activate Repo
+
+Repo -> DB: SELECT * FROM aircraft WHERE registration_number = ?
+activate DB
+DB --> Repo: Aircraft record (with AircraftModel details)
+deactivate DB
+
+Repo --> Service: aircraft Entity
+deactivate Repo
+
+Service --> Ctrl: aircraft Entity
+deactivate Service
+
+Ctrl --> UI: 200 OK (JSON representation)
+deactivate Ctrl
+
+UI --> Actor: Displays Aircraft Details
+deactivate UI
+
+@enduml

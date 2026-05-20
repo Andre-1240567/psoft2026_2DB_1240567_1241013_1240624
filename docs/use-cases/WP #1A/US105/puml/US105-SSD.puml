@@ -1,0 +1,17 @@
+@startuml SSD_US105
+autonumber
+title System Sequence Diagram (SSD) - US105: Update Aircraft Operational Status
+
+actor "ATCC" as Actor
+participant "AISafe System" as System <<System>>
+
+activate Actor
+
+Actor -> System: requests to update the operational status of a specific aircraft (registration number, new status)
+activate System
+
+System --> Actor: validates data, updates the status, and returns success confirmation (200 OK)
+deactivate System
+
+deactivate Actor
+@enduml

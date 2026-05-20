@@ -5,9 +5,11 @@ import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+
 @Getter
 @Entity
 public class Airport {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -15,12 +17,11 @@ public class Airport {
     @Embedded
     private Location location;
 
-    @Embedded
-    private Runway runway;
-
-    @JoinColumn(name = "airport_id")
     @ElementCollection
-    @CollectionTable(name = "Runways")
+    @CollectionTable(
+            name = "airport_runways",
+            joinColumns = @JoinColumn(name = "airport_id")
+    )
     private List<Runway> runways = new ArrayList<>();
 
     @Embedded
@@ -34,13 +35,17 @@ public class Airport {
     protected Airport() {}
 
     public Airport(IATACode code, String name, Location location){
+        if(code == null || name == null || location == null){
+            throw new IllegalArgumentException("IATA Code, name and location cannot be null.");
+        }
         this.iataCode = code;
         this.name = name;
         this.location = location;
     }
+
     public void addRunway(Runway runway){
         if(runway == null){
-            throw new IllegalArgumentException("Runway cannot be null");
+            throw new IllegalArgumentException("Runway cannot be null.");
         }
         this.runways.add(runway);
     }
