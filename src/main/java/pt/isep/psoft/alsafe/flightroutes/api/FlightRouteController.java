@@ -1,60 +1,104 @@
 package pt.isep.psoft.alsafe.flightroutes.api;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 
-// O @RestController avisa o Spring Boot que esta classe vai lidar com pedidos HTTP (web)
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/flight-routes") // Este é o URL base para todas as operações com rotas
+@RequestMapping("/api/flight-routes")
 public class FlightRouteController {
 
     private final FlightRouteService flightRouteService;
 
-    // Injetamos o nosso "cérebro" (Service) aqui dentro
     public FlightRouteController(FlightRouteService flightRouteService) {
         this.flightRouteService = flightRouteService;
     }
 
-    // O @PostMapping diz que este método vai responder quando alguém fizer um HTTP POST
+    // --- US110: Criar Rota ---
     @PostMapping
-    public ResponseEntity<?> createRoute(@RequestBody CreateFlightRouteDTO dto) {
+    public ResponseEntity<?> createRoute(@Valid @RequestBody CreateFlightRouteDTO dto) {
         try {
-            // Tentamos criar a rota chamando o Service
             FlightRoute newRoute = flightRouteService.createFlightRoute(dto);
-            
-            // Se correr tudo bem, devolvemos a rota criada com o status HTTP 201 (Created)
-            return new ResponseEntity<>(newRoute, HttpStatus.CREATED);
-            
+            return new ResponseEntity<>(new FlightRouteResponseDTO(newRoute), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            // O enunciado exige o tratamento apropriado de erros e status codes. 
-            // Se o aeroporto não existir ou os dados forem inválidos (ex: capacidade <= 0), 
-            // apanhamos a exceção e devolvemos um HTTP 400 (Bad Request) com a mensagem de erro.
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", e.getMessage()));
         }
     }
 
-    // O @PatchMapping com {id} permite-nos ler o ID a partir do URL (ex: /api/flight-routes/123/deactivate)
+    // --- US112: Desativar Rota ---
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<?> deactivateRoute(@PathVariable("id") String routeId) {
         try {
             FlightRoute updatedRoute = flightRouteService.deactivateRoute(routeId);
-            return ResponseEntity.ok(updatedRoute); // Devolve status 200 OK
+            return ResponseEntity.ok(new FlightRouteResponseDTO(updatedRoute));
         } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", e.getMessage()));
         }
     }
 
-    // O @PutMapping recebe o ID no URL e os novos dados no "Body" (JSON)
+    // --- US112: Atualizar Rota ---
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateRoute(@PathVariable("id") String routeId, @RequestBody UpdateFlightRouteDTO dto) {
+    public ResponseEntity<?> updateRoute(@PathVariable("id") String routeId, @Valid @RequestBody UpdateFlightRouteDTO dto) {
         try {
             FlightRoute updatedRoute = flightRouteService.updateRoute(routeId, dto);
-            return ResponseEntity.ok(updatedRoute);
-        } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.ok(new FlightRouteResponseDTO(updatedRoute));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", e.getMessage())); 
         }
+    }
+
+    // --- US113: Ver detalhes por ID ---
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getRouteById(@PathVariable("id") String routeId) {
+        try {
+            FlightRoute route = flightRouteService.getRouteById(routeId);
+            return ResponseEntity.ok(new FlightRouteResponseDTO(route));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<FlightRouteResponseDTO>> searchRoutes(
+            @RequestParam(required = false) String originIata,
+            @RequestParam(required = false) String destinationIata,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        // 1. Criamos as instruções de paginação a partir dos parâmetros do URL
+        Pageable pageable = PageRequest.of(page, size);
+        
+        // 2. Pedimos a "fatia" (Página) ao Service
+        Page<FlightRoute> routePage = flightRouteService.searchRoutes(originIata, destinationIata, pageable);
+        
+        // 3. A classe Page tem um método .map() brilhante que converte as rotas 
+        // para os teus DTOs com HATEOAS, mantendo os dados da paginação intactos!
+        Page<FlightRouteResponseDTO> responsePage = routePage.map(FlightRouteResponseDTO::new);
+
+        return ResponseEntity.ok(responsePage);
+    }
+
+    // Este método "apanha" especificamente os erros gerados pelo @Valid
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        
+        // Vai buscar todas as regras que falharam e extrai o campo e a nossa mensagem
+        ex.getBindingResult().getFieldErrors().forEach(error -> 
+            errors.put(error.getField(), error.getDefaultMessage()));
+            
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 }

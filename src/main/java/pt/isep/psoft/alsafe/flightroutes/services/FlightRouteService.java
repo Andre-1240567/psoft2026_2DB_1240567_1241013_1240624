@@ -10,15 +10,17 @@ import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
 
 import java.util.UUID;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-// O @Service diz ao Spring Boot que esta classe contém a lógica de negócio
 @Service
 public class FlightRouteService {
 
     private final FlightRouteRepository routeRepository;
     private final AirportRepository airportRepository;
 
-    // Injetamos os repositórios para podermos falar com a base de dados
     public FlightRouteService(FlightRouteRepository routeRepository, AirportRepository airportRepository) {
         this.routeRepository = routeRepository;
         this.airportRepository = airportRepository;
@@ -26,54 +28,71 @@ public class FlightRouteService {
 
     public FlightRoute createFlightRoute(CreateFlightRouteDTO dto) {
         
-        // 1. Verificar se o aeroporto de ORIGEM existe
-        // O método findById vai à procura do código IATA (ex: "OPO"). Se não achar, rebenta com erro.
         Airport origin = airportRepository.findById(dto.getOriginIata())
                 .orElseThrow(() -> new IllegalArgumentException("Origin airport not found: " + dto.getOriginIata()));
 
-        // 2. Verificar se o aeroporto de DESTINO existe
         Airport destination = airportRepository.findById(dto.getDestinationIata())
                 .orElseThrow(() -> new IllegalArgumentException("Destination airport not found: " + dto.getDestinationIata()));
 
-        // 3. Criar o Value Object com os Requisitos
         RouteRequirement requirements = new RouteRequirement(dto.getMinRangeRequired(), dto.getMinCapacityRequired());
 
-        // 4. Gerar o tal ID numérico/UUID automático que o stor confirmou no fórum
         String routeId = UUID.randomUUID().toString(); 
 
-        // 5. Instanciar a nova Rota
-        FlightRoute newRoute = new FlightRoute(routeId, origin, destination, 
-                dto.getDistance(), dto.getEstimatedFlightTime(), requirements);
+        // CORREÇÃO 1: Usar a variável 'routeId' gerada em vez de dto.getRouteId()
+        FlightRoute route = new FlightRoute(routeId, origin, destination, 
+                                        dto.getDistance(), dto.getEstimatedFlightTime(), 
+                                        requirements, getCurrentUser());
 
-        // 6. Guardar na Base de Dados e devolver o resultado
-        return routeRepository.save(newRoute);
-        
+        // CORREÇÃO 2: Gravar a variável 'route' (e não 'newRoute')
+        return routeRepository.save(route);
     }
 
     public FlightRoute deactivateRoute(String routeId) {
-        // 1. Procurar a rota pelo ID
         FlightRoute route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Flight Route not found: " + routeId));
 
-        // 2. Mandar a entidade mudar o seu estado e registar o histórico
-        route.deactivate();
+        route.deactivate(getCurrentUser());
 
-        // 3. Gravar as alterações (o Spring deteta o que mudou e faz o UPDATE na base de dados)
         return routeRepository.save(route);
     }
 
     public FlightRoute updateRoute(String routeId, UpdateFlightRouteDTO dto) {
-        // 1. Procurar a rota
         FlightRoute route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new IllegalArgumentException("Flight Route not found: " + routeId));
 
-        // 2. Criar os novos requisitos
+        if (dto.getVersion() == null || !route.getVersion().equals(dto.getVersion())) {
+            throw new IllegalStateException("Conflito de Concorrência: A rota foi alterada por outro utilizador entretanto. Atualize a página e tente novamente.");
+        }
+
         RouteRequirement newRequirements = new RouteRequirement(dto.getMinRangeRequired(), dto.getMinCapacityRequired());
 
-        // 3. Atualizar a entidade
-        route.updateDetails(dto.getDistance(), dto.getEstimatedFlightTime(), newRequirements);
+        route.updateDetails(dto.getDistance(), dto.getEstimatedFlightTime(), newRequirements, getCurrentUser());
 
-        // 4. Gravar
         return routeRepository.save(route);
+    }
+
+    public FlightRoute getRouteById(String routeId) {
+        return routeRepository.findById(routeId)
+                .orElseThrow(() -> new IllegalArgumentException("Flight Route not found: " + routeId));
+    }
+
+    public Page<FlightRoute> searchRoutes(String originIata, String destinationIata, Pageable pageable) {
+        if (originIata != null && destinationIata != null) {
+            return routeRepository.findByOrigin_IataCodeAndDestination_IataCode(originIata, destinationIata, pageable);
+        } else if (originIata != null) {
+            return routeRepository.findByOrigin_IataCode(originIata, pageable);
+        } else if (destinationIata != null) {
+            return routeRepository.findByDestination_IataCode(destinationIata, pageable);
+        } else {
+            return routeRepository.findAll(pageable); 
+        }
+    }
+
+    private String getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
+            return auth.getName(); 
+        }
+        return "Sistema"; 
     }
 }

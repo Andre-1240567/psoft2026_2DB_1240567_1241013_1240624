@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-// @Embeddable diz que isto não é uma tabela independente, mas sim um objeto que pertence à Rota
 @Embeddable
 @Getter
 @NoArgsConstructor
@@ -14,9 +13,11 @@ public class RouteHistory {
     
     private LocalDateTime changeDate;
     private String description;
+    private String author;
 
-    public RouteHistory(String description) {
-        this.changeDate = LocalDateTime.now(); // Fica com a data e hora exata deste momento
+    public RouteHistory(String description, String author) {
+        this.changeDate = LocalDateTime.now();
         this.description = description;
+        this.author = author;
     }
 }

@@ -22,6 +22,9 @@ public class FlightRoute {
     @ManyToOne(optional = false)
     private Airport destination;
 
+    @Version
+    private Long version;
+
     private Double distance;
     
     private Integer estimatedFlightTime;
@@ -38,7 +41,7 @@ public class FlightRoute {
 
     public FlightRoute(String routeId, Airport origin, Airport destination, 
                        Double distance, Integer estimatedFlightTime, 
-                       RouteRequirement routeRequirement) {
+                       RouteRequirement routeRequirement, String author) {
         
         if (origin.getIataCode().equals(destination.getIataCode())) {
             throw new IllegalArgumentException("A origem e o destino não podem ser o mesmo aeroporto.");
@@ -52,32 +55,31 @@ public class FlightRoute {
         this.routeRequirement = routeRequirement;
         this.routeStatus = RouteStatus.ACTIVE;
         
-        // Sempre que a rota nasce, adicionamos o primeiro registo ao histórico!
-        this.addHistory("Flight Route created.");
+        // Passa o autor para o histórico inicial
+        this.addHistory("Flight Route created.", author);
     }
-
     // Método auxiliar para o futuro (US112) podermos adicionar novos registos facilmente
-    public void addHistory(String description) {
-        this.history.add(new RouteHistory(description));
+    public void addHistory(String description, String author) {
+        this.history.add(new RouteHistory(description, author));
     }
 
-    public void deactivate() {
+    public void deactivate(String author) {
         if (this.routeStatus == RouteStatus.DEACTIVATED) {
-            throw new IllegalStateException("The route is already deactivated");
+            throw new IllegalStateException("A rota já se encontra desativada.");
         }
         this.routeStatus = RouteStatus.DEACTIVATED;
-        this.addHistory("Flight Route deactivated.");
+        this.addHistory("Flight Route deactivated.", author);
     }
 
-    public void updateDetails(Double distance, Integer estimatedFlightTime, RouteRequirement routeRequirement) {
+    public void updateDetails(Double distance, Integer estimatedFlightTime, RouteRequirement routeRequirement, String author) {
         if (this.routeStatus == RouteStatus.DEACTIVATED) {
-            throw new IllegalStateException("You can't update a deactivated Route");
+            throw new IllegalStateException("Não podes atualizar uma rota desativada.");
         }
         
         this.distance = distance;
         this.estimatedFlightTime = estimatedFlightTime;
         this.routeRequirement = routeRequirement;
         
-        this.addHistory("Flight Route details updated."); // Histórico a trabalhar pra nós!
+        this.addHistory("Flight Route details updated.", author);
     }
 }
