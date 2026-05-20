@@ -1,21 +1,26 @@
 package pt.isep.psoft.alsafe.flightroutes.domain;
 
 import org.junit.jupiter.api.Test;
-import pt.isep.psoft.alsafe.airports.domain.Airport;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
+import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
+import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
+import pt.isep.psoft.alsafe.airportmanagement.domain.Location;
 
 class FlightRouteTest {
 
+    private Airport createFakeAirport(String iata) {
+        return new Airport(new IATACode(iata), "Fake Airport", 
+               new Location("Reg", "Country", "City", new GPSCoordinates(0.0, 0.0)));
+    }
+
     @Test
     void ensureOriginAndDestinationCannotBeTheSame() {
-        // Arrange
-        Airport porto = new Airport("OPO");
+        Airport porto = createFakeAirport("OPO");
         RouteRequirement req = new RouteRequirement(1500.0, 100);
 
-        // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            // Tentamos criar uma rota do Porto para... o Porto!
             new FlightRoute("route-123", porto, porto, 0.0, 0, req, "atcc_jose");
         });
 
@@ -24,18 +29,14 @@ class FlightRouteTest {
 
     @Test
     void ensureDeactivatedRouteCannotBeUpdated() {
-        // Arrange
-        Airport origin = new Airport("OPO");
-        Airport destination = new Airport("LIS");
+        Airport origin = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
         RouteRequirement req = new RouteRequirement(1500.0, 100);
         FlightRoute route = new FlightRoute("route-123", origin, destination, 300.0, 45, req, "atcc_jose");
 
-        // Act
-        route.deactivate("atcc_jose"); // Desativamos a rota primeiro
+        route.deactivate("atcc_jose"); 
 
-        // Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> {
-            // Tentamos atualizar uma rota que já está morta
             route.updateDetails(350.0, 50, req, "atcc_jose");
         });
 

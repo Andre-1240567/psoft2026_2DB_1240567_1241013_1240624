@@ -3,7 +3,7 @@ package pt.isep.psoft.alsafe.flightroutes.domain;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import pt.isep.psoft.alsafe.airports.domain.Airport;
+import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +35,6 @@ public class FlightRoute {
     @Enumerated(EnumType.STRING)
     private RouteStatus routeStatus;
 
-    // @ElementCollection cria uma tabela extra na base de dados (flight_route_history) automaticamente
     @ElementCollection
     private List<RouteHistory> history = new ArrayList<>();
 
@@ -43,7 +42,7 @@ public class FlightRoute {
                        Double distance, Integer estimatedFlightTime, 
                        RouteRequirement routeRequirement, String author) {
         
-        if (origin.getIataCode().equals(destination.getIataCode())) {
+        if (origin.getIataCode().getCode().equals(destination.getIataCode().getCode())) {
             throw new IllegalArgumentException("A origem e o destino não podem ser o mesmo aeroporto.");
         }
 
@@ -55,10 +54,9 @@ public class FlightRoute {
         this.routeRequirement = routeRequirement;
         this.routeStatus = RouteStatus.ACTIVE;
         
-        // Passa o autor para o histórico inicial
         this.addHistory("Flight Route created.", author);
     }
-    // Método auxiliar para o futuro (US112) podermos adicionar novos registos facilmente
+
     public void addHistory(String description, String author) {
         this.history.add(new RouteHistory(description, author));
     }

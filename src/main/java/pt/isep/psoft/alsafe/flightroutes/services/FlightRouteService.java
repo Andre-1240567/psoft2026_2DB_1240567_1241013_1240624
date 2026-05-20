@@ -1,8 +1,9 @@
 package pt.isep.psoft.alsafe.flightroutes.services;
 
 import org.springframework.stereotype.Service;
-import pt.isep.psoft.alsafe.airports.domain.Airport;
-import pt.isep.psoft.alsafe.airports.repositories.AirportRepository;
+import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
+import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
+
 import pt.isep.psoft.alsafe.flightroutes.api.CreateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.api.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
@@ -28,22 +29,20 @@ public class FlightRouteService {
 
     public FlightRoute createFlightRoute(CreateFlightRouteDTO dto) {
         
-        Airport origin = airportRepository.findById(dto.getOriginIata())
+        Airport origin = airportRepository.findByIataCode_Code(dto.getOriginIata())
                 .orElseThrow(() -> new IllegalArgumentException("Origin airport not found: " + dto.getOriginIata()));
 
-        Airport destination = airportRepository.findById(dto.getDestinationIata())
+        Airport destination = airportRepository.findByIataCode_Code(dto.getDestinationIata())
                 .orElseThrow(() -> new IllegalArgumentException("Destination airport not found: " + dto.getDestinationIata()));
 
         RouteRequirement requirements = new RouteRequirement(dto.getMinRangeRequired(), dto.getMinCapacityRequired());
 
         String routeId = UUID.randomUUID().toString(); 
 
-        // CORREÇÃO 1: Usar a variável 'routeId' gerada em vez de dto.getRouteId()
         FlightRoute route = new FlightRoute(routeId, origin, destination, 
                                         dto.getDistance(), dto.getEstimatedFlightTime(), 
                                         requirements, getCurrentUser());
 
-        // CORREÇÃO 2: Gravar a variável 'route' (e não 'newRoute')
         return routeRepository.save(route);
     }
 
@@ -78,11 +77,11 @@ public class FlightRouteService {
 
     public Page<FlightRoute> searchRoutes(String originIata, String destinationIata, Pageable pageable) {
         if (originIata != null && destinationIata != null) {
-            return routeRepository.findByOrigin_IataCodeAndDestination_IataCode(originIata, destinationIata, pageable);
+            return routeRepository.findByOrigin_IataCode_CodeAndDestination_IataCode_Code(originIata, destinationIata, pageable);
         } else if (originIata != null) {
-            return routeRepository.findByOrigin_IataCode(originIata, pageable);
+            return routeRepository.findByOrigin_IataCode_Code(originIata, pageable);
         } else if (destinationIata != null) {
-            return routeRepository.findByDestination_IataCode(destinationIata, pageable);
+            return routeRepository.findByDestination_IataCode_Code(destinationIata, pageable);
         } else {
             return routeRepository.findAll(pageable); 
         }
@@ -93,6 +92,6 @@ public class FlightRouteService {
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
             return auth.getName(); 
         }
-        return "Sistema"; 
+        return "System"; 
     }
 }
