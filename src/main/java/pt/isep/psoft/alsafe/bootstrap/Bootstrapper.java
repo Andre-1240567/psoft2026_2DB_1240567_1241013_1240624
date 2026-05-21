@@ -12,23 +12,32 @@ import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
 import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftModelRepository;
 
+import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
+import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
+import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
+import java.util.UUID;
+
 @Component
 public class Bootstrapper implements CommandLineRunner {
 
     private final AirportRepository airportRepository;
     private final AircraftModelRepository aircraftModelRepository;
+    private final FlightRouteRepository flightRouteRepository;
 
-    public Bootstrapper(AirportRepository airportRepository, AircraftModelRepository aircraftModelRepository) {
+    public Bootstrapper(AirportRepository airportRepository, 
+                        AircraftModelRepository aircraftModelRepository,
+                        FlightRouteRepository flightRouteRepository) { 
         this.airportRepository = airportRepository;
         this.aircraftModelRepository = aircraftModelRepository;
+        this.flightRouteRepository = flightRouteRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Launching Bootstrapper...");
         bootstrapAirports();
-        bootstrapFlightRoutes();
         bootstrapAircraftModels();
+        bootstrapFlightRoutes();
         bootstrapAircrafts();
         System.out.println("Bootstrapper deployed!");
     }
@@ -58,7 +67,30 @@ public class Bootstrapper implements CommandLineRunner {
         }
     }
 
-    private void bootstrapFlightRoutes() {}
+    private void bootstrapFlightRoutes() {
+        if (flightRouteRepository.count() == 0) {
+            Airport opo = airportRepository.findByIataCode_Code("OPO").orElseThrow();
+            Airport lis = airportRepository.findByIataCode_Code("LIS").orElseThrow();
+            Airport mad = airportRepository.findByIataCode_Code("MAD").orElseThrow();
+
+            // Route 1: Porto -> Lisbon
+            RouteRequirement req1 = new RouteRequirement(350.0, 100);
+            FlightRoute route1 = new FlightRoute(UUID.randomUUID().toString(), opo, lis, 277.0, 45, req1, "Bootstrapper");
+            flightRouteRepository.save(route1);
+
+            // Route 2: Lisbon -> Madrid
+            RouteRequirement req2 = new RouteRequirement(600.0, 150);
+            FlightRoute route2 = new FlightRoute(UUID.randomUUID().toString(), lis, mad, 502.0, 80, req2, "Bootstrapper");
+            flightRouteRepository.save(route2);
+
+            // Route 3: Madrid -> Porto
+            RouteRequirement req3 = new RouteRequirement(500.0, 120);
+            FlightRoute route3 = new FlightRoute(UUID.randomUUID().toString(), mad, opo, 420.0, 70, req3, "Bootstrapper");
+            flightRouteRepository.save(route3);
+
+            System.out.println(" -> Flight Routes loaded.");
+        }
+    }
 
     private void bootstrapAircrafts() {}
 }

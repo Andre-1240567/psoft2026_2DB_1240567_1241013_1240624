@@ -1,0 +1,317 @@
+{
+  "info": {
+    "_postman_id": "1e8f50c7-6519-4d83-a9fe-46660dd982a8",
+    "name": "WP#3A",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55038069",
+    "_collection_link": "https://go.postman.co/collection/55038069-1e8f50c7-6519-4d83-a9fe-46660dd982a8?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "TEST POST - Correct",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// 1. O status HTTP tem de ser 201 (Created)\r",
+              "pm.test(\"Status is 201 Created\", function () {\r",
+              "    pm.response.to.have.status(201);\r",
+              "});\r",
+              "\r",
+              "// 2. Garantir que a resposta tem a estrutura correta (HATEOAS)\r",
+              "pm.test(\"Response contains _links and data\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData).to.have.property('data');\r",
+              "    pm.expect(jsonData).to.have.property('_links');\r",
+              "});\r",
+              "\r",
+              "// 3. MAGIA: Guardar o ID e a Versão criados para usar nos próximos testes!\r",
+              "if (pm.response.code === 201) {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.environment.set(\"routeId\", jsonData.data.routeId);\r",
+              "    pm.environment.set(\"routeVersion\", jsonData.data.version);\r",
+              "    console.log(\"ID da rota guardado: \" + jsonData.data.routeId);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"originIata\": \"OPO\",\r\n    \"destinationIata\": \"LIS\",\r\n    \"distance\": 280.5,\r\n    \"estimatedFlightTime\": 45,\r\n    \"minRangeRequired\": 350.0,\r\n    \"minCapacityRequired\": 100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/flight-routes",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "flight-routes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TEST POST - Error",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "// 1. Aqui esperamos um 400 Bad Request porque a regra de negócio falhou\r",
+              "pm.test(\"Status is 400 Bad Request\", function () {\r",
+              "    pm.response.to.have.status(400);\r",
+              "});\r",
+              "\r",
+              "// 2. Garantir que a mensagem de erro é a correta\r",
+              "pm.test(\"Error message is correct\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.erro).to.eql(\"A origem e o destino não podem ser o mesmo aeroporto.\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"originIata\": \"OPO\",\r\n    \"destinationIata\": \"OPO\",\r\n    \"distance\": 280.5,\r\n    \"estimatedFlightTime\": 45,\r\n    \"minRangeRequired\": 350.0,\r\n    \"minCapacityRequired\": 100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/flight-routes",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "flight-routes"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TEST GET",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Contains Paginated Data\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    \r",
+              "    // Verifica se a lista de elementos existe\r",
+              "    pm.expect(jsonData).to.have.property('content');\r",
+              "    \r",
+              "    // Verifica se os dados da paginação estão corretos\r",
+              "    pm.expect(jsonData.pageable.pageSize).to.eql(5);\r",
+              "    pm.expect(jsonData.pageable.pageNumber).to.eql(0);\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/flight-routes?originIata=opo&page=0&size=5",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "flight-routes"
+          ],
+          "query": [
+            {
+              "key": "originIata",
+              "value": "opo"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TEST PUT",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK after Update\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Distance was updated successfully\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.data.distance).to.eql(300.0);\r",
+              "    pm.expect(jsonData.data.estimatedFlightTime).to.eql(50);\r",
+              "});\r",
+              "\r",
+              "if (pm.response.code === 200) {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.environment.set(\"routeVersion\", jsonData.data.version);\r",
+              "    console.log(\"Nova versão guardada: \" + jsonData.data.version);\r",
+              "}\r",
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"distance\": 300.0,\r\n    \"estimatedFlightTime\": 50,\r\n    \"minRangeRequired\": 400.0,\r\n    \"minCapacityRequired\": 120,\r\n    \"version\": {{routeVersion}}\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/flight-routes/{{routeId}}",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "TEST PATCH",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK after Deactivation\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Route Status changed to DEACTIVATED\", function () {\r",
+              "    var jsonData = pm.response.json();\r",
+              "    pm.expect(jsonData.data.routeStatus).to.eql(\"DEACTIVATED\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/flight-routes/{{routeId}}/deactivate",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}",
+            "deactivate"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

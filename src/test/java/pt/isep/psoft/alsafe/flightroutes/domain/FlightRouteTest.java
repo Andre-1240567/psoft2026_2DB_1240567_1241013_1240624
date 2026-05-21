@@ -24,7 +24,7 @@ class FlightRouteTest {
             new FlightRoute("route-123", porto, porto, 0.0, 0, req, "atcc_jose");
         });
 
-        assertEquals("A origem e o destino não podem ser o mesmo aeroporto.", exception.getMessage());
+        assertEquals("The origin and destination cannot be from the same airport", exception.getMessage());
     }
 
     @Test
@@ -40,6 +40,6 @@ class FlightRouteTest {
             route.updateDetails(350.0, 50, req, "atcc_jose");
         });
 
-        assertEquals("Não podes atualizar uma rota desativada.", exception.getMessage());
+        assertEquals("You cannot update a deactivated route.", exception.getMessage());
     }
 }

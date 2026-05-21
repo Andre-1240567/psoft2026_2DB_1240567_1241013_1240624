@@ -1,0 +1,22 @@
+{
+	"id": "85903522-22af-4039-86a2-8746d2348bcc",
+	"name": "New Environment",
+	"values": [
+		{
+			"key": "routeId",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		},
+		{
+			"key": "routeVersion",
+			"value": "",
+			"type": "any",
+			"enabled": true
+		}
+	],
+	"color": null,
+	"_postman_variable_scope": "environment",
+	"_postman_exported_at": "2026-05-21T01:40:49.379Z",
+	"_postman_exported_using": "Postman/12.11.3-260520-0232"
+}

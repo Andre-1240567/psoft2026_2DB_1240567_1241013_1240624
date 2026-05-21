@@ -14,11 +14,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // desligar o CSRF é obrigatório para conseguirmos fazer pedidos POST sem tokens via Postman!
-            // thanks to Diogo lmao
             .csrf(AbstractHttpConfigurer::disable) 
             
-            // Isto diz ao Spring "Por agora, deixa passar qualquer pedido HTTP" (teste)
+            // For now, this makes Spring think "let any HTTP request come through" (testing)
             .authorizeHttpRequests(auth -> auth
                 .anyRequest().permitAll() 
             );

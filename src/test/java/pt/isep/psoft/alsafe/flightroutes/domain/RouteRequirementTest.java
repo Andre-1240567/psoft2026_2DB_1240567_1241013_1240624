@@ -7,21 +7,18 @@ class RouteRequirementTest {
 
     @Test
     void ensureMustHavePositiveRangeAndCapacity() {
-        // Arrange (Preparar) - Nada a preparar de especial neste caso
+        // Arrange - Nothing to Arrange in this particular case
         
-        // Act & Assert (Agir e Verificar)
-        // O assertThrows verifica se o nosso código realmente atira a Exceção certa quando enviamos zeros ou negativos!
+        // Act & Assert 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            new RouteRequirement(0.0, -10); // Lotação de -10 pessoas!
+            new RouteRequirement(0.0, -10);
         });
 
-        // Verificar se a mensagem de erro que o sistema deita para fora é a correta
         assertEquals("O alcance e a capacidade devem ser maiores que zero.", exception.getMessage());
     }
 
     @Test
     void ensureValidRequirementsAreCreated() {
-        // AssertDoesNotThrow garante que se mandarmos valores normais, o objeto é criado em paz
         assertDoesNotThrow(() -> {
             new RouteRequirement(1500.0, 100);
         });

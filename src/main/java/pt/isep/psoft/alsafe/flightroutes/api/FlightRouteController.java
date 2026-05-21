@@ -24,49 +24,49 @@ public class FlightRouteController {
         this.flightRouteService = flightRouteService;
     }
 
-    // --- US110: Criar Rota ---
+    // --- US110: Create Route ---
     @PostMapping
     public ResponseEntity<?> createRoute(@Valid @RequestBody CreateFlightRouteDTO dto) {
         try {
             FlightRoute newRoute = flightRouteService.createFlightRoute(dto);
             return new ResponseEntity<>(new FlightRouteResponseDTO(newRoute), HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 
-    // --- US112: Desativar Rota ---
+    // --- US112: Deactivate Route ---
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<?> deactivateRoute(@PathVariable("id") String routeId) {
         try {
             FlightRoute updatedRoute = flightRouteService.deactivateRoute(routeId);
             return ResponseEntity.ok(new FlightRouteResponseDTO(updatedRoute));
         } catch (IllegalArgumentException | IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         }
     }
 
-    // --- US112: Atualizar Rota ---
+    // --- US112: Update Route ---
     @PutMapping("/{id}")
     public ResponseEntity<?> updateRoute(@PathVariable("id") String routeId, @Valid @RequestBody UpdateFlightRouteDTO dto) {
         try {
             FlightRoute updatedRoute = flightRouteService.updateRoute(routeId, dto);
             return ResponseEntity.ok(new FlightRouteResponseDTO(updatedRoute));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("erro", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("erro", e.getMessage())); 
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", e.getMessage())); 
         }
     }
 
-    // --- US113: Ver detalhes por ID ---
+    // --- US113: See Details of Route by ID ---
     @GetMapping("/{id}")
     public ResponseEntity<?> getRouteById(@PathVariable("id") String routeId) {
         try {
             FlightRoute route = flightRouteService.getRouteById(routeId);
             return ResponseEntity.ok(new FlightRouteResponseDTO(route));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("erro", e.getMessage()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
 
@@ -77,25 +77,19 @@ public class FlightRouteController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         
-        // 1. Criamos as instruções de paginação a partir dos parâmetros do URL
         Pageable pageable = PageRequest.of(page, size);
         
-        // 2. Pedimos a "fatia" (Página) ao Service
         Page<FlightRoute> routePage = flightRouteService.searchRoutes(originIata, destinationIata, pageable);
         
-        // 3. A classe Page tem um método .map() brilhante que converte as rotas 
-        // para os teus DTOs com HATEOAS, mantendo os dados da paginação intactos!
         Page<FlightRouteResponseDTO> responsePage = routePage.map(FlightRouteResponseDTO::new);
 
         return ResponseEntity.ok(responsePage);
     }
 
-    // Este método "apanha" especificamente os erros gerados pelo @Valid
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         
-        // Vai buscar todas as regras que falharam e extrai o campo e a nossa mensagem
         ex.getBindingResult().getFieldErrors().forEach(error -> 
             errors.put(error.getField(), error.getDefaultMessage()));
             

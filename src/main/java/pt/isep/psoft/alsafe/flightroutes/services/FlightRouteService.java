@@ -76,6 +76,7 @@ public class FlightRouteService {
     }
 
     public Page<FlightRoute> searchRoutes(String originIata, String destinationIata, Pageable pageable) {
+        if (originIata != null) originIata = originIata.toUpperCase();
         if (originIata != null && destinationIata != null) {
             return routeRepository.findByOrigin_IataCode_CodeAndDestination_IataCode_Code(originIata, destinationIata, pageable);
         } else if (originIata != null) {

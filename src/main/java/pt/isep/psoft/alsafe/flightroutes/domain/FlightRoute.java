@@ -43,7 +43,7 @@ public class FlightRoute {
                        RouteRequirement routeRequirement, String author) {
         
         if (origin.getIataCode().getCode().equals(destination.getIataCode().getCode())) {
-            throw new IllegalArgumentException("A origem e o destino não podem ser o mesmo aeroporto.");
+            throw new IllegalArgumentException("The origin and destination cannot be from the same airport.");
         }
 
         this.routeId = routeId;
@@ -63,7 +63,7 @@ public class FlightRoute {
 
     public void deactivate(String author) {
         if (this.routeStatus == RouteStatus.DEACTIVATED) {
-            throw new IllegalStateException("A rota já se encontra desativada.");
+            throw new IllegalStateException("The route is already deactivated.");
         }
         this.routeStatus = RouteStatus.DEACTIVATED;
         this.addHistory("Flight Route deactivated.", author);
@@ -71,7 +71,7 @@ public class FlightRoute {
 
     public void updateDetails(Double distance, Integer estimatedFlightTime, RouteRequirement routeRequirement, String author) {
         if (this.routeStatus == RouteStatus.DEACTIVATED) {
-            throw new IllegalStateException("Não podes atualizar uma rota desativada.");
+            throw new IllegalStateException("You cannot update a disabled route.");
         }
         
         this.distance = distance;
