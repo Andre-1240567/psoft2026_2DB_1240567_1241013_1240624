@@ -1,0 +1,42 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide methods
+
+package "Airport Subdomain (WP2)" {
+    class Airport <<Aggregate Root>> <<Entity>> {
+        - iataCode: IATACode
+        - designation: String
+    }
+}
+
+package "Flight Routes Subdomain (WP3A)" {
+    class FlightRoute <<Aggregate Root>> <<Entity>> {
+        - routeId: String
+        - distance: Double
+        - estimatedFlightTime: Integer
+    }
+
+    class RouteRequirement <<Value Object>> {
+        - minRangeRequired: Double
+        - minCapacityRequired: Integer
+    }
+
+    class RouteHistory <<Value Object>> {
+        - changeDate: LocalDateTime
+        - author: String
+    }
+
+    enum RouteStatus <<Enum>> {
+        ACTIVE
+        DEACTIVATED
+    }
+}
+
+' Relacionamentos Conceptuais de Domínio
+FlightRoute "1" --> "1" Airport : origin >
+FlightRoute "1" --> "1" Airport : destination >
+FlightRoute "1" *-- "1" RouteRequirement : contains >
+FlightRoute "1" *-- "*" RouteHistory : tracks >
+FlightRoute --> "1" RouteStatus : has >
+
+@enduml
