@@ -1,0 +1,49 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "pt.isep.psoft.alsafe.flightroutes.api" {
+    class FlightRouteController {
+        + updateRoute(id: String, dto: UpdateFlightRouteDTO): ResponseEntity
+        + deactivateRoute(id: String): ResponseEntity
+    }
+    class UpdateFlightRouteDTO {
+        - distance: Double
+        - estimatedFlightTime: Integer
+        - minRangeRequired: Double
+        - minCapacityRequired: Integer
+        - version: Long
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.services" {
+    class FlightRouteService {
+        + updateRoute(id: String, dto: UpdateFlightRouteDTO): FlightRoute
+        + deactivateRoute(id: String): FlightRoute
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.repositories" {
+    interface FlightRouteRepository {
+        + findById(id: String): Optional<FlightRoute>
+        + save(route: FlightRoute): FlightRoute
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.domain" {
+    class FlightRoute {
+        - routeId: String
+        - version: Long
+        - routeStatus: RouteStatus
+        + updateDistance(dist: Double)
+        + updateRequirements(range, capacity)
+        + deactivate(author: String)
+        + getVersion(): Long
+    }
+}
+
+FlightRouteController .right.> UpdateFlightRouteDTO
+FlightRouteController --> FlightRouteService : uses
+FlightRouteService --> FlightRouteRepository : uses
+FlightRouteService --> FlightRoute : updates
+
+@enduml

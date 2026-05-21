@@ -1,0 +1,31 @@
+@startuml
+autonumber
+actor "ATCC" as Actor
+participant ":FlightRouteController" as Ctrl
+participant ":FlightRouteService" as Service
+participant "routeRepository\n:FlightRouteRepository" as Repo
+participant "route\n:FlightRoute" as Route
+participant "dto\n:FlightRouteResponseDTO" as DTO
+
+activate Actor
+Actor -> Ctrl: GET /api/flight-routes/{id}
+activate Ctrl
+
+Ctrl -> Service: getRouteById(id)
+activate Service
+
+Service -> Repo: findById(id)
+activate Repo
+Repo --> Service: Optional<FlightRoute>
+deactivate Repo
+
+Service --> Ctrl: route
+deactivate Service
+
+Ctrl -> DTO**: create(route)
+note right of DTO: Maps domain entity to DTO\nand adds HATEOAS _links
+
+Ctrl --> Actor: 200 OK (FlightRouteResponseDTO)
+deactivate Ctrl
+deactivate Actor
+@enduml

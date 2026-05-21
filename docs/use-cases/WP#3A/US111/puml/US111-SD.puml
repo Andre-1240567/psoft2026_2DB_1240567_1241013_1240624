@@ -1,0 +1,20 @@
+@startuml
+autonumber
+participant "route\n:FlightRoute" as Route
+participant "historyRecord\n:RouteHistory" as History
+
+-> Route: deactivate(author)
+activate Route
+
+Route -> Route: setRouteStatus(DEACTIVATED)
+Route -> Route: addHistory(author)
+activate Route
+
+Route -> History**: create(author, DEACTIVATED)
+note right of Route: Automatic timestamp\ncapture in the constructor.
+Route -> Route: history.add(historyRecord)
+
+deactivate Route
+<-- Route: success
+deactivate Route
+@enduml

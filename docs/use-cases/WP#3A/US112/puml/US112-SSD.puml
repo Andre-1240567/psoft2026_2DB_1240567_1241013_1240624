@@ -1,0 +1,17 @@
+@startuml
+autonumber
+actor "ATCC / Backoffice" as Actor
+participant ":System" as System
+
+activate Actor
+Actor -> System: requests to update a specific flight route
+activate System
+System --> Actor: displays current route data (including version)
+deactivate System
+
+Actor -> System: submits updated data (distance, requirements, version)
+activate System
+System --> Actor: confirms update and returns new route state (200 OK)
+deactivate System
+deactivate Actor
+@enduml

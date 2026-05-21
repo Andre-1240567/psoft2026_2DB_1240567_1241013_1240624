@@ -1,0 +1,47 @@
+@startuml
+autonumber
+actor "ATCC / Backoffice" as Actor
+participant ":FlightRouteController" as Ctrl
+participant ":FlightRouteService" as Service
+participant "routeRepository\n:FlightRouteRepository" as Repo
+participant "route\n:FlightRoute" as Route
+
+activate Actor
+Actor -> Ctrl: PUT /api/flight-routes/{id} (UpdateDTO)
+activate Ctrl
+
+Ctrl -> Service: updateRoute(id, dto)
+activate Service
+
+Service -> Repo: findById(id)
+activate Repo
+Repo --> Service: route
+deactivate Repo
+
+' A Magia da Concorrência
+Service -> Route: getVersion()
+Service -> Service: validate version (dto.version == route.version)
+note right of Service: If versions do not match,\nthrows IllegalStateException (409 Conflict)
+
+Service -> Route: checkStatus()
+note right of Route: Cannot update if DEACTIVATED\nthrows IllegalStateException
+
+' Atualização
+Service -> Route: updateDistance(dto.distance)
+Service -> Route: updateEstimatedFlightTime(dto.time)
+Service -> Route: updateRequirements(dto.minRange, dto.minCapacity)
+note right of Route: addHistory() is implicitly\ncalled inside the domain
+
+' Persistência
+Service -> Repo: save(route)
+activate Repo
+Repo --> Service: updatedRoute
+deactivate Repo
+
+Service --> Ctrl: updatedRoute
+deactivate Service
+
+Ctrl --> Actor: 200 OK (FlightRouteResponseDTO)
+deactivate Ctrl
+deactivate Actor
+@enduml

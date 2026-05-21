@@ -1,0 +1,48 @@
+@startuml
+autonumber
+actor "ATCC" as ATCC
+participant ":FlightRouteController" as Ctrl
+participant ":FlightRouteService" as Service
+participant "airportRepository\n:AirportRepository" as RepoAir
+participant "routeRepository\n:FlightRouteRepository" as RepoRoute
+participant "origin\n:Airport" as Origin
+participant "destination\n:Airport" as Dest
+participant "req\n:RouteRequirement" as Req
+participant "route\n:FlightRoute" as Route
+
+activate ATCC
+ATCC -> Ctrl: POST /api/flight-routes (CreateFlightRouteDTO)
+activate Ctrl
+
+Ctrl -> Service: createFlightRoute(dto)
+activate Service
+
+' Verifica Aeroporto de Origem
+Service -> RepoAir: findByIataCode_Code(dto.originIata)
+activate RepoAir
+RepoAir --> Service: origin
+deactivate RepoAir
+
+' Verifica Aeroporto de Destino
+Service -> RepoAir: findByIataCode_Code(dto.destinationIata)
+activate RepoAir
+RepoAir --> Service: destination
+deactivate RepoAir
+
+' Criação dos Value Objects e Entidade
+Service -> Req**: create(dto.minRange, dto.minCapacity)
+Service -> Route**: create(id, origin, destination, dto.distance, dto.time, req, author)
+
+' Persistência
+Service -> RepoRoute: save(route)
+activate RepoRoute
+RepoRoute --> Service: route
+deactivate RepoRoute
+
+Service --> Ctrl: route
+deactivate Service
+
+Ctrl --> ATCC: 201 Created (FlightRouteResponseDTO)
+deactivate Ctrl
+deactivate ATCC
+@enduml
