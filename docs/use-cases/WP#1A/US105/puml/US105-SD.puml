@@ -1,64 +1,40 @@
-@startuml SD_US105
+@startuml US105-SD
 autonumber
-title Sequence Diagram - US105: Update Aircraft Operational Status
+title Sequence Diagram (SD) - US105: Update Operational Status
 
-actor "ATCC" as Actor
-participant "Postman / UI" as UI
-box "AISafe Backend (Spring Boot)" #LightCyan
-participant "AircraftController" as Ctrl
-participant "UpdateAircraftStatusDTO" as DTO
-participant "AircraftService" as Service
-participant "AircraftRepository" as Repo
-participant "Aircraft" as Domain
-end box
-database "H2 Database" as DB
+actor "ATCC" as ATCC
+participant ":AircraftController" as Ctrl
+participant ":AircraftService" as Service
+participant "repository\n:AircraftRepository" as Repo
+participant "aircraft\n:Aircraft" as Aircraft
 
-Actor -> UI: Inputs registration number and new status (e.g., UNDER_MAINTENANCE)
-activate UI
-
-UI -> Ctrl: PATCH /api/aircrafts/{registrationNumber} (JSON)
+activate ATCC
+ATCC -> Ctrl: PATCH /api/aircrafts/{registrationNumber}/status (UpdateAircraftStatusDTO)
 activate Ctrl
 
-Ctrl -> DTO**: creates and @Validates
-activate DTO
-DTO --> Ctrl: dto
-deactivate DTO
-
-Ctrl -> Service: updateAircraftStatus(registrationNumber, dto.status)
+Ctrl -> Service: updateAircraftStatus(registrationNumber, dto.status, dto.version)
 activate Service
 
-Service -> Repo: findByRegistrationNumber(registrationNumber)
+Service -> Repo: findById(registrationNumber)
 activate Repo
-Repo -> DB: SELECT * FROM aircraft WHERE registration_number = ?
-activate DB
-DB --> Repo: Aircraft record
-deactivate DB
-Repo --> Service: aircraft Entity
+Repo --> Service: aircraft
 deactivate Repo
 
-Service -> Domain: updateStatus(newStatus)
-activate Domain
-note right of Domain: Business rule validation\n(e.g., checking valid transitions)
-Domain --> Service: success
-deactivate Domain
+Service -> Aircraft: updateStatus(dto.status)
+activate Aircraft
+Aircraft --> Service: success
+deactivate Aircraft
 
 Service -> Repo: save(aircraft)
 activate Repo
-note right of Repo: Optimistic Locking active\n(checks @Version field)
-Repo -> DB: UPDATE aircraft SET status = ?, version = version + 1 WHERE ...
-activate DB
-DB --> Repo: Returns updated entity
-deactivate DB
-Repo --> Service: updatedAircraft
+note right of Repo: Optimistic Locking validates\nversion before saving
+Repo --> Service: aircraft
 deactivate Repo
 
-Service --> Ctrl: updatedAircraft
+Service --> Ctrl: aircraft
 deactivate Service
 
-Ctrl --> UI: 200 OK (JSON representation)
+Ctrl --> ATCC: 200 OK (AircraftResponseDTO)
 deactivate Ctrl
-
-UI --> Actor: Displays Success Message & Updated Details
-deactivate UI
-
+deactivate ATCC
 @enduml

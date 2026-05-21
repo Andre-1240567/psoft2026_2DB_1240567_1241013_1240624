@@ -1,17 +1,19 @@
 @startuml SSD_US102
 autonumber
-title System Sequence Diagram (SSD) - US102: Register a Specific Aircraft Instance
+title System Sequence Diagram (SSD) - US102: Register Aircraft Instance
 
-actor "Air Transport Company Collaborator (ATCC)" as Actor
-participant "AISafe System" as System <<System>>
+actor "ATCC" as Actor
+participant ":System" as System
 
 activate Actor
-
-Actor -> System: inputs new aircraft details (registration number, model name, manufacturing date, active configuration)
+Actor -> System: initiates the registration of a new aircraft instance
 activate System
-
-System --> Actor: validates data, registers aircraft instance and returns success confirmation (201 Created)
+System --> Actor: requests necessary data (registration number, model name, manufacturing date, active configuration)
 deactivate System
 
+Actor -> System: inputs the requested data
+activate System
+System --> Actor: confirms aircraft instance registration and returns details (201 Created)
+deactivate System
 deactivate Actor
 @enduml

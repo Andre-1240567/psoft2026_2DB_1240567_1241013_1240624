@@ -1,53 +1,35 @@
-@startuml SD_US101
+@startuml US101-SD
 autonumber
-title Sequence Diagram - US101: Register an Aircraft Model
+title Sequence Diagram (SD) - US101: Register Aircraft Model
 
-actor "Backoffice Operator" as Actor
-participant "Postman / UI" as UI
-box "AISafe Backend (Spring Boot)" #LightCyan
-participant "AircraftModelController" as Ctrl
-participant "CreateAircraftModelDTO" as DTO
-participant "AircraftModelService" as Service
-participant "AircraftModel" as Domain
-participant "AircraftModelRepository" as Repo
-end box
-database "H2 Database" as DB
+actor "Backoffice Operator" as Admin
+participant ":AircraftModelController" as Ctrl
+participant ":AircraftModelService" as Service
+participant "repository\n:AircraftModelRepository" as Repo
+participant "model\n:AircraftModel" as Model
 
-Actor -> UI: Inputs Aircraft Model details (manufacturer, modelName, etc.)
-activate UI
-
-UI -> Ctrl: POST /api/aircraft-models (JSON)
+activate Admin
+Admin -> Ctrl: POST /api/aircraft-models (CreateAircraftModelDTO)
 activate Ctrl
 
-Ctrl -> DTO**: creates and @Validates
-activate DTO
-DTO --> Ctrl: dto
-deactivate DTO
+note right of Ctrl: DTO validates if\nmanufacturer belongs\nto Manufacturer Enum
 
 Ctrl -> Service: createAircraftModel(dto)
 activate Service
 
-Service -> Domain**: new AircraftModel(manufacturer, modelName, fuelCapacity, maxRange, cruisingSpeed)
-activate Domain
-Domain --> Service: newModel
-deactivate Domain
+' Criação da Entidade em memória
+Service -> Model**: create(dto.manufacturer, dto.modelName, dto.fuelCapacity, dto.maxRange, dto.cruisingSpeed)
 
-Service -> Repo: save(newModel)
+' Persistência na Base de Dados
+Service -> Repo: save(model)
 activate Repo
-Repo -> DB: INSERT INTO aircraft_model...
-activate DB
-DB --> Repo: Returns saved entity (with ID)
-deactivate DB
-Repo --> Service: savedModel
+Repo --> Service: model
 deactivate Repo
 
-Service --> Ctrl: savedModel
+Service --> Ctrl: model
 deactivate Service
 
-Ctrl --> UI: 201 Created (JSON representation)
+Ctrl --> Admin: 201 Created (AircraftModelResponseDTO)
 deactivate Ctrl
-
-UI --> Actor: Displays Success Message & Details
-deactivate UI
-
+deactivate Admin
 @enduml

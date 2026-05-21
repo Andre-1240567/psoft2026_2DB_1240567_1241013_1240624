@@ -1,66 +1,40 @@
 @startuml SD_US102
 autonumber
-title Sequence Diagram - US102: Register a Specific Aircraft Instance
+title Sequence Diagram (SD) - US102: Register Aircraft Instance
 
-actor "Air Transport Company Collaborator (ATCC)" as Actor
-participant "Postman / UI" as UI
-box "AISafe Backend (Spring Boot)" #LightCyan
-participant "AircraftController" as Ctrl
-participant "CreateAircraftDTO" as DTO
-participant "AircraftService" as Service
-participant "AircraftModelRepository" as ModelRepo
-participant "Aircraft" as Domain
-participant "AircraftRepository" as Repo
-end box
-database "H2 Database" as DB
+actor "ATCC" as ATCC
+participant ":AircraftController" as Ctrl
+participant ":AircraftService" as Service
+participant "modelRepository\n:AircraftModelRepository" as RepoModel
+participant "aircraftRepository\n:AircraftRepository" as RepoAir
+participant "aircraft\n:Aircraft" as Aircraft
 
-Actor -> UI: Inputs Aircraft details (registrationNumber, modelName, etc.)
-activate UI
-
-UI -> Ctrl: POST /api/aircrafts (JSON)
+activate ATCC
+ATCC -> Ctrl: POST /api/aircrafts (CreateAircraftDTO)
 activate Ctrl
-
-Ctrl -> DTO**: creates and @Validates
-activate DTO
-DTO --> Ctrl: dto
-deactivate DTO
 
 Ctrl -> Service: createAircraft(dto)
 activate Service
 
-' The crucial step: Find the existing Aircraft Model
-Service -> ModelRepo: findByModelName(dto.modelName)
-activate ModelRepo
-ModelRepo -> DB: SELECT * FROM aircraft_model WHERE model_name = ?
-activate DB
-DB --> ModelRepo: AircraftModel record
-deactivate DB
-ModelRepo --> Service: aircraftModel
-deactivate ModelRepo
+' 1. Verifica se o Modelo de Avião existe na BD
+Service -> RepoModel: findByModelName(dto.modelName)
+activate RepoModel
+RepoModel --> Service: model
+deactivate RepoModel
 
-' Create the physical Aircraft entity
-Service -> Domain**: new Aircraft(registrationNumber, aircraftModel, manufacturingDate, activeConfigurationName)
-activate Domain
-Domain --> Service: newAircraft
-deactivate Domain
+' 2. Criação da Entidade em memória
+Service -> Aircraft**: create(dto.registrationNumber, model, dto.manufacturingDate, dto.activeConfigurationName)
 
-' Save to the database
-Service -> Repo: save(newAircraft)
-activate Repo
-Repo -> DB: INSERT INTO aircraft...
-activate DB
-DB --> Repo: Returns saved entity
-deactivate DB
-Repo --> Service: savedAircraft
-deactivate Repo
+' 3. Persistência na Base de Dados
+Service -> RepoAir: save(aircraft)
+activate RepoAir
+RepoAir --> Service: aircraft
+deactivate RepoAir
 
-Service --> Ctrl: savedAircraft
+Service --> Ctrl: aircraft
 deactivate Service
 
-Ctrl --> UI: 201 Created (JSON representation)
+Ctrl --> ATCC: 201 Created (AircraftResponseDTO)
 deactivate Ctrl
-
-UI --> Actor: Displays Success Message & Details
-deactivate UI
-
+deactivate ATCC
 @enduml
