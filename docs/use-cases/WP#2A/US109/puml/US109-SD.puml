@@ -1,0 +1,40 @@
+@startuml US109-SD
+title Sequence Diagram - US109: Change Operational Status
+autonumber
+actor "Backoffice Operator" as Admin
+participant ":AirportController" as Ctrl
+participant "dto:ChangeStatusDTO" as DTO
+participant ":AirportService" as Svc
+participant ":AirportRepository" as Repo
+participant "airport:Airport" as Domain
+
+activate Admin
+Admin -> Ctrl : PATCH /api/airports/{iataCode}/status (JSON)
+activate Ctrl
+
+Ctrl -> DTO** : create()
+Ctrl -> Svc : changeOperationalStatus(iataCode, dto.newStatus)
+activate Svc
+
+Svc -> Repo : findByIataCode(iataCode)
+activate Repo
+Repo --> Svc : airport
+deactivate Repo
+
+Svc -> Domain : changeStatus(newStatus)
+activate Domain
+Domain --> Svc : updated
+deactivate Domain
+
+Svc -> Repo : save(airport)
+activate Repo
+Repo --> Svc : savedAirport
+deactivate Repo
+
+Svc --> Ctrl : savedAirport
+deactivate Svc
+
+Ctrl --> Admin : 200 OK (JSON View)
+deactivate Ctrl
+deactivate Admin
+@enduml

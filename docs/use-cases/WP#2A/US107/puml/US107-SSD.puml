@@ -1,0 +1,13 @@
+@startuml US107-SSD
+title System Sequence Diagram - US107: View Airport Details
+autonumber
+actor "ATCC / Backoffice" as User
+participant "System" as Sys
+
+activate User
+User -> Sys : GET /api/airports/{iataCode}
+activate Sys
+Sys --> User : 200 OK and airport details
+deactivate Sys
+deactivate User
+@enduml

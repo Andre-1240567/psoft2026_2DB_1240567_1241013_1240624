@@ -75,7 +75,6 @@ package "Airport Aggregate" {
     }
     class Airport <<Aggregate Root>> <<Entity>> {
         - name : String
-        - timezone : String
         - airportPhoto : String
     }
     class IATACode <<Value Object>> {
@@ -103,7 +102,7 @@ package "Airport Aggregate" {
         - length : Double
     }
     class AirplaneCertification <<Value Object>> {
-
+        - modelName : String
         - certificationDate : Date
     }
     class Terminal <<Entity>> {
@@ -127,6 +126,10 @@ package "Airport Aggregate" {
         SE
         }
 
+    class Timezone <<Value Object>> {
+    - offsetValue : String
+    }
+
     Airport "1" *-- "1" IATACode : identified by >
     Airport "1" *-- "1" Location : located at >
     Location "1" *-- "1" GPSCoordinates : defined by >
@@ -140,6 +143,7 @@ package "Airport Aggregate" {
     Terminal "1" *-- "1..*" Gate : contains >
     Airport "1" *-- "0..*" FacilityService : provides >
     Runway "1" *-- "1" Orientation : points >
+    Airport "1" *-- "1" Timezone : regulates in >
 }
 
 ' --- AGGREGATE: FLIGHT OPERATIONS ---
@@ -185,8 +189,9 @@ package "Flight Operations Aggregate" {
 
 ' --- EXTERNAL RELATIONS ---
 Aircraft "0..*" --> "1" AircraftModel : is instance of >
-ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
 FlightRoute "0..*" --> "1" Airport : origin >
 FlightRoute "0..*" --> "1" Airport : destination >
+Aircraft "1" --> "0..*" FlightRoute : travels >
+AircraftModel "0..*" --> "1" Airport : accepts <
 
 @enduml

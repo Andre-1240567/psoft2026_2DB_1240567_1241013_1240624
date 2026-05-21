@@ -6,10 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
-import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
-import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
-import pt.isep.psoft.alsafe.airportmanagement.domain.Location;
+import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
 import pt.isep.psoft.alsafe.flightroutes.api.CreateFlightRouteDTO;
@@ -36,7 +33,7 @@ class FlightRouteServiceTest {
 
     private Airport createFakeAirport(String iata) {
         return new Airport(new IATACode(iata), "Fake Airport", 
-               new Location("Reg", "Country", "City", new GPSCoordinates(0.0, 0.0)));
+               new Location("Reg", "Country", "City", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
     }
 
     @Test

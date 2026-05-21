@@ -3,16 +3,13 @@ package pt.isep.psoft.alsafe.flightroutes.domain;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
-import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
-import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
-import pt.isep.psoft.alsafe.airportmanagement.domain.Location;
+import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 
 class FlightRouteTest {
 
     private Airport createFakeAirport(String iata) {
         return new Airport(new IATACode(iata), "Fake Airport", 
-               new Location("Reg", "Country", "City", new GPSCoordinates(0.0, 0.0)));
+               new Location("Reg", "Country", "City", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
     }
 
     @Test

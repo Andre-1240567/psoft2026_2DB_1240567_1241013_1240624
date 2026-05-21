@@ -19,6 +19,10 @@ public class CreateAirportRequestDTO {
     @NotBlank(message ="The airport name is mandatory.")
     private String name;
 
+    @NotBlank(message = "A timezone é obrigatória.")
+    @Pattern(regexp = "^UTC[+-](0[0-9]|1[0-4]):[0-5][0-9]$", message = "Invalid format. Use e.g.: UTC+01:00")
+    private String timezone;
+
     @NotBlank
     private String region;
 

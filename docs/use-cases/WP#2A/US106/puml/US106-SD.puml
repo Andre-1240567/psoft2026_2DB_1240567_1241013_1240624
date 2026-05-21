@@ -1,0 +1,36 @@
+@startuml US106-SD
+title Sequence Diagram- US106: Register an Airport
+autonumber
+actor "Backoffice Operator" as Admin
+participant ":AirportController" as Ctrl
+participant "dto:CreateAirportRequestDTO" as DTO
+participant ":AirportService" as Svc
+participant "airport:Airport" as Domain
+participant ":AirportRepository" as Repo
+
+activate Admin
+Admin -> Ctrl : POST /api/airports (JSON)
+activate Ctrl
+
+' O Spring Boot instancia o DTO automaticamente a partir do JSON
+Ctrl -> DTO** : create()
+
+Ctrl -> Svc : createAirport(dto)
+activate Svc
+
+' O Service atua como Creator e instancia o Domínio
+Svc -> Domain** : create(dto.iataCode, dto.designation, ...)
+
+' O Service usa o Repositório para persistir na base de dados (H2)
+Svc -> Repo : save(airport)
+activate Repo
+Repo --> Svc : savedAirport
+deactivate Repo
+
+Svc --> Ctrl : savedAirport
+deactivate Svc
+
+Ctrl --> Admin : 201 Created (JSON View)
+deactivate Ctrl
+deactivate Admin
+@enduml

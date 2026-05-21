@@ -40,8 +40,8 @@ class FlightRouteControllerTest {
 
     @BeforeEach
     void setUp() {
-        originAirport = new Airport(new IATACode("OPO"), "Sá Carneiro", new Location("Norte", "Portugal", "Porto", new GPSCoordinates(41.0, -8.0)));
-        destAirport = new Airport(new IATACode("MAD"), "Barajas", new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.0, -3.0)));
+        originAirport = new Airport(new IATACode("OPO"), "Sá Carneiro", new Location("Norte", "Portugal", "Porto", new GPSCoordinates(41.0, -8.0)), new Timezone("UTC+01:00"));
+        destAirport = new Airport(new IATACode("MAD"), "Barajas", new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.0, -3.0)), new Timezone("UTC+02:00"));
         
         RouteRequirement req = new RouteRequirement(500.0, 150);
         validRoute = new FlightRoute("teste-id-123", originAirport, destAirport, 300.0, 60, req, "Tester");

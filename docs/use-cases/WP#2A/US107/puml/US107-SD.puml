@@ -1,0 +1,27 @@
+@startuml US107-SD
+title Sequence Diagram - US107: View Airport Details
+autonumber
+actor "ATCC / Backoffice" as User
+participant ":AirportController" as Ctrl
+participant ":AirportService" as Svc
+participant ":AirportRepository" as Repo
+
+activate User
+User -> Ctrl : GET /api/airports/{iataCode}
+activate Ctrl
+
+Ctrl -> Svc : getAirportDetails(iataCode)
+activate Svc
+
+Svc -> Repo : findByIataCode(iataCode)
+activate Repo
+Repo --> Svc : airport
+deactivate Repo
+
+Svc --> Ctrl : airport
+deactivate Svc
+
+Ctrl --> User : 200 OK (JSON View)
+deactivate Ctrl
+deactivate User
+@enduml

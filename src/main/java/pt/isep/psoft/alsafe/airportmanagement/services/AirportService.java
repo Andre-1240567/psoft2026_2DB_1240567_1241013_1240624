@@ -8,6 +8,7 @@ import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
 import java.util.Optional;
+import java.util.List;
 
 @Service
 public class AirportService {
@@ -28,8 +29,9 @@ public class AirportService {
         IATACode iataCodeVO = new IATACode(dto.getIataCode());
         GPSCoordinates gpsCoordinatesVO = new GPSCoordinates(dto.getLatitude(), dto.getLongitude());
         Location locationVO = new Location(dto.getRegion(), dto.getCountry(), dto.getCity(), gpsCoordinatesVO);
+        Timezone timezoneVO = new Timezone(dto.getTimezone());
 
-        Airport newAirport = new Airport(iataCodeVO,dto.getName(),locationVO);
+        Airport newAirport = new Airport(iataCodeVO,dto.getName(),locationVO, timezoneVO);
 
         if(dto.getRunways() != null){
             for(CreateRunwayRequestDTO runwayRequestDTO : dto.getRunways()){
@@ -38,5 +40,29 @@ public class AirportService {
             }
         }
         return  airportRepository.save(newAirport);
+    }
+
+    public Airport getAirportDetails(String iataCode) {
+        return airportRepository.findByIataCode_Code(iataCode)
+                .orElseThrow(() -> new IllegalArgumentException("Airport with the code " + iataCode + " not found."));
+    }
+    public Airport changeOperationalStatus(String iataCode, String statusString) {
+
+        Airport airport = getAirportDetails(iataCode);
+
+        Status newStatus;
+        try {
+            newStatus = Status.valueOf(statusString.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid status. Use OPERATIONAL, UNDER_MAINTENANCE or CLOSED.");
+        }
+
+        airport.changeStatus(newStatus);
+
+        return airportRepository.save(airport);
+    }
+
+    public List<Airport> searchAirportsByCity(String city) {
+        return airportRepository.findByLocation_City(city);
     }
 }
