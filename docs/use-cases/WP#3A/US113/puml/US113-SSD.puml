@@ -1,0 +1,17 @@
+@startuml
+autonumber
+actor "ATCC" as Actor
+participant ":System" as System
+
+activate Actor
+Actor -> System: requests the details of a flight route by ID
+activate System
+System --> Actor: returns the route details (200 OK)
+deactivate System
+
+Actor -> System: requests all routes originating from a specific airport
+activate System
+System --> Actor: returns a paginated list of routes (200 OK)
+deactivate System
+deactivate Actor
+@enduml

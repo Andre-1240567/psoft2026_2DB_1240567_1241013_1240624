@@ -1,0 +1,58 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "pt.isep.psoft.alsafe.flightroutes.api" {
+    class FlightRouteController {
+        + createRoute(dto: CreateFlightRouteDTO): ResponseEntity
+    }
+    class CreateFlightRouteDTO {
+        - originIata: String
+        - destinationIata: String
+        - distance: Double
+        - estimatedFlightTime: Integer
+        - minRangeRequired: Double
+        - minCapacityRequired: Integer
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.services" {
+    class FlightRouteService {
+        + createFlightRoute(dto: CreateFlightRouteDTO): FlightRoute
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.repositories" {
+    interface FlightRouteRepository {
+        + save(route: FlightRoute): FlightRoute
+    }
+}
+
+package "pt.isep.psoft.alsafe.airportmanagement.repositories" {
+    interface AirportRepository {
+        + findByIataCode_Code(iata: String): Optional<Airport>
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.domain" {
+    class FlightRoute {
+        - routeId: String
+        - distance: Double
+        - estimatedFlightTime: Integer
+        - routeStatus: RouteStatus
+        + FlightRoute(id, origin, dest, distance, time, req, author)
+    }
+    class RouteRequirement {
+        - minRange: Double
+        - minCapacity: Integer
+        + RouteRequirement(range, capacity)
+    }
+}
+
+FlightRouteController .right.> CreateFlightRouteDTO
+FlightRouteController --> FlightRouteService : uses
+FlightRouteService --> AirportRepository : uses
+FlightRouteService --> FlightRouteRepository : uses
+FlightRouteService ..> FlightRoute : creates
+FlightRoute *-- "1" RouteRequirement : contains
+
+@enduml

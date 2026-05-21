@@ -1,0 +1,12 @@
+@startuml
+autonumber
+actor "ATCC" as Actor
+participant ":System" as System
+
+activate Actor
+Actor -> System: searches routes providing optional parameters (e.g., origin, destination)
+activate System
+System --> Actor: returns a paginated and filtered list of routes (200 OK)
+deactivate System
+deactivate Actor
+@enduml

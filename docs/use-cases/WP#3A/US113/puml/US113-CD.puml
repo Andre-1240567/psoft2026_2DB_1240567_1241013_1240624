@@ -1,0 +1,38 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "pt.isep.psoft.alsafe.flightroutes.api" {
+    class FlightRouteController {
+        + getRouteById(id: String): ResponseEntity
+        + searchRoutes(origin, dest, page, size): ResponseEntity<Page>
+    }
+    class FlightRouteResponseDTO {
+        + routeId: String
+        + originIata: String
+        + destinationIata: String
+        + status: String
+        + _links: Map
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.services" {
+    class FlightRouteService {
+        + getRouteById(id: String): FlightRoute
+        + searchRoutes(origin, dest, pageable): Page<FlightRoute>
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.repositories" {
+    interface FlightRouteRepository {
+        + findById(id: String): Optional<FlightRoute>
+        + findByOrigin_IataCode_Code(origin, pageable): Page<FlightRoute>
+        + findByDestination_IataCode_Code(dest, pageable): Page<FlightRoute>
+        + findByOrigin_IataCode_CodeAndDestination_IataCode_Code(origin, dest, pageable): Page<FlightRoute>
+    }
+}
+
+FlightRouteController ..> FlightRouteResponseDTO : creates
+FlightRouteController --> FlightRouteService : uses
+FlightRouteService --> FlightRouteRepository : uses
+
+@enduml

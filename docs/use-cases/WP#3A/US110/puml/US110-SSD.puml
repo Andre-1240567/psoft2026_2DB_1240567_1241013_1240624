@@ -1,0 +1,17 @@
+@startuml
+autonumber
+actor "ATCC" as ATCC
+participant ":System" as System
+
+activate ATCC
+ATCC -> System: initiates the creation of a new flight route
+activate System
+System --> ATCC: requests necessary data (origin IATA, destination IATA, distance, flight time, min. range, min. capacity)
+deactivate System
+
+ATCC -> System: inputs the requested data
+activate System
+System --> ATCC: confirms flight route creation and returns the route details (201 Created)
+deactivate System
+deactivate ATCC
+@enduml
