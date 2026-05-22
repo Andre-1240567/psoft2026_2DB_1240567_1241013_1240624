@@ -1,12 +1,14 @@
 package pt.isep.psoft.alsafe.aircraftmanagement.api;
+import pt.isep.psoft.alsafe.aircraftmanagement.domain.Manufacturer;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
 public class CreateAircraftModelDTO {
-    @NotBlank(message = "Manufacturer is required")
-    private String manufacturer;
+
+    @NotNull(message = "Manufacturer is mandatory")
+    private Manufacturer manufacturer;
 
     @NotBlank(message = "The model name is required")
     private String modelName;
