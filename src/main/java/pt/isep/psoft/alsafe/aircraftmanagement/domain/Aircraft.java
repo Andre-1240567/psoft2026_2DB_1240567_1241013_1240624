@@ -47,4 +47,11 @@ public class Aircraft {
         this.activeConfigurationName = activeConfigurationName;
         this.status = AircraftStatus.AVAILABLE;
     }
+
+    public void updateStatus(AircraftStatus newStatus) {
+        if (newStatus == null) {
+            throw new IllegalArgumentException("The state cannot be null");
+        }
+        this.status = newStatus;
+    }
 }

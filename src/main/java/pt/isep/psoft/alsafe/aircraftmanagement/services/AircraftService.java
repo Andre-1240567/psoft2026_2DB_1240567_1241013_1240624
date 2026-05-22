@@ -71,4 +71,24 @@ public class AircraftService {
             return aircraftRepository.findAll();
         }
     }
+
+    @Transactional
+    public Aircraft updateAircraftStatus(String registrationNumber, String statusStr, Long clientVersion) {
+
+        Aircraft aircraft = aircraftRepository.findById(registrationNumber.toUpperCase())
+                .orElseThrow(() -> new IllegalArgumentException("Avião não encontrado."));
+
+        if (!aircraft.getVersion().equals(clientVersion)) {
+            throw new org.springframework.orm.ObjectOptimisticLockingFailureException(Aircraft.class, aircraft.getRegistrationNumber());
+        }
+
+        try {
+            AircraftStatus newStatus = AircraftStatus.valueOf(statusStr.toUpperCase());
+            aircraft.updateStatus(newStatus);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Estado inválido: " + statusStr);
+        }
+
+        return aircraftRepository.save(aircraft);
+    }
 }

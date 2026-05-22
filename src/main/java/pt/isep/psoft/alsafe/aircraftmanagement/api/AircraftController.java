@@ -50,6 +50,16 @@ public class AircraftController {
         return ResponseEntity.ok(responseList);
     }
 
+    @PatchMapping("/{registrationNumber}/status")
+    public ResponseEntity<AircraftResponseDTO> updateAircraftStatus(
+            @PathVariable String registrationNumber,
+            @Valid @RequestBody UpdateAircraftStatusDTO dto) {
+
+        Aircraft updatedAircraft = aircraftService.updateAircraftStatus(registrationNumber, dto.getStatus(), dto.getVersion());
+
+        return ResponseEntity.ok(new AircraftResponseDTO(updatedAircraft));
+    }
+
 
 
 }

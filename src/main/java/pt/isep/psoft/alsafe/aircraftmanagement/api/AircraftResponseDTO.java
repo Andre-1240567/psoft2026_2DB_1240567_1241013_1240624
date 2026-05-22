@@ -15,6 +15,7 @@ public class AircraftResponseDTO {
     private LocalDate manufacturingDate;
     private String activeConfigurationName;
     private String status;
+    private Long version;
 
     public AircraftResponseDTO(Aircraft aircraft) {
         this.registrationNumber = aircraft.getRegistrationNumber();
@@ -22,5 +23,6 @@ public class AircraftResponseDTO {
         this.manufacturingDate = aircraft.getManufacturingDate();
         this.activeConfigurationName = aircraft.getActiveConfigurationName();
         this.status = aircraft.getStatus().name();
+        this.version = aircraft.getVersion();
     }
 }
