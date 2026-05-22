@@ -1,43 +1,28 @@
-@startuml SD_US103
+@startuml US103-SD
 autonumber
-title Sequence Diagram - US103: View Aircraft Details
+title Sequence Diagram (SD) - US103: View Aircraft Details
 
-actor "Backoffice Operator / ATCC" as Actor
-participant "Postman / UI" as UI
-box "AISafe Backend (Spring Boot)" #LightCyan
-participant "AircraftController" as Ctrl
-participant "AircraftService" as Service
-participant "AircraftRepository" as Repo
-end box
-database "H2 Database" as DB
+actor "ATCC" as ATCC
+participant ":AircraftController" as Ctrl
+participant ":AircraftService" as Service
+participant "repository\n:AircraftRepository" as Repo
 
-Actor -> UI: Inputs registration number (e.g., "CS-TPA")
-activate UI
-
-UI -> Ctrl: GET /api/aircrafts/{registrationNumber}
+activate ATCC
+ATCC -> Ctrl: GET /api/aircrafts/{registrationNumber}
 activate Ctrl
 
-Ctrl -> Service: getAircraftByRegistration(registrationNumber)
+Ctrl -> Service: getAircraftDetails(registrationNumber)
 activate Service
 
-Service -> Repo: findByRegistrationNumber(registrationNumber)
+Service -> Repo: findById(registrationNumber)
 activate Repo
-
-Repo -> DB: SELECT * FROM aircraft WHERE registration_number = ?
-activate DB
-DB --> Repo: Aircraft record (with AircraftModel details)
-deactivate DB
-
-Repo --> Service: aircraft Entity
+Repo --> Service: aircraft
 deactivate Repo
 
-Service --> Ctrl: aircraft Entity
+Service --> Ctrl: aircraft
 deactivate Service
 
-Ctrl --> UI: 200 OK (JSON representation)
+Ctrl --> ATCC: 200 OK (AircraftResponseDTO)
 deactivate Ctrl
-
-UI --> Actor: Displays Aircraft Details
-deactivate UI
-
+deactivate ATCC
 @enduml

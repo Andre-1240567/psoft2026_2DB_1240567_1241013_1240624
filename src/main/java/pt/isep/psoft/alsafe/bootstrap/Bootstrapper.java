@@ -60,9 +60,9 @@ public class Bootstrapper implements CommandLineRunner {
 
     private void bootstrapAircraftModels() {
         if (aircraftModelRepository.count() == 0) {
-            aircraftModelRepository.save(new AircraftModel("Boeing", "737 MAX", 26000.0, 6500.0, 840.0));
-            aircraftModelRepository.save(new AircraftModel("Airbus", "A320neo", 24000.0, 6300.0, 828.0));
-            aircraftModelRepository.save(new AircraftModel("Boeing", "777X", 35000.0, 8000.0, 900.0));
+            aircraftModelRepository.save(new AircraftModel(Manufacturer.BOEING, "737 MAX", 26000.0, 6500.0, 840.0));
+            aircraftModelRepository.save(new AircraftModel(Manufacturer.AIRBUS, "A320neo", 24000.0, 6300.0, 828.0));
+            aircraftModelRepository.save(new AircraftModel(Manufacturer.BOEING, "777X", 35000.0, 8000.0, 900.0));
 
             System.out.println(" -> Aircraft Models loaded.");
         }
