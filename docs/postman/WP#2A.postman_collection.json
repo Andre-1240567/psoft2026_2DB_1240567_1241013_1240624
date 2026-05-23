@@ -1,0 +1,117 @@
+{
+  "info": {
+    "_postman_id": "87b4c356-e77b-4713-849c-f2531f12e450",
+    "name": "WP#2A - Airports",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55089572"
+  },
+  "item": [
+    {
+      "name": "US106- Create Airport",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"iataCode\": \"OPO\",\r\n  \"name\": \"Aeroporto Francisco Sá Carneiro\",\r\n  \"region\": \"Norte\",\r\n  \"country\": \"Portugal\",\r\n  \"city\": \"Porto\",\r\n  \"latitude\": 41.2481,\r\n  \"longitude\": -8.6814,\r\n  \"timezone\": \"UTC+01:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/airports",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "airports"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "US107- View Airport Details",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/airports/OPO",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "airports",
+            "OPO"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "US108- Search Airport by City",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/airports?city=Porto",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "airports"
+          ],
+          "query": [
+            {
+              "key": "city",
+              "value": "Porto"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "US109- Change Status (Closed)",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"newStatus\": \"CLOSED\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/airports/OPO/status",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "airports",
+            "OPO",
+            "status"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

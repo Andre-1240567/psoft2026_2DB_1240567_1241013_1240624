@@ -1,0 +1,13 @@
+@startuml US109-SSD
+title System Sequence Diagram - US109: Change Operational Status
+autonumber
+actor "Backoffice Operator" as Admin
+participant "System" as Sys
+
+activate Admin
+Admin -> Sys : PATCH /api/airports/{iataCode}/status (newStatus)
+activate Sys
+Sys --> Admin : 200 OK and updated airport details
+deactivate Sys
+deactivate Admin
+@enduml

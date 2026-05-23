@@ -1,0 +1,27 @@
+@startuml US108-SD
+title Sequence Diagram - US108: Search Airports
+autonumber
+actor "ATCC / Backoffice" as User
+participant ":AirportController" as Ctrl
+participant ":AirportService" as Svc
+participant ":AirportRepository" as Repo
+
+activate User
+User -> Ctrl : GET /api/airports?city={cityName}
+activate Ctrl
+
+Ctrl -> Svc : searchAirports(city)
+activate Svc
+
+Svc -> Repo : findByLocationCity(city)
+activate Repo
+Repo --> Svc : airportList
+deactivate Repo
+
+Svc --> Ctrl : airportList
+deactivate Svc
+
+Ctrl --> User : 200 OK (JSON Array View)
+deactivate Ctrl
+deactivate User
+@enduml

@@ -1,0 +1,9 @@
+# Use this workspace to collaborate
+workspace:
+  id: d2d05cce-3808-4910-8fe6-b8a54df3f97a
+
+localResources:
+  collections:
+    - ..\docs\postman\WP#3A.postman_collection.json
+  environments:
+    - ..\docs\postman\AlSafe-Dev_environment.json

@@ -20,4 +20,5 @@ public class CreateRunwayRequestDTO {
     @NotBlank(message = "Runway orientation is mandatory.")
     private Orientation orientation;
 
+
 }

@@ -5,9 +5,12 @@ import org.springframework.stereotype.Repository;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface AirportRepository extends JpaRepository<Airport, Long> {
 
     Optional<Airport> findByIataCode_Code(String code);
+
+    List<Airport> findByLocation_City(String city);
 }
