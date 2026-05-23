@@ -13,7 +13,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"iataCode\": \"OPO\",\r\n  \"name\": \"Aeroporto Francisco Sá Carneiro\",\r\n  \"region\": \"Norte\",\r\n  \"country\": \"Portugal\",\r\n  \"city\": \"Porto\",\r\n  \"latitude\": 41.2481,\r\n  \"longitude\": -8.6814,\r\n  \"timezone\": \"Europe/Lisbon\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
+          "raw": "{\r\n  \"iataCode\": \"OPO\",\r\n  \"name\": \"Aeroporto Francisco Sá Carneiro\",\r\n  \"region\": \"Norte\",\r\n  \"country\": \"Portugal\",\r\n  \"city\": \"Porto\",\r\n  \"latitude\": 41.2481,\r\n  \"longitude\": -8.6814,\r\n  \"timezone\": \"UTC+01:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
           "options": {
             "raw": {
               "language": "json"

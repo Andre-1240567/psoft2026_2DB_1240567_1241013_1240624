@@ -2,6 +2,7 @@ package pt.isep.psoft.alsafe.airportmanagement.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftModelRepository;
 import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateAirportRequestDTO;
 import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateRunwayRequestDTO;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
@@ -13,9 +14,11 @@ import java.util.List;
 @Service
 public class AirportService {
     private final AirportRepository airportRepository;
+    private final AircraftModelRepository aircraftModelRepository;
 
-    public AirportService(AirportRepository airportRepository) {
+    public AirportService(AirportRepository airportRepository,  AircraftModelRepository aircraftModelRepository) {
         this.airportRepository = airportRepository;
+        this.aircraftModelRepository = aircraftModelRepository;
     }
 
     @Transactional
@@ -65,4 +68,6 @@ public class AirportService {
     public List<Airport> searchAirportsByCity(String city) {
         return airportRepository.findByLocation_City(city);
     }
+
+
 }

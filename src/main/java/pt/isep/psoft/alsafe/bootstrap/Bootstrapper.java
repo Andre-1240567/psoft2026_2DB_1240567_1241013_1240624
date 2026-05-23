@@ -3,6 +3,7 @@ package pt.isep.psoft.alsafe.bootstrap;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import pt.isep.psoft.alsafe.aircraftmanagement.domain.Manufacturer;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Timezone;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
