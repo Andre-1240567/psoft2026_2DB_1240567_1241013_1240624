@@ -18,6 +18,7 @@ public class AircraftModelService {
         AircraftModel newModel = new AircraftModel(
                 dto.getManufacturer(),
                 dto.getModelName(),
+                dto.getSeatingCapacity(),
                 dto.getFuelCapacity(),
                 dto.getMaxRange(),
                 dto.getCruisingSpeed()

@@ -2,24 +2,22 @@ package pt.isep.psoft.alsafe.aircraftmanagement.api;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
 import lombok.Data;
-
-import java.time.LocalDate;
 
 @Data
 public class CreateAircraftDTO {
 
-    @NotBlank(message = "Registration number is mandatory (e.g., CS-TPA).")
+    @Pattern(regexp = "^[A-Z]{2}-[A-Z]{3,4}$", message = "Registration must follow the standard format (ex: CS-TPA).")
+    @NotBlank(message = "Registration is mandatory.")
     private String registrationNumber;
 
-    @NotBlank(message = "Model name is mandatory to link the aircraft.")
+    @NotBlank(message = "The model name is required.")
     private String modelName;
 
-    @NotNull(message = "Manufacturing date is mandatory.")
-    @PastOrPresent(message = "Manufacturing date cannot be in the future.")
-    private LocalDate manufacturingDate;
+    @NotNull(message = "The manufacturing date is mandatory.")
+    private java.time.LocalDate manufacturingDate;
 
-    @NotBlank(message = "Active configuration name is mandatory.")
+    @NotBlank(message = "The active setting is required.")
     private String activeConfigurationName;
 }

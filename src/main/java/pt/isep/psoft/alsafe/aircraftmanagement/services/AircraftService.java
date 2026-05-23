@@ -51,7 +51,8 @@ public class AircraftService {
     }
 
     @Transactional(readOnly = true)
-    public java.util.List<Aircraft> searchAircrafts(String modelName, String statusStr) {
+    public java.util.List<Aircraft> searchAircrafts(String modelName, String statusStr, Integer year) {
+
         AircraftStatus status = null;
         if (statusStr != null && !statusStr.trim().isEmpty()) {
             try {
@@ -61,22 +62,32 @@ public class AircraftService {
             }
         }
 
+        java.util.List<Aircraft> aircrafts;
+
         if (modelName != null && status != null) {
-            return aircraftRepository.findByModel_ModelNameAndStatus(modelName, status);
+            aircrafts = aircraftRepository.findByModel_ModelNameAndStatus(modelName, status);
         } else if (modelName != null) {
-            return aircraftRepository.findByModel_ModelName(modelName);
+            aircrafts = aircraftRepository.findByModel_ModelName(modelName);
         } else if (status != null) {
-            return aircraftRepository.findByStatus(status);
+            aircrafts = aircraftRepository.findByStatus(status);
         } else {
-            return aircraftRepository.findAll();
+            aircrafts = aircraftRepository.findAll();
         }
+
+        if (year != null) {
+            aircrafts = aircrafts.stream()
+                    .filter(a -> a.getManufacturingDate().getYear() == year)
+                    .collect(java.util.stream.Collectors.toList());
+        }
+
+        return aircrafts;
     }
 
     @Transactional
     public Aircraft updateAircraftStatus(String registrationNumber, String statusStr, Long clientVersion) {
 
         Aircraft aircraft = aircraftRepository.findById(registrationNumber.toUpperCase())
-                .orElseThrow(() -> new IllegalArgumentException("Avião não encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Aircraft not found."));
 
         if (!aircraft.getVersion().equals(clientVersion)) {
             throw new org.springframework.orm.ObjectOptimisticLockingFailureException(Aircraft.class, aircraft.getRegistrationNumber());
@@ -86,7 +97,7 @@ public class AircraftService {
             AircraftStatus newStatus = AircraftStatus.valueOf(statusStr.toUpperCase());
             aircraft.updateStatus(newStatus);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Estado inválido: " + statusStr);
+            throw new IllegalArgumentException("Invalid status: " + statusStr);
         }
 
         return aircraftRepository.save(aircraft);

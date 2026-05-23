@@ -1,18 +1,17 @@
 package pt.isep.psoft.alsafe.aircraftmanagement.api;
 
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.EqualsAndHashCode;
+import org.springframework.hateoas.RepresentationModel;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft;
 
-import java.time.LocalDate;
-
 @Data
-@NoArgsConstructor
-public class AircraftResponseDTO {
+@EqualsAndHashCode(callSuper = false)
+public class AircraftResponseDTO extends RepresentationModel<AircraftResponseDTO> {
 
     private String registrationNumber;
     private String modelName;
-    private LocalDate manufacturingDate;
+    private java.time.LocalDate manufacturingDate;
     private String activeConfigurationName;
     private String status;
     private Long version;
