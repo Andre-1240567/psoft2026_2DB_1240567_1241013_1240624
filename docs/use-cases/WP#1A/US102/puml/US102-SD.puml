@@ -13,28 +13,32 @@ activate ATCC
 ATCC -> Ctrl: POST /api/aircrafts (CreateAircraftDTO)
 activate Ctrl
 
+note right of Ctrl: DTO validates required fields\n(e.g., registration number regex)
+
 Ctrl -> Service: createAircraft(dto)
 activate Service
 
-' 1. Verifica se o Modelo de Avião existe na BD
 Service -> RepoModel: findByModelName(dto.modelName)
 activate RepoModel
-RepoModel --> Service: model
+RepoModel --> Service: Optional<AircraftModel>
 deactivate RepoModel
 
-' 2. Criação da Entidade em memória
-Service -> Aircraft**: create(dto.registrationNumber, model, dto.manufacturingDate, dto.activeConfigurationName)
+alt Model Not Found
+    Service --> Ctrl: throws IllegalArgumentException
+    Ctrl --> ATCC: 400 Bad Request / 404 Not Found
+else Model Found
 
-' 3. Persistência na Base de Dados
-Service -> RepoAir: save(aircraft)
-activate RepoAir
-RepoAir --> Service: aircraft
-deactivate RepoAir
+    Service -> Aircraft**: create(dto.registrationNumber, model, dto.manufacturingDate, dto.activeConfigurationName)
+    Service -> RepoAir: save(aircraft)
+    activate RepoAir
+    RepoAir --> Service: aircraft
+    deactivate RepoAir
 
-Service --> Ctrl: aircraft
+    Service --> Ctrl: aircraft
+
+    Ctrl --> ATCC: 201 Created (AircraftResponseDTO)
+end
 deactivate Service
-
-Ctrl --> ATCC: 201 Created (AircraftResponseDTO)
 deactivate Ctrl
 deactivate ATCC
 @enduml

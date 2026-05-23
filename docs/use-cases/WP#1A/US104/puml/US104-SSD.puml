@@ -6,14 +6,16 @@ actor "ATCC" as Actor
 participant ":System" as System
 
 activate Actor
-Actor -> System: initiates aircraft search
+Actor -> System: requests to search for aircraft
 activate System
-System --> Actor: requests search criteria (e.g., model name, status)
+
+System --> Actor: asks for search criteria (model name, status, manufacturing year)
 deactivate System
 
-Actor -> System: inputs the requested criteria
+Actor -> System: inputs the search criteria
 activate System
-System --> Actor: returns the list of matching aircraft (200 OK)
+
+System --> Actor: returns the list of matching aircraft
 deactivate System
 deactivate Actor
 @enduml

@@ -2,18 +2,18 @@
 autonumber
 title System Sequence Diagram (SSD) - US103: View Aircraft Details
 
-actor "ATCC" as Actor
+actor "ATCC / Backoffice Operator" as Actor
 participant ":System" as System
 
 activate Actor
-Actor -> System: initiates viewing aircraft details
+Actor -> System: requests to view aircraft details
 activate System
-System --> Actor: requests the aircraft registration number
+System --> Actor: asks for the aircraft registration number
 deactivate System
 
-Actor -> System: inputs the requested data
+Actor -> System: inputs the registration number
 activate System
-System --> Actor: returns the aircraft details (200 OK)
+System --> Actor: returns the aircraft details
 deactivate System
 deactivate Actor
 @enduml

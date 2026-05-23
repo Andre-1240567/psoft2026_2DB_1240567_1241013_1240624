@@ -8,12 +8,14 @@ participant ":System" as System
 activate Operator
 Operator -> System: initiates the registration of a new aircraft model
 activate System
-System --> Operator: requests necessary data (manufacturer, model name, fuel capacity, max range, cruising speed)
+
+System --> Operator: requests necessary data (manufacturer, model name, seating capacity, fuel capacity, max range, cruising speed)
 deactivate System
 
 Operator -> System: selects manufacturer and inputs the requested data
 activate System
-System --> Operator: confirms aircraft model registration and returns details (201 Created)
+
+System --> Operator: confirms aircraft model registration and returns details
 deactivate System
 deactivate Operator
 @enduml
