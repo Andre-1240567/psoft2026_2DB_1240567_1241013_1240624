@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import pt.isep.psoft.alsafe.aircraftmanagement.services.AircraftModelService;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequestMapping("/api/aircraft-models")
@@ -19,6 +20,7 @@ public class AircraftModelController {
         this.service = service;
     }
 
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new aircraft model (US101)")

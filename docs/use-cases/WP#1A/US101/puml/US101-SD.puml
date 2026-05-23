@@ -12,15 +12,15 @@ activate Admin
 Admin -> Ctrl: POST /api/aircraft-models (CreateAircraftModelDTO)
 activate Ctrl
 
-note right of Ctrl: DTO validates if\nmanufacturer belongs\nto Manufacturer Enum
+note right of Ctrl: DTO validates if\nmanufacturer belongs\nto Manufacturer Enum and\nif metrics are positive.
 
 Ctrl -> Service: createAircraftModel(dto)
 activate Service
 
-' Criação da Entidade em memória
-Service -> Model**: create(dto.manufacturer, dto.modelName, dto.fuelCapacity, dto.maxRange, dto.cruisingSpeed)
 
-' Persistência na Base de Dados
+Service -> Model**: create(dto.manufacturer, dto.modelName, dto.seatingCapacity, dto.fuelCapacity, dto.maxRange, dto.cruisingSpeed)
+
+
 Service -> Repo: save(model)
 activate Repo
 Repo --> Service: model

@@ -2,13 +2,13 @@
 autonumber
 title Sequence Diagram (SD) - US103: View Aircraft Details
 
-actor "ATCC" as ATCC
+actor "ATCC / Backoffice Operator" as Actor
 participant ":AircraftController" as Ctrl
 participant ":AircraftService" as Service
 participant "repository\n:AircraftRepository" as Repo
 
-activate ATCC
-ATCC -> Ctrl: GET /api/aircrafts/{registrationNumber}
+activate Actor
+Actor -> Ctrl: GET /api/aircrafts/{registrationNumber}
 activate Ctrl
 
 Ctrl -> Service: getAircraftDetails(registrationNumber)
@@ -16,13 +16,20 @@ activate Service
 
 Service -> Repo: findById(registrationNumber)
 activate Repo
-Repo --> Service: aircraft
+Repo --> Service: Optional<Aircraft>
 deactivate Repo
 
-Service --> Ctrl: aircraft
-deactivate Service
+alt Aircraft Not Found
+    Service --> Ctrl: throws ResourceNotFoundException
+    Ctrl --> Actor: 404 Not Found
+else Aircraft Found
+    Service --> Ctrl: aircraft
 
-Ctrl --> ATCC: 200 OK (AircraftResponseDTO)
+    note right of Ctrl: Controller maps to DTO\nand adds HATEOAS self-link
+
+    Ctrl --> Actor: 200 OK (AircraftResponseDTO)
+end
+deactivate Service
 deactivate Ctrl
-deactivate ATCC
+deactivate Actor
 @enduml

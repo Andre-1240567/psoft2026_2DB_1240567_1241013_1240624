@@ -6,14 +6,21 @@ actor "ATCC" as Actor
 participant ":System" as System
 
 activate Actor
-Actor -> System: initiates the update of an aircraft's operational status
+Actor -> System: requests to update an aircraft's operational status
 activate System
-System --> Actor: requests the registration number and the new status
+
+System --> Actor: asks for the registration number, the new status, and the current version
 deactivate System
 
 Actor -> System: inputs the requested data
 activate System
-System --> Actor: confirms the update and returns the updated details (200 OK)
+
+alt Successful Update
+    System --> Actor: confirms the update and returns the updated details
+else Concurrency Conflict
+    System --> Actor: informs that the aircraft was modified by another user and aborts the update
+end
+
 deactivate System
 deactivate Actor
 @enduml

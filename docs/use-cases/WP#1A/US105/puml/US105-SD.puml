@@ -9,32 +9,47 @@ participant "repository\n:AircraftRepository" as Repo
 participant "aircraft\n:Aircraft" as Aircraft
 
 activate ATCC
-ATCC -> Ctrl: PATCH /api/aircrafts/{registrationNumber}/status (UpdateAircraftStatusDTO)
+ATCC -> Ctrl: PATCH /api/aircrafts/{registrationNumber}/status\n(UpdateAircraftStatusDTO)
 activate Ctrl
+
+note right of Ctrl: DTO validates status Enum\nand version presence
 
 Ctrl -> Service: updateAircraftStatus(registrationNumber, dto.status, dto.version)
 activate Service
 
 Service -> Repo: findById(registrationNumber)
 activate Repo
-Repo --> Service: aircraft
+Repo --> Service: Optional<Aircraft>
 deactivate Repo
 
-Service -> Aircraft: updateStatus(dto.status)
-activate Aircraft
-Aircraft --> Service: success
-deactivate Aircraft
+alt Aircraft Not Found
+    Service --> Ctrl: throws ResourceNotFoundException
+    Ctrl --> ATCC: 404 Not Found
+else Aircraft Found
+    Service -> Aircraft: updateStatus(dto.status)
+    activate Aircraft
+    Aircraft --> Service: success
+    deactivate Aircraft
 
-Service -> Repo: save(aircraft)
-activate Repo
-note right of Repo: Optimistic Locking validates\nversion before saving
-Repo --> Service: aircraft
-deactivate Repo
+    Service -> Repo: save(aircraft)
+    activate Repo
 
-Service --> Ctrl: aircraft
+    alt Version Mismatch (Optimistic Locking)
+        Repo --> Service: throws ObjectOptimisticLockingFailureException
+        Service --> Ctrl: exception propagates
+        Ctrl --> ATCC: 409 Conflict (Precondition Failed)
+    else Version OK
+        Repo --> Service: aircraft
+        deactivate Repo
+
+        Service --> Ctrl: aircraft
+
+        note right of Ctrl: Controller maps to DTO\nand adds HATEOAS self-link
+
+        Ctrl --> ATCC: 200 OK (AircraftResponseDTO)
+    end
+end
 deactivate Service
-
-Ctrl --> ATCC: 200 OK (AircraftResponseDTO)
 deactivate Ctrl
 deactivate ATCC
 @enduml

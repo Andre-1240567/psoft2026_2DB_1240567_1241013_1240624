@@ -13,7 +13,8 @@ deactivate System
 
 Actor -> System: inputs the requested data
 activate System
-System --> Actor: confirms aircraft instance registration and returns details (201 Created)
+
+System --> Actor: confirms aircraft instance registration and returns details
 deactivate System
 deactivate Actor
 @enduml
