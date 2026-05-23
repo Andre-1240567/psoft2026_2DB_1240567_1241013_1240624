@@ -5,9 +5,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft;
 import pt.isep.psoft.alsafe.aircraftmanagement.services.AircraftService;
+
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 @RestController
@@ -21,6 +23,7 @@ public class AircraftController {
         this.aircraftService = aircraftService;
     }
 
+    @PreAuthorize("hasRole('ATCC')") //US102
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new aircraft instance (US102)")
@@ -33,6 +36,7 @@ public class AircraftController {
         return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAnyRole('ATCC', 'BACKOFFICE_OPERATOR')") //US103
     @GetMapping("/{registrationNumber}")
     @Operation(summary = "View aircraft details by registration number (US103)")
     public ResponseEntity<AircraftResponseDTO> getAircraftDetails(@PathVariable String registrationNumber) {
@@ -44,6 +48,7 @@ public class AircraftController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @PreAuthorize("hasRole('ATCC')") //US104
     @GetMapping
     @Operation(summary = "Search aircraft fleet by model, status, or manufacturing year (US104)")
     public ResponseEntity<java.util.List<AircraftResponseDTO>> searchAircrafts(
@@ -64,6 +69,7 @@ public class AircraftController {
         return ResponseEntity.ok(responseList);
     }
 
+    @PreAuthorize("hasRole('ATCC')") //S105
     @PatchMapping("/{registrationNumber}/status")
     @Operation(summary = "Update the operational status of an aircraft (US105)")
     public ResponseEntity<AircraftResponseDTO> updateAircraftStatus(

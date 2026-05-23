@@ -25,8 +25,13 @@ package "User Aggregate" {
 
 ' --- AGGREGATE: AIRCRAFT MODEL ---
 package "Aircraft Model Aggregate" {
+    enum Manufacturer <<Enum>> {
+        BOEING
+        AIRBUS
+        EMBRAER
+        BOMBARDIER
+    }
     class AircraftModel <<Aggregate Root>> <<Entity>> {
-        - manufacturer : String
         - modelName : String
         - fuelCapacity : Double
         - maxRange : Double
@@ -41,6 +46,7 @@ package "Aircraft Model Aggregate" {
     class AircraftFeature <<Value Object>> {
         - featureDescription : String
     }
+    AircraftModel "1" *-- "1" Manufacturer : built by >
     AircraftModel "1" *-- "1..*" SeatConfiguration : has >
     AircraftModel "1" *-- "0..*" AircraftFeature : possesses >
 }
@@ -57,6 +63,7 @@ package "Aircraft Aggregate" {
         - registrationNumber : String
         - manufacturingDate : Date
         - activeConfigurationName : String
+        - version : Long
     }
     Aircraft "1" *-- "1" AircraftStatus : current status >
 }
@@ -124,10 +131,9 @@ package "Airport Aggregate" {
         NE
         SW
         SE
-        }
-
+    }
     class Timezone <<Value Object>> {
-    - offsetValue : String
+        - offsetValue : String
     }
 
     Airport "1" *-- "1" IATACode : identified by >
@@ -191,7 +197,7 @@ package "Flight Operations Aggregate" {
 Aircraft "0..*" --> "1" AircraftModel : is instance of >
 FlightRoute "0..*" --> "1" Airport : origin >
 FlightRoute "0..*" --> "1" Airport : destination >
-Aircraft "1" --> "0..*" FlightRoute : travels >
-AircraftModel "0..*" --> "1" Airport : accepts <
+ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
+AirplaneCertification "0..*" --> "1" AircraftModel : certifies >
 
 @enduml
