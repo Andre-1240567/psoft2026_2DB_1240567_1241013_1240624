@@ -1,0 +1,248 @@
+{
+  "info": {
+    "_postman_id": "c1a2b3c4-d5e6-7f8g-9h0i-j1k2l3m4n5o6",
+    "name": "WP#1A - Aircraft Management",
+    "description": "Endpoints for Work Package 1A (US101 to US105), including JWT Authentication.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login (Get JWT Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if(jsonData.token) {",
+                  "    pm.environment.set(\"jwt_token\", jsonData.token);",
+                  "    console.log(\"Token guardado com sucesso!\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"username\": \"atcc\",\n    \"password\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "US101 - Register Aircraft Model",
+      "item": [
+        {
+          "name": "Create Aircraft Model",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"manufacturer\": \"BOEING\",\n    \"modelName\": \"737 MAX 8\",\n    \"seatingCapacity\": 189,\n    \"fuelCapacity\": 25941,\n    \"maxRange\": 6570,\n    \"cruisingSpeed\": 839\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/aircraft-models",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircraft-models"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "US102 - Register Aircraft Instance",
+      "item": [
+        {
+          "name": "Create Aircraft",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"registrationNumber\": \"CS-TPA\",\n    \"modelName\": \"737 MAX 8\",\n    \"manufacturingDate\": \"2024-05-20\",\n    \"activeConfigurationName\": \"Economy\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/aircrafts",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircrafts"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "US103 - View Aircraft Details",
+      "item": [
+        {
+          "name": "Get Aircraft by Registration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/aircrafts/CS-TPA",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircrafts",
+                "CS-TPA"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "US104 - Search Aircraft",
+      "item": [
+        {
+          "name": "Search Aircrafts (With Filters)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/aircrafts?status=AVAILABLE&year=2024",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircrafts"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "AVAILABLE"
+                },
+                {
+                  "key": "year",
+                  "value": "2024"
+                },
+                {
+                  "key": "modelName",
+                  "value": "737 MAX 8",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "US105 - Update Operational Status",
+      "item": [
+        {
+          "name": "Patch Aircraft Status",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"status\": \"IN_FLIGHT\",\n    \"version\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/aircrafts/CS-TPA/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircrafts",
+                "CS-TPA",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}

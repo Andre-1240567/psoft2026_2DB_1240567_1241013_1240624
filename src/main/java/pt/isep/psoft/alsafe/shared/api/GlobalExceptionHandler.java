@@ -6,6 +6,8 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,5 +34,21 @@ public class GlobalExceptionHandler {
         errorResponse.put("error", ex.getMessage());
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Map<String, String>> handleMessageNotReadable(HttpMessageNotReadableException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Malformed JSON request or invalid data type/Enum provided.");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, String>> handleOptimisticLockingFailure(ObjectOptimisticLockingFailureException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Concurrency conflict: The record was modified by another user. Please refresh your data and try again.");
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 }

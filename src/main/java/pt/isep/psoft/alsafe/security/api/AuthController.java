@@ -24,7 +24,7 @@ public class AuthController {
         } else if ("operator".equals(loginRequest.getUsername())) {
             role = "BACKOFFICE_OPERATOR";
         } else if ("admin".equals(loginRequest.getUsername())) {
-            role = "ADMIN";
+            role = "ADMIN,BACKOFFICE_OPERATOR,ATCC";
         } else {
             return ResponseEntity.status(401).body("Invalid credentials.");
         }
