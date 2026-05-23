@@ -34,5 +34,10 @@
 - **DTO Pattern:** Inputs and outputs are isolated from domain entities using `CreateAircraftModelDTO` to avoid exposing the internal domain structure.
 
 ## Sequence Diagrams
-- [System Sequence Diagram](US101-SSD.puml)
-- [Sequence Diagram](US101-SD.puml)
+
+### System Sequence Diagram
+
+![System Sequence Diagram](svg/US101-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US101-SD.svg)

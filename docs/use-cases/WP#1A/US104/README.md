@@ -31,5 +31,9 @@
 - **Iterative HATEOAS:** Ensures that lists are fully compliant with REST Level 3, allowing clients to navigate directly to any specific aircraft in the response.
 
 ## Sequence Diagrams
-- [System Sequence Diagram](US104-SSD.puml)
-- [Sequence Diagram](US104-SD.puml)
+
+### System Sequence Diagram
+![System Sequence Diagram](svg/US104-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US104-SD.svg)

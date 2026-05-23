@@ -36,5 +36,9 @@
 - **REST Best Practices:** Uses the `PATCH` HTTP method, which is semantically correct for partial entity updates.
 
 ## Sequence Diagrams
-- [System Sequence Diagram](US105-SSD.puml)
-- [Sequence Diagram](US105-SD.puml)
+
+### System Sequence Diagram
+![System Sequence Diagram](svg/US105-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US105-SD.svg)

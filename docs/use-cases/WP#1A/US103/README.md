@@ -30,5 +30,9 @@
 - **Flexible Authorization:** Leverages `@PreAuthorize("hasAnyRole(...)")` to allow cross-profile read access without duplicating endpoints.
 
 ## Sequence Diagrams
-- [System Sequence Diagram](US103-SSD.puml)
-- [Sequence Diagram](US103-SD.puml)
+
+### System Sequence Diagram
+![System Sequence Diagram](svg/US103-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US103-SD.svg)

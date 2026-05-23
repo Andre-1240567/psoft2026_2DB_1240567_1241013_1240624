@@ -35,5 +35,9 @@
 - **HATEOAS:** Rest Maturity Level 3 is applied by returning dynamic self-links (`_links`) pointing to the US103 endpoint.
 
 ## Sequence Diagrams
-- [System Sequence Diagram](US102-SSD.puml)
-- [Sequence Diagram](US102-SD.puml)
+
+### System Sequence Diagram
+![System Sequence Diagram](svg/US102-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US102-SD.svg)
