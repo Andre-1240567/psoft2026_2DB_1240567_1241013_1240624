@@ -21,6 +21,9 @@ public class AircraftModel {
     private Manufacturer manufacturer;
 
     @Column(nullable = false)
+    private Integer seatingCapacity;
+
+    @Column(nullable = false)
     private Double fuelCapacity;
 
     @Column(nullable = false)
@@ -29,12 +32,16 @@ public class AircraftModel {
     @Column(nullable = false)
     private Double cruisingSpeed;
 
-    public AircraftModel(Manufacturer manufacturer, String modelName, Double fuelCapacity, Double maxRange, Double cruisingSpeed) {
+    public AircraftModel(Manufacturer manufacturer, String modelName, Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed) {
         if (manufacturer == null) {
             throw new IllegalArgumentException("Manufacturer cannot be null.");
         }
         if (modelName == null || modelName.trim().isEmpty()) {
             throw new IllegalArgumentException("Model name cannot be empty.");
+        }
+
+        if (seatingCapacity == null || seatingCapacity <= 0) {
+            throw new IllegalArgumentException("Seating capacity must be strictly positive.");
         }
         if (fuelCapacity == null || fuelCapacity <= 0) {
             throw new IllegalArgumentException("Fuel capacity must be strictly positive.");
@@ -48,6 +55,7 @@ public class AircraftModel {
 
         this.manufacturer = manufacturer;
         this.modelName = modelName;
+        this.seatingCapacity = seatingCapacity;
         this.fuelCapacity = fuelCapacity;
         this.maxRange = maxRange;
         this.cruisingSpeed = cruisingSpeed;
