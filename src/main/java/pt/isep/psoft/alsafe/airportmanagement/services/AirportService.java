@@ -22,10 +22,10 @@ public class AirportService {
     }
 
     @Transactional
-    public Airport createAirport(CreateAirportRequestDTO dto){
+    public Airport createAirport(CreateAirportRequestDTO dto) {
 
         Optional<Airport> existingAirport = airportRepository.findByIataCode_Code(dto.getIataCode());
-        if(existingAirport.isPresent()){
+        if (existingAirport.isPresent()) {
             throw new IllegalArgumentException("Airport with IATACode " + dto.getIataCode() + " already exists");
         }
 
@@ -34,15 +34,16 @@ public class AirportService {
         Location locationVO = new Location(dto.getRegion(), dto.getCountry(), dto.getCity(), gpsCoordinatesVO);
         Timezone timezoneVO = new Timezone(dto.getTimezone());
 
-        Airport newAirport = new Airport(iataCodeVO,dto.getName(),locationVO, timezoneVO);
+        Airport newAirport = new Airport(iataCodeVO, dto.getName(), locationVO, timezoneVO);
 
-        if(dto.getRunways() != null){
-            for(CreateRunwayRequestDTO runwayRequestDTO : dto.getRunways()){
+        if (dto.getRunways() != null) {
+            for (CreateRunwayRequestDTO runwayRequestDTO : dto.getRunways()) {
                 Runway runway = new Runway(runwayRequestDTO.getName(), runwayRequestDTO.getLength(), runwayRequestDTO.getOrientation());
                 newAirport.addRunway(runway);
             }
         }
-        return  airportRepository.save(newAirport);
+        return airportRepository.save(newAirport);
+
     }
 
     public Airport getAirportDetails(String iataCode) {
@@ -69,5 +70,18 @@ public class AirportService {
         return airportRepository.findByLocation_City(city);
     }
 
+    @Transactional
+    public Airport addAirplaneCertification(String iataCode, String modelName) {
+
+        if (aircraftModelRepository.findByModelName(modelName).isEmpty()) {
+            throw new IllegalArgumentException("Error: The airplane model'" + modelName + "' is not registred in the system.");
+        }
+
+        Airport airport = getAirportDetails(iataCode);
+
+        airport.addCertification(modelName);
+
+        return airportRepository.save(airport);
+    }
 
 }

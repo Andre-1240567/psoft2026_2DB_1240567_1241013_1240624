@@ -1,0 +1,13 @@
+@startuml US106a-SSD
+title System Sequence Diagram - US106a: Add Airplane Certification
+autonumber
+actor "Backoffice Operator" as Admin
+participant "System" as Sys
+
+activate Admin
+Admin -> Sys : POST /api/airports/{iataCode}/certifications (aircraftModelName)
+activate Sys
+Sys --> Admin : 200 OK and updated airport details
+deactivate Sys
+deactivate Admin
+@enduml

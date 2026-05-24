@@ -35,7 +35,6 @@ public class AirportController {
 
     @GetMapping
     public ResponseEntity<List<Airport>> searchAirports(@RequestParam(value = "city", required = false) String city) {
-        // Se enviarem a cidade, pesquisa. Se não enviarem nada, devolve erro (ou podia devolver todos)
         if (city == null || city.trim().isEmpty()) {
             throw new IllegalArgumentException("O parâmetro de pesquisa 'city' é obrigatório.");
         }
@@ -44,13 +43,21 @@ public class AirportController {
         return ResponseEntity.ok(airports);
     }
 
-    // --- US109: MUDAR ESTADO OPERACIONAL ---
     @PatchMapping("/{iataCode}/status")
     public ResponseEntity<Airport> changeOperationalStatus(
             @PathVariable("iataCode") String iataCode,
             @Valid @RequestBody ChangeAirportStatusDTO dto) {
 
         Airport updatedAirport = airportService.changeOperationalStatus(iataCode, dto.getNewStatus());
+        return ResponseEntity.ok(updatedAirport);
+    }
+
+    @PostMapping("/{iataCode}/certifications")
+    public ResponseEntity<Airport> addAirplaneCertification(
+            @PathVariable("iataCode") String iataCode,
+            @Valid @RequestBody pt.isep.psoft.alsafe.airportmanagement.api.dto.AddCertificationDTO dto) {
+
+        Airport updatedAirport = airportService.addAirplaneCertification(iataCode, dto.getAircraftModelName());
         return ResponseEntity.ok(updatedAirport);
     }
 }
