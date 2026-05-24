@@ -1,0 +1,19 @@
+@startuml US103-SSD
+autonumber
+title System Sequence Diagram (SSD) - US103: View Aircraft Details
+
+actor "ATCC / Backoffice Operator" as Actor
+participant ":System" as System
+
+activate Actor
+Actor -> System: requests to view aircraft details
+activate System
+System --> Actor: asks for the aircraft registration number
+deactivate System
+
+Actor -> System: inputs the registration number
+activate System
+System --> Actor: returns the aircraft details
+deactivate System
+deactivate Actor
+@enduml

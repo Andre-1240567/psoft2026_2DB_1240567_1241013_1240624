@@ -1,0 +1,44 @@
+@startuml SD_US102
+autonumber
+title Sequence Diagram (SD) - US102: Register Aircraft Instance
+
+actor "ATCC" as ATCC
+participant ":AircraftController" as Ctrl
+participant ":AircraftService" as Service
+participant "modelRepository\n:AircraftModelRepository" as RepoModel
+participant "aircraftRepository\n:AircraftRepository" as RepoAir
+participant "aircraft\n:Aircraft" as Aircraft
+
+activate ATCC
+ATCC -> Ctrl: POST /api/aircrafts (CreateAircraftDTO)
+activate Ctrl
+
+note right of Ctrl: DTO validates required fields\n(e.g., registration number regex)
+
+Ctrl -> Service: createAircraft(dto)
+activate Service
+
+Service -> RepoModel: findByModelName(dto.modelName)
+activate RepoModel
+RepoModel --> Service: Optional<AircraftModel>
+deactivate RepoModel
+
+alt Model Not Found
+    Service --> Ctrl: throws IllegalArgumentException
+    Ctrl --> ATCC: 400 Bad Request / 404 Not Found
+else Model Found
+
+    Service -> Aircraft**: create(dto.registrationNumber, model, dto.manufacturingDate, dto.activeConfigurationName)
+    Service -> RepoAir: save(aircraft)
+    activate RepoAir
+    RepoAir --> Service: aircraft
+    deactivate RepoAir
+
+    Service --> Ctrl: aircraft
+
+    Ctrl --> ATCC: 201 Created (AircraftResponseDTO)
+end
+deactivate Service
+deactivate Ctrl
+deactivate ATCC
+@enduml

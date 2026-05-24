@@ -1,21 +1,33 @@
 package pt.isep.psoft.alsafe.flightroutes.services;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
-import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
-import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
-import pt.isep.psoft.alsafe.airportmanagement.domain.Location;
-import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
-
+import pt.isep.psoft.alsafe.airportmanagement.domain.*;
+import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
 import pt.isep.psoft.alsafe.flightroutes.api.CreateFlightRouteDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteModelAssembler;
+import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
+import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
+import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
+import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,15 +41,72 @@ class FlightRouteServiceTest {
     private FlightRouteRepository routeRepository;
 
     @Mock
-    private AirportRepository airportRepository;
+    private AirportService airportService;
+
+    @Mock
+    private FlightRouteModelAssembler assembler;
+
+    @Mock
+    private SecurityContext securityContext;
+
+    @Mock
+    private Authentication authentication;
 
     @InjectMocks
     private FlightRouteService flightRouteService;
 
-    private Airport createFakeAirport(String iata) {
-        return new Airport(new IATACode(iata), "Fake Airport", 
-               new Location("Reg", "Country", "City", new GPSCoordinates(0.0, 0.0)));
+    @BeforeEach
+    void mockSecurityContext() {
+        lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
+        lenient().when(authentication.isAuthenticated()).thenReturn(true);
+        lenient().when(authentication.getName()).thenReturn("atcc_jose");
+        lenient().when(authentication.getPrincipal()).thenReturn("atcc_jose");
+
+        SecurityContextHolder.setContext(securityContext);
     }
+
+    @AfterEach
+    void clearSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
+
+    // -----------------------------------------------------------------------
+    // Helpers
+    // -----------------------------------------------------------------------
+
+    private Airport createFakeAirport(String iata, Status status) {
+        Airport airport = new Airport(
+                new IATACode(iata),
+                "Fake Airport",
+                new Location("Reg", "Country", "City", new GPSCoordinates(0.0, 0.0)),
+                new Timezone("UTC+00:00"));
+        if (status != null) {
+            airport.changeStatus(status);
+        }
+        return airport;
+    }
+
+    private FlightRoute createFakeRoute(String id, String originIata, String destIata) {
+        Airport origin      = createFakeAirport(originIata, Status.OPERATIONAL);
+        Airport destination = createFakeAirport(destIata, Status.OPERATIONAL);
+        // minRange (600) >= distance (500) — valid
+        RouteRequirement req = new RouteRequirement(600.0, 150);
+
+        FlightRoute route = new FlightRoute(id, origin, destination, 500.0, 60, req, "atcc_jose");
+
+        // Spy to simulate a persisted entity that already has a JPA-assigned version of 0L
+        FlightRoute spyRoute = spy(route);
+        lenient().when(spyRoute.getVersion()).thenReturn(0L);
+        return spyRoute;
+    }
+
+    private FlightRouteResponseDTO fakeDto(FlightRoute route) {
+        return new FlightRouteResponseDTO(route);
+    }
+
+    // -----------------------------------------------------------------------
+    // createFlightRoute
+    // -----------------------------------------------------------------------
 
     @Test
     void ensureRouteIsCreatedSuccessfully() {
@@ -49,40 +118,308 @@ class FlightRouteServiceTest {
         dto.setMinRangeRequired(600.0);
         dto.setMinCapacityRequired(150);
 
-        Airport origin = createFakeAirport("OPO");
-        Airport destination = createFakeAirport("MAD");
+        Airport origin      = createFakeAirport("OPO", Status.OPERATIONAL);
+        Airport destination = createFakeAirport("MAD", Status.OPERATIONAL);
 
-        // CORREÇÃO: findByIataCode_Code
-        when(airportRepository.findByIataCode_Code("OPO")).thenReturn(Optional.of(origin));
-        when(airportRepository.findByIataCode_Code("MAD")).thenReturn(Optional.of(destination));
-        
+        when(airportService.getAirportDetails("OPO")).thenReturn(origin);
+        when(airportService.getAirportDetails("MAD")).thenReturn(destination);
         when(routeRepository.save(any(FlightRoute.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(assembler.toModel(any(FlightRoute.class))).thenAnswer(i -> fakeDto((FlightRoute) i.getArguments()[0]));
 
-        FlightRoute createdRoute = flightRouteService.createFlightRoute(dto);
+        FlightRouteResponseDTO result = flightRouteService.createFlightRoute(dto);
 
-        assertNotNull(createdRoute);
-        // CORREÇÃO: getCode()
-        assertEquals("OPO", createdRoute.getOrigin().getIataCode().getCode());
-        assertEquals("MAD", createdRoute.getDestination().getIataCode().getCode());
-        
-        verify(airportRepository, times(1)).findByIataCode_Code("OPO");
+        assertNotNull(result);
+        assertEquals("OPO",             result.getOriginIataCode());
+        assertEquals("MAD",             result.getDestinationIataCode());
+        assertEquals(500.0,             result.getDistance());
+        assertEquals(60,                result.getEstimatedFlightTime());
+        assertEquals(RouteStatus.ACTIVE, result.getRouteStatus());
+
+        verify(airportService, times(1)).getAirportDetails("OPO");
+        verify(airportService, times(1)).getAirportDetails("MAD");
         verify(routeRepository, times(1)).save(any(FlightRoute.class));
     }
 
     @Test
-    void ensureExceptionIsThrownWhenOriginIsInvalid() {
+    void ensureExceptionIsThrownWhenOriginAirportIsNotOperational() {
         CreateFlightRouteDTO dto = new CreateFlightRouteDTO();
-        dto.setOriginIata("XXX"); 
+        dto.setOriginIata("OPO");
         dto.setDestinationIata("MAD");
+        dto.setDistance(500.0);
+        dto.setEstimatedFlightTime(60);
+        dto.setMinRangeRequired(600.0);
+        dto.setMinCapacityRequired(150);
 
-        when(airportRepository.findByIataCode_Code("XXX")).thenReturn(Optional.empty());
+        when(airportService.getAirportDetails("OPO")).thenReturn(createFakeAirport("OPO", Status.CLOSED));
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            flightRouteService.createFlightRoute(dto);
-        });
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                flightRouteService.createFlightRoute(dto));
 
-        assertEquals("Origin airport not found: XXX", exception.getMessage());
-        
+        assertTrue(ex.getMessage().contains("is not operational"));
+        verify(routeRepository, never()).save(any());
+    }
+
+    /**
+     * AirportService may throw either ResourceNotFoundException or IllegalArgumentException
+     * for an unknown IATA. The service wraps IllegalArgumentException in a
+     * ResourceNotFoundException so the controller always returns 404.
+     */
+    @Test
+    void ensureExceptionIsThrownWhenOriginAirportDoesNotExist_viaResourceNotFoundException() {
+        CreateFlightRouteDTO dto = new CreateFlightRouteDTO();
+        dto.setOriginIata("XXX");
+        dto.setDestinationIata("MAD");
+        dto.setDistance(500.0);
+        dto.setEstimatedFlightTime(60);
+        dto.setMinRangeRequired(600.0);
+        dto.setMinCapacityRequired(150);
+
+        when(airportService.getAirportDetails("XXX"))
+                .thenThrow(new ResourceNotFoundException("Airport not found: XXX"));
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                flightRouteService.createFlightRoute(dto));
+
+        verify(routeRepository, never()).save(any());
+    }
+
+    @Test
+    void ensureExceptionIsThrownWhenOriginAirportDoesNotExist_viaIllegalArgument() {
+        CreateFlightRouteDTO dto = new CreateFlightRouteDTO();
+        dto.setOriginIata("XXX");
+        dto.setDestinationIata("MAD");
+        dto.setDistance(500.0);
+        dto.setEstimatedFlightTime(60);
+        dto.setMinRangeRequired(600.0);
+        dto.setMinCapacityRequired(150);
+
+        // Teammate's service may throw IllegalArgumentException — we wrap it as 404
+        when(airportService.getAirportDetails("XXX"))
+                .thenThrow(new IllegalArgumentException("Airport not found: XXX"));
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                flightRouteService.createFlightRoute(dto));
+
+        verify(routeRepository, never()).save(any());
+    }
+
+    @Test
+    void ensureExceptionIsThrownWhenDestinationAirportDoesNotExist() {
+        CreateFlightRouteDTO dto = new CreateFlightRouteDTO();
+        dto.setOriginIata("OPO");
+        dto.setDestinationIata("XXX");
+        dto.setDistance(500.0);
+        dto.setEstimatedFlightTime(60);
+        dto.setMinRangeRequired(600.0);
+        dto.setMinCapacityRequired(150);
+
+        when(airportService.getAirportDetails("OPO")).thenReturn(createFakeAirport("OPO", Status.OPERATIONAL));
+        when(airportService.getAirportDetails("XXX"))
+                .thenThrow(new ResourceNotFoundException("Airport not found: XXX"));
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                flightRouteService.createFlightRoute(dto));
+
+        verify(routeRepository, never()).save(any());
+    }
+
+    // -----------------------------------------------------------------------
+    // getRouteById
+    // -----------------------------------------------------------------------
+
+    @Test
+    void ensureGetRouteByIdReturnsRouteWhenFound() {
+        FlightRoute route = createFakeRoute("route-001", "OPO", "LIS");
+        when(routeRepository.findByIdWithHistory("route-001")).thenReturn(Optional.of(route));
+        when(assembler.toModel(route)).thenReturn(fakeDto(route));
+
+        FlightRouteResponseDTO result = flightRouteService.getRouteById("route-001");
+
+        assertNotNull(result);
+        assertEquals("route-001", result.getRouteId());
+        verify(routeRepository, times(1)).findByIdWithHistory("route-001");
+    }
+
+    @Test
+    void ensureGetRouteByIdThrowsWhenRouteDoesNotExist() {
+        when(routeRepository.findByIdWithHistory("nonexistent")).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                flightRouteService.getRouteById("nonexistent"));
+    }
+
+    // -----------------------------------------------------------------------
+    // searchRoutes
+    // -----------------------------------------------------------------------
+
+    @Test
+    void ensureSearchRoutesReturnsPaginatedResultsForNoFilters() {
+        Pageable pageable = PageRequest.of(0, 5);
+        FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
+        FlightRoute r2 = createFakeRoute("r2", "OPO", "MAD");
+        Page<FlightRoute> page = new PageImpl<>(List.of(r1, r2));
+
+        when(routeRepository.findAll(pageable)).thenReturn(page);
+        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
+        when(assembler.toModel(r2)).thenReturn(fakeDto(r2));
+
+        Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes(null, null, pageable);
+
+        assertNotNull(result);
+        assertEquals(2, result.getContent().size());
+        verify(routeRepository, times(1)).findAll(pageable);
+    }
+
+    @Test
+    void ensureSearchByOriginIataReturnsPaginatedResults() {
+        Pageable pageable = PageRequest.of(0, 5);
+        FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
+        FlightRoute r2 = createFakeRoute("r2", "OPO", "MAD");
+        Page<FlightRoute> page = new PageImpl<>(List.of(r1, r2));
+
+        when(routeRepository.findByOrigin_IataCode_Code("OPO", pageable)).thenReturn(page);
+        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
+        when(assembler.toModel(r2)).thenReturn(fakeDto(r2));
+
+        Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes("OPO", null, pageable);
+
+        assertEquals(2, result.getContent().size());
+        verify(routeRepository, times(1)).findByOrigin_IataCode_Code("OPO", pageable);
+    }
+
+    @Test
+    void ensureSearchByBothOriginAndDestinationReturnsPaginatedResults() {
+        Pageable pageable = PageRequest.of(0, 5);
+        FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
+        Page<FlightRoute> page = new PageImpl<>(List.of(r1));
+
+        when(routeRepository.findByOrigin_IataCode_CodeAndDestination_IataCode_Code("OPO", "LIS", pageable))
+                .thenReturn(page);
+        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
+
+        Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes("OPO", "LIS", pageable);
+
+        assertEquals(1, result.getContent().size());
+        verify(routeRepository, times(1))
+                .findByOrigin_IataCode_CodeAndDestination_IataCode_Code("OPO", "LIS", pageable);
+    }
+
+    // -----------------------------------------------------------------------
+    // updateRoute
+    // -----------------------------------------------------------------------
+
+    @Test
+    void ensureRouteIsUpdatedSuccessfully() {
+        FlightRoute route = createFakeRoute("route-001", "OPO", "LIS");
+        when(routeRepository.findById("route-001")).thenReturn(Optional.of(route));
+        when(routeRepository.save(any(FlightRoute.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(assembler.toModel(any(FlightRoute.class))).thenAnswer(i -> fakeDto((FlightRoute) i.getArguments()[0]));
+
+        UpdateFlightRouteDTO dto = new UpdateFlightRouteDTO();
+        dto.setDistance(600.0);
+        dto.setEstimatedFlightTime(75);
+        dto.setMinRangeRequired(700.0);
+        dto.setMinCapacityRequired(180);
+        dto.setVersion(0L); // matches spyRoute.getVersion()
+
+        FlightRouteResponseDTO result = flightRouteService.updateRoute("route-001", dto);
+
+        assertNotNull(result);
+        assertEquals(600.0, result.getDistance());
+        assertEquals(75,    result.getEstimatedFlightTime());
+        verify(routeRepository, times(1)).save(any(FlightRoute.class));
+    }
+
+    @Test
+    void ensureUpdateThrowsWhenVersionMismatches() {
+        FlightRoute route = createFakeRoute("route-001", "OPO", "LIS");
+        when(routeRepository.findById("route-001")).thenReturn(Optional.of(route));
+
+        UpdateFlightRouteDTO dto = new UpdateFlightRouteDTO();
+        dto.setDistance(600.0);
+        dto.setEstimatedFlightTime(75);
+        dto.setMinRangeRequired(700.0);
+        dto.setMinCapacityRequired(180);
+        dto.setVersion(999L); // intentionally stale
+
+        assertThrows(org.springframework.orm.ObjectOptimisticLockingFailureException.class, () ->
+                flightRouteService.updateRoute("route-001", dto));
+
+        verify(routeRepository, never()).save(any());
+    }
+
+    @Test
+    void ensureUpdateThrowsWhenRouteDoesNotExist() {
+        when(routeRepository.findById("nonexistent")).thenReturn(Optional.empty());
+
+        UpdateFlightRouteDTO dto = new UpdateFlightRouteDTO();
+        dto.setDistance(600.0);
+        dto.setEstimatedFlightTime(75);
+        dto.setMinRangeRequired(700.0);
+        dto.setMinCapacityRequired(180);
+        dto.setVersion(0L);
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                flightRouteService.updateRoute("nonexistent", dto));
+
+        verify(routeRepository, never()).save(any());
+    }
+
+    @Test
+    void ensureUpdateThrowsWhenRouteIsDeactivated() {
+        FlightRoute route = createFakeRoute("route-001", "OPO", "LIS");
+        route.deactivate("atcc_jose");
+        when(routeRepository.findById("route-001")).thenReturn(Optional.of(route));
+
+        UpdateFlightRouteDTO dto = new UpdateFlightRouteDTO();
+        dto.setDistance(600.0);
+        dto.setEstimatedFlightTime(75);
+        dto.setMinRangeRequired(700.0);
+        dto.setMinCapacityRequired(180);
+        dto.setVersion(0L);
+
+        assertThrows(IllegalStateException.class, () ->
+                flightRouteService.updateRoute("route-001", dto));
+
+        verify(routeRepository, never()).save(any());
+    }
+
+    // -----------------------------------------------------------------------
+    // deactivateRoute
+    // -----------------------------------------------------------------------
+
+    @Test
+    void ensureRouteIsDeactivatedSuccessfully() {
+        FlightRoute route = createFakeRoute("route-001", "OPO", "LIS");
+        when(routeRepository.findById("route-001")).thenReturn(Optional.of(route));
+        when(routeRepository.save(any(FlightRoute.class))).thenAnswer(i -> i.getArguments()[0]);
+        when(assembler.toModel(any(FlightRoute.class))).thenAnswer(i -> fakeDto((FlightRoute) i.getArguments()[0]));
+
+        FlightRouteResponseDTO result = flightRouteService.deactivateRoute("route-001");
+
+        assertEquals(RouteStatus.DEACTIVATED, result.getRouteStatus());
+        verify(routeRepository, times(1)).save(any(FlightRoute.class));
+    }
+
+    @Test
+    void ensureDeactivateThrowsWhenRouteDoesNotExist() {
+        when(routeRepository.findById("nonexistent")).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () ->
+                flightRouteService.deactivateRoute("nonexistent"));
+
+        verify(routeRepository, never()).save(any());
+    }
+
+    @Test
+    void ensureDeactivateThrowsWhenRouteIsAlreadyDeactivated() {
+        FlightRoute route = createFakeRoute("route-001", "OPO", "LIS");
+        route.deactivate("atcc_jose");
+        when(routeRepository.findById("route-001")).thenReturn(Optional.of(route));
+
+        assertThrows(IllegalStateException.class, () ->
+                flightRouteService.deactivateRoute("route-001"));
+
         verify(routeRepository, never()).save(any());
     }
 }

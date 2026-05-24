@@ -1,0 +1,26 @@
+@startuml US105-SSD
+autonumber
+title System Sequence Diagram (SSD) - US105: Update Operational Status
+
+actor "ATCC" as Actor
+participant ":System" as System
+
+activate Actor
+Actor -> System: requests to update an aircraft's operational status
+activate System
+
+System --> Actor: asks for the registration number, the new status, and the current version
+deactivate System
+
+Actor -> System: inputs the requested data
+activate System
+
+alt Successful Update
+    System --> Actor: confirms the update and returns the updated details
+else Concurrency Conflict
+    System --> Actor: informs that the aircraft was modified by another user and aborts the update
+end
+
+deactivate System
+deactivate Actor
+@enduml

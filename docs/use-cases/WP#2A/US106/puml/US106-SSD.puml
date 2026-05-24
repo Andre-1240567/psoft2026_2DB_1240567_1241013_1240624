@@ -1,0 +1,13 @@
+@startuml US106-SSD
+title System Sequence Diagram - US106: Register an Airplane
+autonumber
+actor "Backoffice Operator" as Admin
+participant "System" as Sys
+
+activate Admin
+Admin -> Sys : POST /api/airports (IATA, designation, location, timezone, etc.)
+activate Sys
+Sys --> Admin : returns 201 Created and the new airport details
+deactivate Sys
+deactivate Admin
+@enduml

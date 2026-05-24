@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "ATCC" as ATCC
+actor "Backoffice Operator" as BO
+
+package "Flight Routes Subdomain (WP#3A)" {
+    usecase "US110: Create Flight Route" as US110
+    usecase "US111: View Route History" as US111
+    usecase "US112: Update Flight Route" as US112_Update
+    usecase "US112: Deactivate Flight Route" as US112_Deactivate
+    usecase "US113: View Routes by Airport or ID" as US113
+    usecase "US114: Search Routes" as US114
+}
+
+ATCC --> US110
+ATCC --> US111
+ATCC --> US112_Update
+ATCC --> US112_Deactivate
+ATCC --> US113
+ATCC --> US114
+
+BO --> US112_Update
+BO --> US112_Deactivate
+
+US110 .> US111 : <<include>>
+US112_Update .> US111 : <<include>>
+US112_Deactivate .> US111 : <<include>>
+
+@enduml

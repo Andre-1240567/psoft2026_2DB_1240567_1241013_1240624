@@ -1,0 +1,38 @@
+@startuml UCD_WP1A
+skinparam packageStyle rectangle
+skinparam shadowing false
+
+title Use Case Diagram - WP #1A: Aircraft Management
+
+' Create an invisible boundary to force vertical alignment of actors on the left
+together {
+  actor "Backoffice Operator" as Admin
+  actor "Air Transport Company Collaborator\n(ATCC)" as ATCC
+}
+Admin -[hidden]down-> ATCC
+
+' System Boundary
+rectangle "AISafe System" {
+  usecase "US101: Register Aircraft Model" as UC1
+  usecase "US102: Register Aircraft Instance" as UC2
+  usecase "US103: View Aircraft Details" as UC3
+  usecase "US104: Search Aircraft" as UC4
+  usecase "US105: Update Operational Status" as UC5
+
+  ' Force vertical alignment of Use Cases
+  UC1 -[hidden]down-> UC2
+  UC2 -[hidden]down-> UC3
+  UC3 -[hidden]down-> UC4
+  UC4 -[hidden]down-> UC5
+}
+
+' Relationships
+Admin -> UC1
+Admin -> UC3
+
+ATCC -> UC2
+ATCC -> UC3
+ATCC -> UC4
+ATCC -> UC5
+
+@enduml

@@ -6,22 +6,22 @@ import lombok.Data;
 @Data
 public class UpdateFlightRouteDTO {
 
-    @NotNull(message = "A distância da rota é obrigatória para a atualização.")
-    @Positive(message = "A distância deve ser um valor estritamente positivo.")
+    @NotNull(message = "The route's distance is required for the update.")
+    @Positive(message = "The distance must be a strictly positive value.")
     private Double distance;
 
-    @NotNull(message = "O tempo estimado de voo é obrigatório para a atualização.")
-    @Positive(message = "O tempo estimado de voo deve ser superior a zero minutos.")
+    @NotNull(message = "The estimated flight time is required for the update.")
+    @Positive(message = "The estimated flight time should be greater than zero minutes.")
     private Integer estimatedFlightTime;
 
-    @NotNull(message = "O alcance mínimo exigido é obrigatório para a atualização.")
-    @Positive(message = "O alcance mínimo exigido deve ser um valor positivo.")
+    @NotNull(message = "The minimum required range is mandatory for the update.")
+    @Positive(message = "The minimum required range must be a positive value.")
     private Double minRangeRequired;
 
-    @NotNull(message = "A capacidade mínima exigida é obrigatória para a atualização.")
-    @Positive(message = "A capacidade mínima exigida deve ser superior a zero lugares.")
+    @NotNull(message = "The minimum required capacity is mandatory for the update.")
+    @Positive(message = "The minimum required capacity must be greater than zero seats.")
     private Integer minCapacityRequired;
 
-    @NotNull(message = "A versão do registo é obrigatória para salvaguardar o controlo de concorrência.")
+    @NotNull(message = "The registry's version is mandatory to safeguard competition control.")
     private Long version;
 }

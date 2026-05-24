@@ -1,0 +1,28 @@
+@startuml WP#2A-UCD
+left to right direction
+
+actor "Backoffice Operator" as Admin
+actor "ATCC" as User
+
+rectangle "Airport Subdomain (WP#2A)" {
+    usecase "US106: Create Airport" as US106
+    usecase "US106a: Add Airplane Certification" as US106a
+    usecase "US107: View Airport Details" as US107
+    usecase "US108: Search Airports" as US108
+    usecase "US109: Change Operational Status" as US109
+}
+
+' Ligações do Operador de Backoffice (Criação e Gestão)
+Admin --> US106
+Admin --> US106a
+Admin --> US109
+
+' O Backoffice também pode ver e pesquisar
+Admin --> US107
+Admin --> US108
+
+' Ligações do ATCC (Apenas visualização/pesquisa)
+User --> US107
+User --> US108
+
+@enduml

@@ -1,20 +1,36 @@
 @startuml
 autonumber
+actor "ATCC" as ATCC
+participant ":FlightRouteController" as Ctrl
+participant ":FlightRouteService" as Service
+participant "routeRepository\n:FlightRouteRepository" as Repo
 participant "route\n:FlightRoute" as Route
-participant "historyRecord\n:RouteHistory" as History
 
--> Route: deactivate(author)
+activate ATCC
+ATCC -> Ctrl: GET /api/flight-routes/{id}/history
+activate Ctrl
+
+Ctrl -> Service: getRouteHistory(routeId)
+activate Service
+
+Service -> Repo: findByIdWithHistory(routeId)
+activate Repo
+note right of Repo: LEFT JOIN FETCH r.history\navoids LazyInitializationException
+Repo --> Service: Optional<FlightRoute>
+deactivate Repo
+
+note right of Service: throws ResourceNotFoundException (404)\nif route not found
+
+Service -> Route: getHistory()
 activate Route
-
-Route -> Route: setRouteStatus(DEACTIVATED)
-Route -> Route: addHistory(author)
-activate Route
-
-Route -> History**: create(author, DEACTIVATED)
-note right of Route: Automatic timestamp\ncapture in the constructor.
-Route -> Route: history.add(historyRecord)
-
+Route --> Service: List<RouteHistory>
 deactivate Route
-<-- Route: success
-deactivate Route
+
+Service --> Ctrl: List<RouteHistoryDTO>
+deactivate Service
+
+Ctrl --> ATCC: 200 OK (List<RouteHistoryDTO>)
+deactivate Ctrl
+deactivate ATCC
+
 @enduml

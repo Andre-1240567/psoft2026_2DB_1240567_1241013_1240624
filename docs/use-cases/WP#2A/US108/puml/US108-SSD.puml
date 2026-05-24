@@ -1,0 +1,13 @@
+@startuml US108-SSD
+title System Sequence Diagram - US108: Search Airports
+autonumber
+actor "ATCC / Backoffice" as User
+participant "System" as Sys
+
+activate User
+User -> Sys : GET /api/airports?city={cityName}
+activate Sys
+Sys --> User : 200 OK and list of matching airports
+deactivate Sys
+deactivate User
+@enduml

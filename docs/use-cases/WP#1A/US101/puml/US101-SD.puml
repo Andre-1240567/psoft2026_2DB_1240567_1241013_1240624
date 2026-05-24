@@ -1,0 +1,35 @@
+@startuml US101-SD
+autonumber
+title Sequence Diagram (SD) - US101: Register Aircraft Model
+
+actor "Backoffice Operator" as Admin
+participant ":AircraftModelController" as Ctrl
+participant ":AircraftModelService" as Service
+participant "repository\n:AircraftModelRepository" as Repo
+participant "model\n:AircraftModel" as Model
+
+activate Admin
+Admin -> Ctrl: POST /api/aircraft-models (CreateAircraftModelDTO)
+activate Ctrl
+
+note right of Ctrl: DTO validates if\nmanufacturer belongs\nto Manufacturer Enum and\nif metrics are positive.
+
+Ctrl -> Service: createAircraftModel(dto)
+activate Service
+
+
+Service -> Model**: create(dto.manufacturer, dto.modelName, dto.seatingCapacity, dto.fuelCapacity, dto.maxRange, dto.cruisingSpeed)
+
+
+Service -> Repo: save(model)
+activate Repo
+Repo --> Service: model
+deactivate Repo
+
+Service --> Ctrl: model
+deactivate Service
+
+Ctrl --> Admin: 201 Created (AircraftModelResponseDTO)
+deactivate Ctrl
+deactivate Admin
+@enduml

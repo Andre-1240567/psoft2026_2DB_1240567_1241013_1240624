@@ -1,0 +1,48 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide methods
+
+package "Airport Subdomain (WP2)" {
+    class Airport <<Aggregate Root>> <<Entity>> {
+        - iataCode: IATACode
+        - designation: String
+    }
+}
+
+package "Flight Routes Subdomain (WP3A)" {
+    class FlightRoute <<Aggregate Root>> <<Entity>> {
+        - routeId: RouteId
+        - version: Long
+        - distance: Double
+        - estimatedFlightTime: Integer
+        - routeStatus: RouteStatus
+    }
+
+    class RouteId <<Value Object>> {
+        - id: String
+    }
+
+    class RouteRequirement <<Value Object>> {
+        - minRangeRequired: Double
+        - minCapacityRequired: Integer
+    }
+
+    class RouteHistory <<Value Object>> {
+        - changeDate: LocalDateTime
+        - description: String
+        - author: String
+    }
+
+    enum RouteStatus <<Enum>> {
+        ACTIVE
+        DEACTIVATED
+    }
+}
+
+FlightRoute "1" --> "1" Airport : origin >
+FlightRoute "1" --> "1" Airport : destination >
+FlightRoute "1" *-- "1" RouteId : identified by >
+FlightRoute "1" *-- "1" RouteRequirement : contains >
+FlightRoute "1" *-- "*" RouteHistory : tracks >
+
+@enduml

@@ -17,7 +17,13 @@ package "pt.isep.psoft.alsafe.flightroutes.api" {
 
 package "pt.isep.psoft.alsafe.flightroutes.services" {
     class FlightRouteService {
-        + createFlightRoute(dto: CreateFlightRouteDTO): FlightRoute
+        + createFlightRoute(dto: CreateFlightRouteDTO): FlightRouteResponseDTO
+    }
+}
+
+package "pt.isep.psoft.alsafe.airportmanagement.services" {
+    class AirportService {
+        + getAirportDetails(iata: String): Airport
     }
 }
 
@@ -27,32 +33,34 @@ package "pt.isep.psoft.alsafe.flightroutes.repositories" {
     }
 }
 
-package "pt.isep.psoft.alsafe.airportmanagement.repositories" {
-    interface AirportRepository {
-        + findByIataCode_Code(iata: String): Optional<Airport>
-    }
-}
-
 package "pt.isep.psoft.alsafe.flightroutes.domain" {
     class FlightRoute {
-        - routeId: String
+        - routeId: RouteId
+        - version: Long
         - distance: Double
         - estimatedFlightTime: Integer
         - routeStatus: RouteStatus
-        + FlightRoute(id, origin, dest, distance, time, req, author)
+        + FlightRoute(id: String, origin: Airport, dest: Airport, distance: Double, time: Integer, req: RouteRequirement, author: String)
     }
-    class RouteRequirement {
-        - minRange: Double
-        - minCapacity: Integer
-        + RouteRequirement(range, capacity)
+    
+    class RouteId <<Value Object>> {
+        - id: String
+        + RouteId(id: String)
+    }
+    
+    class RouteRequirement <<Value Object>> {
+        - minRangeRequired: Double
+        - minCapacityRequired: Integer
+        + RouteRequirement(range: Double, capacity: Integer)
     }
 }
 
 FlightRouteController .right.> CreateFlightRouteDTO
 FlightRouteController --> FlightRouteService : uses
-FlightRouteService --> AirportRepository : uses
+FlightRouteService --> AirportService : uses
 FlightRouteService --> FlightRouteRepository : uses
 FlightRouteService ..> FlightRoute : creates
-FlightRoute *-- "1" RouteRequirement : contains
+FlightRoute "1" *-- "1" RouteId : identified by >
+FlightRoute "1" *-- "1" RouteRequirement : contains >
 
 @enduml

@@ -1,0 +1,30 @@
+@startuml US104-SD
+autonumber
+title Sequence Diagram (SD) - US104: Search Aircraft
+
+actor "ATCC" as ATCC
+participant ":AircraftController" as Ctrl
+participant ":AircraftService" as Service
+participant "repository\n:AircraftRepository" as Repo
+
+activate ATCC
+ATCC -> Ctrl: GET /api/aircrafts?modelName={model}&status={status}&year={year}
+activate Ctrl
+
+Ctrl -> Service: searchAircrafts(modelName, status, year)
+activate Service
+
+Service -> Repo: findByFilters(modelName, status, year)
+activate Repo
+Repo --> Service: List<Aircraft>
+deactivate Repo
+
+Service --> Ctrl: List<Aircraft>
+deactivate Service
+
+note right of Ctrl: Controller maps to DTOs\nand adds HATEOAS self-link\nto each list element
+
+Ctrl --> ATCC: 200 OK (List<AircraftResponseDTO>)
+deactivate Ctrl
+deactivate ATCC
+@enduml

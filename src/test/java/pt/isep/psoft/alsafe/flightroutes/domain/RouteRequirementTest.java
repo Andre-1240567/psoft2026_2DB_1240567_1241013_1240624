@@ -6,24 +6,48 @@ import static org.junit.jupiter.api.Assertions.*;
 class RouteRequirementTest {
 
     @Test
-    void ensureMustHavePositiveRangeAndCapacity() {
-        // Arrange (Preparar) - Nada a preparar de especial neste caso
-        
-        // Act & Assert (Agir e Verificar)
-        // O assertThrows verifica se o nosso código realmente atira a Exceção certa quando enviamos zeros ou negativos!
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            new RouteRequirement(0.0, -10); // Lotação de -10 pessoas!
-        });
+    void ensureValidRequirementsAreCreated() {
+        RouteRequirement req = assertDoesNotThrow(() -> new RouteRequirement(1500.0, 100));
 
-        // Verificar se a mensagem de erro que o sistema deita para fora é a correta
-        assertEquals("O alcance e a capacidade devem ser maiores que zero.", exception.getMessage());
+        assertEquals(1500.0, req.getMinRangeRequired());
+        assertEquals(100,    req.getMinCapacityRequired());
     }
 
     @Test
-    void ensureValidRequirementsAreCreated() {
-        // AssertDoesNotThrow garante que se mandarmos valores normais, o objeto é criado em paz
-        assertDoesNotThrow(() -> {
-            new RouteRequirement(1500.0, 100);
-        });
+    void ensureMinimumBoundaryValuesAreAccepted() {
+        assertDoesNotThrow(() -> new RouteRequirement(0.001, 1));
+    }
+
+    @Test
+    void ensureZeroRangeIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(0.0, 100));
+    }
+
+    @Test
+    void ensureNegativeRangeIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(-1.0, 100));
+    }
+
+    @Test
+    void ensureZeroCapacityIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(1500.0, 0));
+    }
+
+    @Test
+    void ensureNegativeCapacityIsRejected() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(1500.0, -10));
+
+        // FIX: Matched the exact string output
+        assertEquals("Minimum capacity required must be a positive value.", ex.getMessage());
+    }
+
+    @Test
+    void ensureBothZeroRangeAndNegativeCapacityAreRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(0.0, -10));
     }
 }

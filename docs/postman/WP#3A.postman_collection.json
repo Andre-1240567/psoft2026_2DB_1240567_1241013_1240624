@@ -1,0 +1,386 @@
+{
+  "info": {
+    "_postman_id": "1e8f50c7-6519-4d83-a9fe-46660dd982a8",
+    "name": "WP#3A - Flight Routes Full Audit",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. AUTH - Login as ATCC",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set(\"jwt_token\", jsonData.token);",
+              "    console.log(\"JWT Token saved!\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"atcc\",\n    \"password\": \"atcc123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "1. TEST POST - Correct",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Response contains HATEOAS _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set(\"routeId\", jsonData.routeId);",
+              "    pm.environment.set(\"routeVersion\", jsonData.version);",
+              "    console.log(\"ID da rota guardado: \" + jsonData.routeId);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"originIata\": \"OPO\",\n    \"destinationIata\": \"LIS\",\n    \"distance\": 280.5,\n    \"estimatedFlightTime\": 45,\n    \"minRangeRequired\": 350.0,\n    \"minCapacityRequired\": 100\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "2. TEST POST - Error (Business Rule)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 400 Bad Request\", function () {",
+              "    pm.response.to.have.status(400);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"originIata\": \"OPO\",\n    \"destinationIata\": \"OPO\",\n    \"distance\": 280.5,\n    \"estimatedFlightTime\": 45,\n    \"minRangeRequired\": 350.0,\n    \"minCapacityRequired\": 100\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ]
+        }
+      }
+    },
+    {
+      "name": "3. TEST GET - Paginated Search",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Contains Paginated Data (Spring HATEOAS structure)\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    ",
+              "    pm.expect(jsonData).to.have.property('page');",
+              "    pm.expect(jsonData.page.size).to.eql(5);",
+              "    pm.expect(jsonData.page.number).to.eql(0);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes?originIata=OPO&page=0&size=5",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ],
+          "query": [
+            {
+              "key": "originIata",
+              "value": "OPO"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. TEST PUT - Correct Update",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK after Update\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Distance was updated successfully\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.distance).to.eql(300.0);",
+              "    pm.expect(jsonData.estimatedFlightTime).to.eql(50);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set(\"routeVersion\", jsonData.version);",
+              "    console.log(\"Nova versão guardada: \" + jsonData.version);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"distance\": 300.0,\n    \"estimatedFlightTime\": 50,\n    \"minRangeRequired\": 400.0,\n    \"minCapacityRequired\": 120,\n    \"version\": {{routeVersion}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes/{{routeId}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. TEST PUT - Conflict (Concurrency)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 409 Conflict due to bad version\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"distance\": 310.0,\n    \"estimatedFlightTime\": 55,\n    \"minRangeRequired\": 400.0,\n    \"minCapacityRequired\": 120,\n    \"version\": 99999\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes/{{routeId}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}"
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. TEST PATCH - Deactivate",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK after Deactivation\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Route Status changed to DEACTIVATED\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.routeStatus).to.eql(\"DEACTIVATED\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes/{{routeId}}/deactivate",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}",
+            "deactivate"
+          ]
+        }
+      }
+    }
+  ]
+}

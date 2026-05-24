@@ -6,27 +6,27 @@ import lombok.Data;
 @Data
 public class CreateFlightRouteDTO {
 
-    @NotBlank(message = "O código IATA de origem é obrigatório.")
-    @Pattern(regexp = "[A-Z]{3}", message = "O código IATA de origem deve conter exatamente 3 letras maiúsculas.")
+    @NotBlank(message = "The IATA origin code is required.")
+    @Pattern(regexp = "[A-Z]{3}", message = "The IATA origin code must contain exactly 3 uppercase letters.")
     private String originIata;
 
-    @NotBlank(message = "O código IATA de destino é obrigatório.")
-    @Pattern(regexp = "[A-Z]{3}", message = "O código IATA de destino deve conter exatamente 3 letras maiúsculas.")
+    @NotBlank(message = "The IATA destination code is required.")
+    @Pattern(regexp = "[A-Z]{3}", message = "The IATA destination code must contain exactly 3 uppercase letters.")
     private String destinationIata;
 
-    @NotNull(message = "A distância da rota é obrigatória.")
-    @Positive(message = "A distância deve ser um valor estritamente positivo.")
+    @NotNull(message = "The route's distance is mandatory.")
+    @Positive(message = "The distance must be a strictly positive value.")
     private Double distance;
 
-    @NotNull(message = "O tempo estimado de voo é obrigatório.")
-    @Positive(message = "O tempo estimado de voo deve ser superior a zero minutos.")
+    @NotNull(message = "The estimated flight time is mandatory.")
+    @Positive(message = "The estimated flight time should be greater than zero minutes.")
     private Integer estimatedFlightTime;
 
-    @NotNull(message = "O alcance mínimo exigido para a aeronave é obrigatório.")
-    @Positive(message = "O alcance mínimo exigido deve ser um valor positivo.")
+    @NotNull(message = "The minimum required range for the aircraft is mandatory.")
+    @Positive(message = "The minimum required range must be a positive value.")
     private Double minRangeRequired;
 
-    @NotNull(message = "A capacidade mínima exigida para a aeronave é obrigatória.")
-    @Positive(message = "A capacidade mínima exigida deve ser superior a zero lugares.")
+    @NotNull(message = "The minimum required capacity for the aircraft is mandatory.")
+    @Positive(message = "The minimum required capacity must be greater than zero seats.")
     private Integer minCapacityRequired;
 }

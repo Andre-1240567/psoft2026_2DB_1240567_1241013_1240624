@@ -1,0 +1,21 @@
+@startuml US104-SSD
+autonumber
+title System Sequence Diagram (SSD) - US104: Search Aircraft
+
+actor "ATCC" as Actor
+participant ":System" as System
+
+activate Actor
+Actor -> System: requests to search for aircraft
+activate System
+
+System --> Actor: asks for search criteria (model name, status, manufacturing year)
+deactivate System
+
+Actor -> System: inputs the search criteria
+activate System
+
+System --> Actor: returns the list of matching aircraft
+deactivate System
+deactivate Actor
+@enduml
