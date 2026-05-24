@@ -9,9 +9,10 @@ import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
+/**
+ * Pure data-carrier DTO. HATEOAS links are added by FlightRouteModelAssembler,
+ * following the Single Responsibility Principle.
+ */
 @Getter
 public class FlightRouteResponseDTO extends RepresentationModel<FlightRouteResponseDTO> {
 
@@ -27,7 +28,7 @@ public class FlightRouteResponseDTO extends RepresentationModel<FlightRouteRespo
     private final List<RouteHistoryDTO> history;
 
     public FlightRouteResponseDTO(FlightRoute route) {
-        this.routeId             = route.getRouteId();
+        this.routeId             = route.getRouteIdValue();
         this.originIataCode      = route.getOrigin().getIataCode().getCode();
         this.destinationIataCode = route.getDestination().getIataCode().getCode();
         this.distance            = route.getDistance();
@@ -36,26 +37,15 @@ public class FlightRouteResponseDTO extends RepresentationModel<FlightRouteRespo
         this.minCapacityRequired = route.getRouteRequirement().getMinCapacityRequired();
         this.routeStatus         = route.getRouteStatus();
         this.version             = route.getVersion();
-        
-        // This safely triggers lazy loading ONLY if executed inside the Service's @Transactional boundary
-        this.history             = route.getHistory().stream()
-                                        .map(RouteHistoryDTO::new)
-                                        .toList();
 
-        FlightRouteController ctrl = methodOn(FlightRouteController.class);
-
-        this.add(linkTo(ctrl.getRouteById(route.getRouteId())).withSelfRel());
-        this.add(linkTo(ctrl.getRouteHistory(route.getRouteId())).withRel("history"));
-
-        if (route.getRouteStatus() == RouteStatus.ACTIVE) {
-            this.add(linkTo(ctrl.deactivateRoute(route.getRouteId())).withRel("deactivate"));
-            this.add(linkTo(ctrl.updateRoute(route.getRouteId(), new UpdateFlightRouteDTO())).withRel("update"));
-        }
+        this.history = route.getHistory().stream()
+                            .map(RouteHistoryDTO::new)
+                            .toList();
     }
 
     @Getter
     public static class RouteHistoryDTO {
-        private final LocalDateTime changeDate; // Changed to proper native date type
+        private final LocalDateTime changeDate;
         private final String description;
         private final String author;
 

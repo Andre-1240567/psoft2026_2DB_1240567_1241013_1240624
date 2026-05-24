@@ -1,34 +1,34 @@
 {
-	"id": "85903522-22af-4039-86a2-8746d2348bcc",
-	"name": "AlSafe-Dev",
-	"values": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:8080",
-			"type": "default",
-			"enabled": true
-		},
-		{
-			"key": "jwt_token",
-			"value": "",
-			"type": "secret",
-			"enabled": true
-		},
-		{
-			"key": "routeId",
-			"value": "",
-			"type": "any",
-			"enabled": true
-		},
-		{
-			"key": "routeVersion",
-			"value": "",
-			"type": "any",
-			"enabled": true
-		}
-	],
-	"color": null,
-	"_postman_variable_scope": "environment",
-	"_postman_exported_at": "2026-05-23T20:00:00.000Z",
-	"_postman_exported_using": "Postman/12.11.3"
+    "id": "85903522-22af-4039-86a2-8746d2348bcc",
+    "name": "AlSafe-Dev",
+    "values": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8080",
+            "type": "default",
+            "enabled": true
+        },
+        {
+            "key": "jwt_token",
+            "value": "",
+            "type": "secret",
+            "enabled": true
+        },
+        {
+            "key": "routeId",
+            "value": "",
+            "type": "any",
+            "enabled": true
+        },
+        {
+            "key": "routeVersion",
+            "value": "",
+            "type": "any",
+            "enabled": true
+        }
+    ],
+    "color": null,
+    "_postman_variable_scope": "environment",
+    "_postman_exported_at": "2026-05-23T20:00:00.000Z",
+    "_postman_exported_using": "Postman/12.11.3"
 }

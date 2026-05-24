@@ -14,6 +14,7 @@ import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
 import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Location;
+import pt.isep.psoft.alsafe.airportmanagement.domain.Status;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Timezone;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
@@ -88,19 +89,25 @@ public class Bootstrapper implements CommandLineRunner {
     // --- Colleagues' code below — not modified ---
 
     private void bootstrapAirports() {
-        if (airportRepository.count() == 0) {
-            Location locOpo = new Location("Norte", "Portugal", "Porto", new GPSCoordinates(41.2481, -8.6814));
-            airportRepository.save(new Airport(new IATACode("OPO"), "Sá Carneiro", locOpo, new Timezone("UTC+01:00")));
+    if (airportRepository.count() == 0) {
+        Location locOpo = new Location("Norte", "Portugal", "Porto", new GPSCoordinates(41.2481, -8.6814));
+        Airport opo = new Airport(new IATACode("OPO"), "Sá Carneiro", locOpo, new Timezone("UTC+01:00"));
+        opo.changeStatus(Status.OPERATIONAL);
+        airportRepository.save(opo);
 
-            Location locLis = new Location("Centro", "Portugal", "Lisboa", new GPSCoordinates(38.7742, -9.1342));
-            airportRepository.save(new Airport(new IATACode("LIS"), "Humberto Delgado", locLis, new Timezone("UTC+01:00")));
+        Location locLis = new Location("Centro", "Portugal", "Lisboa", new GPSCoordinates(38.7742, -9.1342));
+        Airport lis = new Airport(new IATACode("LIS"), "Humberto Delgado", locLis, new Timezone("UTC+01:00"));
+        lis.changeStatus(Status.OPERATIONAL);
+        airportRepository.save(lis);
 
-            Location locMad = new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.4719, -3.5626));
-            airportRepository.save(new Airport(new IATACode("MAD"), "Barajas", locMad, new Timezone("UTC+02:00")));
+        Location locMad = new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.4719, -3.5626));
+        Airport mad = new Airport(new IATACode("MAD"), "Barajas", locMad, new Timezone("UTC+02:00"));
+        mad.changeStatus(Status.OPERATIONAL);
+        airportRepository.save(mad);
 
-            System.out.println(" -> Airports loaded.");
-        }
+        System.out.println(" -> Airports loaded.");
     }
+}
 
     private void bootstrapAircraftModels() {
         if (aircraftModelRepository.count() == 0) {

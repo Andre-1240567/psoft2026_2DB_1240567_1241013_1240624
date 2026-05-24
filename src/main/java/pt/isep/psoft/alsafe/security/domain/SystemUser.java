@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
  * Passwords are stored as BCrypt hashes — never in plain text.
  */
 @Entity
-@Table(name = "system_user")
+@Table(name = "\"system_user\"")
 @Getter
 @NoArgsConstructor
 public class SystemUser {

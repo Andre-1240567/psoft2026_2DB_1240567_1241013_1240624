@@ -6,21 +6,48 @@ import static org.junit.jupiter.api.Assertions.*;
 class RouteRequirementTest {
 
     @Test
-    void ensureMustHavePositiveRangeAndCapacity() {
-        // Arrange - Nothing to Arrange in this particular case
-        
-        // Act & Assert 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            new RouteRequirement(0.0, -10);
-        });
+    void ensureValidRequirementsAreCreated() {
+        RouteRequirement req = assertDoesNotThrow(() -> new RouteRequirement(1500.0, 100));
 
-        assertEquals("O alcance e a capacidade devem ser maiores que zero.", exception.getMessage());
+        assertEquals(1500.0, req.getMinRangeRequired());
+        assertEquals(100,    req.getMinCapacityRequired());
     }
 
     @Test
-    void ensureValidRequirementsAreCreated() {
-        assertDoesNotThrow(() -> {
-            new RouteRequirement(1500.0, 100);
-        });
+    void ensureMinimumBoundaryValuesAreAccepted() {
+        assertDoesNotThrow(() -> new RouteRequirement(0.001, 1));
+    }
+
+    @Test
+    void ensureZeroRangeIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(0.0, 100));
+    }
+
+    @Test
+    void ensureNegativeRangeIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(-1.0, 100));
+    }
+
+    @Test
+    void ensureZeroCapacityIsRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(1500.0, 0));
+    }
+
+    @Test
+    void ensureNegativeCapacityIsRejected() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(1500.0, -10));
+
+        // FIX: Matched the exact string output
+        assertEquals("Minimum capacity required must be a positive value.", ex.getMessage());
+    }
+
+    @Test
+    void ensureBothZeroRangeAndNegativeCapacityAreRejected() {
+        assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(0.0, -10));
     }
 }

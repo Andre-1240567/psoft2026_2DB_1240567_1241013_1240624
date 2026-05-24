@@ -23,33 +23,41 @@ import java.util.List;
 public class FlightRouteController {
 
     private final FlightRouteService flightRouteService;
+    private final FlightRouteModelAssembler assembler;
 
-    public FlightRouteController(FlightRouteService flightRouteService) {
+    public FlightRouteController(FlightRouteService flightRouteService,
+                                 FlightRouteModelAssembler assembler) {
         this.flightRouteService = flightRouteService;
+        this.assembler = assembler;
     }
 
-    @Operation(summary = "Create a flight route", description = "Creates a new flight route between two OPERATIONAL airports. Requires ATCC role.")
+    @Operation(summary = "Create a flight route",
+               description = "Creates a new flight route between two OPERATIONAL airports. Requires ATCC role.")
     @PreAuthorize("hasRole('ATCC')")
     @PostMapping
     public ResponseEntity<FlightRouteResponseDTO> createRoute(@Valid @RequestBody CreateFlightRouteDTO dto) {
         return new ResponseEntity<>(flightRouteService.createFlightRoute(dto), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Get history of a flight route", description = "Returns the change history of a flight route. Requires ATCC role.")
+    @Operation(summary = "Get history of a flight route",
+               description = "Returns the change history of a flight route. Requires ATCC role.")
     @PreAuthorize("hasRole('ATCC')")
     @GetMapping("/{id}/history")
-    public ResponseEntity<List<FlightRouteResponseDTO.RouteHistoryDTO>> getRouteHistory(@PathVariable("id") String routeId) {
+    public ResponseEntity<List<FlightRouteResponseDTO.RouteHistoryDTO>> getRouteHistory(
+            @PathVariable("id") String routeId) {
         return ResponseEntity.ok(flightRouteService.getRouteHistory(routeId));
     }
 
-    @Operation(summary = "Deactivate a flight route", description = "Deactivates an active flight route. Requires ATCC or BACKOFFICE_OPERATOR role.")
+    @Operation(summary = "Deactivate a flight route",
+               description = "Deactivates an active flight route. Requires ATCC or BACKOFFICE_OPERATOR role.")
     @PreAuthorize("hasRole('ATCC') or hasRole('BACKOFFICE_OPERATOR')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<FlightRouteResponseDTO> deactivateRoute(@PathVariable("id") String routeId) {
         return ResponseEntity.ok(flightRouteService.deactivateRoute(routeId));
     }
 
-    @Operation(summary = "Update a flight route", description = "Updates the details of an active flight route. Requires ATCC or BACKOFFICE_OPERATOR role.")
+    @Operation(summary = "Update a flight route",
+               description = "Updates the details of an active flight route. Requires ATCC or BACKOFFICE_OPERATOR role.")
     @PreAuthorize("hasRole('ATCC') or hasRole('BACKOFFICE_OPERATOR')")
     @PutMapping("/{id}")
     public ResponseEntity<FlightRouteResponseDTO> updateRoute(
@@ -58,14 +66,16 @@ public class FlightRouteController {
         return ResponseEntity.ok(flightRouteService.updateRoute(routeId, dto));
     }
 
-    @Operation(summary = "Get a flight route by ID", description = "Returns the details of a specific flight route. Requires ATCC role.")
+    @Operation(summary = "Get a flight route by ID",
+               description = "Returns the details of a specific flight route. Requires ATCC role.")
     @PreAuthorize("hasRole('ATCC')")
     @GetMapping("/{id}")
     public ResponseEntity<FlightRouteResponseDTO> getRouteById(@PathVariable("id") String routeId) {
         return ResponseEntity.ok(flightRouteService.getRouteById(routeId));
     }
 
-    @Operation(summary = "Search flight routes", description = "Returns a paginated list of flight routes with HATEOAS links. Requires ATCC role.")
+    @Operation(summary = "Search flight routes",
+               description = "Returns a paginated list of flight routes with HATEOAS links. Requires ATCC role.")
     @PreAuthorize("hasRole('ATCC')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<FlightRouteResponseDTO>>> searchRoutes(
@@ -73,12 +83,12 @@ public class FlightRouteController {
             @RequestParam(required = false) String destinationIata,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            PagedResourcesAssembler<FlightRouteResponseDTO> assembler) {
+            PagedResourcesAssembler<FlightRouteResponseDTO> pagedAssembler) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<FlightRouteResponseDTO> responsePage = flightRouteService.searchRoutes(originIata, destinationIata, pageable);
-        
-        // Assembler wraps the page, injecting `first`, `next`, `prev`, `last` links seamlessly
-        return ResponseEntity.ok(assembler.toModel(responsePage));
+        Page<FlightRouteResponseDTO> responsePage =
+                flightRouteService.searchRoutes(originIata, destinationIata, pageable);
+
+        return ResponseEntity.ok(pagedAssembler.toModel(responsePage));
     }
 }

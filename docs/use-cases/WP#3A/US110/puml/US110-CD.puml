@@ -35,17 +35,23 @@ package "pt.isep.psoft.alsafe.flightroutes.repositories" {
 
 package "pt.isep.psoft.alsafe.flightroutes.domain" {
     class FlightRoute {
-        - routeId: String
+        - routeId: RouteId
         - version: Long
         - distance: Double
         - estimatedFlightTime: Integer
         - routeStatus: RouteStatus
-        + FlightRoute(id, origin, dest, distance, time, req, author)
+        + FlightRoute(id: String, origin: Airport, dest: Airport, distance: Double, time: Integer, req: RouteRequirement, author: String)
     }
-    class RouteRequirement {
+    
+    class RouteId <<Value Object>> {
+        - id: String
+        + RouteId(id: String)
+    }
+    
+    class RouteRequirement <<Value Object>> {
         - minRangeRequired: Double
         - minCapacityRequired: Integer
-        + RouteRequirement(range, capacity)
+        + RouteRequirement(range: Double, capacity: Integer)
     }
 }
 
@@ -54,6 +60,7 @@ FlightRouteController --> FlightRouteService : uses
 FlightRouteService --> AirportService : uses
 FlightRouteService --> FlightRouteRepository : uses
 FlightRouteService ..> FlightRoute : creates
-FlightRoute *-- "1" RouteRequirement : contains
+FlightRoute "1" *-- "1" RouteId : identified by >
+FlightRoute "1" *-- "1" RouteRequirement : contains >
 
 @enduml

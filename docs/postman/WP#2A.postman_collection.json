@@ -7,6 +7,49 @@
   },
   "item": [
     {
+      "name": "0. AUTH - Login as BACKOFFICE_OPERATOR",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "var jsonData = pm.response.json();",
+              "if(jsonData.token) {",
+              "    pm.environment.set(\"jwt_token\", jsonData.token);",
+              "    console.log(\"Token saved!\");",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"operator\", \"password\": \"operator123\"}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
       "name": "US106- Create Airport",
       "request": {
         "auth": {
@@ -23,7 +66,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"iataCode\": \"LAX\",\r\n  \"name\": \"Los Angeles International Airport\",\r\n  \"region\": \"North America\",\r\n  \"country\": \"United States of America\",\r\n  \"city\": \"Los Angeles\",\r\n  \"latitude\": 33.9425,\r\n  \"longitude\": -118.4072,\r\n  \"timezone\": \"UTC-07:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
+          "raw": "{\r\n  \"iataCode\": \"JFK\",\r\n  \"name\": \"John F. Kennedy International Airport\",\r\n  \"region\": \"North America\",\r\n  \"country\": \"United States of America\",\r\n  \"city\": \"New York\",\r\n  \"latitude\": 40.6413,\r\n  \"longitude\": -73.7781,\r\n  \"timezone\": \"UTC-07:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -31,19 +74,32 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/airports",
-          "protocol": "http",
+          "raw": "{{base_url}}/api/airports",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "airports"
           ]
         }
       },
-      "response": []
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Response contains IATA code\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.iataCode.code).to.eql(\"JFK\");",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "US107- View Airport Details",
@@ -61,20 +117,33 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/airports/LAX",
-          "protocol": "http",
+          "raw": "{{base_url}}/api/airports/JFK",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "airports",
-            "LAX"
+            "JFK"
           ]
         }
       },
-      "response": []
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Airport name is correct\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.name).to.eql(\"John F. Kennedy International Airport\");",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "US108- Search Airport by City",
@@ -92,12 +161,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/airports?city=Los Angeles",
-          "protocol": "http",
+          "raw": "{{base_url}}/api/airports?city=New York",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "airports"
@@ -105,12 +172,28 @@
           "query": [
             {
               "key": "city",
-              "value": "Los Angeles"
+              "value": "New York"
             }
           ]
         }
       },
-      "response": []
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Returns a list\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an(\"array\");",
+              "    pm.expect(jsonData.length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "US109- Change Status (Closed)",
@@ -137,21 +220,34 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/airports/LAX/status",
-          "protocol": "http",
+          "raw": "{{base_url}}/api/airports/JFK/status",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "airports",
-            "LAX",
+            "JFK",
             "status"
           ]
         }
       },
-      "response": []
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Airport status changed to CLOSED\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql(\"CLOSED\");",
+              "});"
+            ]
+          }
+        }
+      ]
     },
     {
       "name": "US106a- Certification",
@@ -170,7 +266,7 @@
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"aircraftModelName\": \"B737-800\"\r\n}",
+          "raw": "{\"aircraftModelName\": \"737 MAX\"}",
           "options": {
             "raw": {
               "language": "json"
@@ -178,21 +274,37 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/airports/LAX/certifications",
-          "protocol": "http",
+          "raw": "{{base_url}}/api/airports/JFK/certifications",
           "host": [
-            "localhost"
+            "{{base_url}}"
           ],
-          "port": "8080",
           "path": [
             "api",
             "airports",
-            "LAX",
+            "JFK",
             "certifications"
           ]
         }
       },
-      "response": []
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Certification added\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    var certs = jsonData.certifications;",
+              "    pm.expect(certs).to.be.an(\"array\");",
+              "    var found = certs.some(function(c) { return c.modelName === \"737 MAX\"; });",
+              "    pm.expect(found).to.be.true;",
+              "});"
+            ]
+          }
+        }
+      ]
     }
   ]
 }

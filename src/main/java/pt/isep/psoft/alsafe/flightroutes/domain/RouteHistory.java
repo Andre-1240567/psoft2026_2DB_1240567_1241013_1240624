@@ -16,6 +16,12 @@ public class RouteHistory {
     private String author;
 
     public RouteHistory(String description, String author) {
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("History description cannot be blank.");
+        }
+        if (author == null || author.isBlank()) {
+            throw new IllegalArgumentException("Author cannot be blank.");
+        }
         this.changeDate = LocalDateTime.now();
         this.description = description;
         this.author = author;

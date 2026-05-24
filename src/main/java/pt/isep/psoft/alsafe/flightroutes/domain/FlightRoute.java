@@ -14,8 +14,8 @@ import java.util.List;
 @NoArgsConstructor
 public class FlightRoute {
 
-    @Id
-    private String routeId;
+    @EmbeddedId
+    private RouteId routeId;
 
     @ManyToOne(optional = false)
     private Airport origin;
@@ -44,7 +44,9 @@ public class FlightRoute {
                        Double distance, Integer estimatedFlightTime,
                        RouteRequirement routeRequirement, String author) {
 
-        // Separate null-checks so the error message identifies exactly which argument is null
+        if (routeId == null || routeId.isBlank()) {
+            throw new IllegalArgumentException("Route ID cannot be blank.");
+        }
         if (origin == null) {
             throw new IllegalArgumentException("Origin airport cannot be null.");
         }
@@ -63,8 +65,12 @@ public class FlightRoute {
         if (routeRequirement == null) {
             throw new IllegalArgumentException("Route requirement cannot be null.");
         }
+        // Guard: aircraft minimum range must be able to cover the route distance
+        if (routeRequirement.getMinRangeRequired() < distance) {
+            throw new IllegalArgumentException("Minimum range required cannot be less than the route distance.");
+        }
 
-        this.routeId = routeId;
+        this.routeId = new RouteId(routeId);
         this.origin = origin;
         this.destination = destination;
         this.distance = distance;
@@ -73,6 +79,14 @@ public class FlightRoute {
         this.routeStatus = RouteStatus.ACTIVE;
 
         this.addHistory("Flight route created.", author);
+    }
+
+    /**
+     * Convenience getter returning the raw String ID, used by services and DTOs
+     * that already operated on the String representation before RouteId was introduced.
+     */
+    public String getRouteIdValue() {
+        return routeId.getId();
     }
 
     public void addHistory(String description, String author) {
@@ -100,6 +114,9 @@ public class FlightRoute {
         }
         if (routeRequirement == null) {
             throw new IllegalArgumentException("Route requirement cannot be null.");
+        }
+        if (routeRequirement.getMinRangeRequired() < distance) {
+            throw new IllegalArgumentException("Minimum range required cannot be less than the route distance.");
         }
 
         this.distance = distance;

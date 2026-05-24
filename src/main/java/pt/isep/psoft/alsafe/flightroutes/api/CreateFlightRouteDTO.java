@@ -7,11 +7,11 @@ import lombok.Data;
 public class CreateFlightRouteDTO {
 
     @NotBlank(message = "The IATA origin code is required.")
-    @Pattern(regexp = "[A-Z]{3}", message = "The IATA origin code must contain exactly 3 capital letters.")
+    @Pattern(regexp = "[A-Z]{3}", message = "The IATA origin code must contain exactly 3 uppercase letters.")
     private String originIata;
 
     @NotBlank(message = "The IATA destination code is required.")
-    @Pattern(regexp = "[A-Z]{3}", message = "The IATA destination code must contain exactly 3 capital letters.")
+    @Pattern(regexp = "[A-Z]{3}", message = "The IATA destination code must contain exactly 3 uppercase letters.")
     private String destinationIata;
 
     @NotNull(message = "The route's distance is mandatory.")

@@ -24,12 +24,16 @@ package "pt.isep.psoft.alsafe.flightroutes.repositories" {
 
 package "pt.isep.psoft.alsafe.flightroutes.domain" {
     class FlightRoute {
-        - routeId: String
+        - routeId: RouteId
         - history: List<RouteHistory>
         + addHistory(description: String, author: String)
     }
 
-    class RouteHistory {
+    class RouteId <<Value Object>> {
+        - id: String
+    }
+
+    class RouteHistory <<Value Object>> {
         - changeDate: LocalDateTime
         - description: String
         - author: String
@@ -40,6 +44,7 @@ package "pt.isep.psoft.alsafe.flightroutes.domain" {
 FlightRouteController --> FlightRouteService : uses
 FlightRouteService --> FlightRouteRepository : uses
 FlightRouteService ..> FlightRouteResponseDTO : maps to
-FlightRoute *-- "*" RouteHistory : tracks >
+FlightRoute "1" *-- "1" RouteId : identified by >
+FlightRoute "1" *-- "*" RouteHistory : tracks >
 
 @enduml
