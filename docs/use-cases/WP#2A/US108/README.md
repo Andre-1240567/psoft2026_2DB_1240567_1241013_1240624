@@ -28,6 +28,8 @@
 ## Design Justification
 - **Spring Data Query Derivation:** The search leverages the `findByLocation_City` method derived automatically by Spring Data JPA to traverse the `Location` value object natively.
 
-## Sequence Diagrams
-- [System Sequence Diagram](puml/US108-SSD.puml)
-- [Sequence Diagram](puml/US108-SD.puml)
+### System Sequence Diagram
+![System Sequence Diagram](svg/US108-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US108-SD.svg)
