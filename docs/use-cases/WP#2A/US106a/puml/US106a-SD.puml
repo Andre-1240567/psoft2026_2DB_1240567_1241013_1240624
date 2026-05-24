@@ -1,0 +1,52 @@
+@startuml US106a-SD
+title Sequence Diagram - US106a: Add Airplane Certification
+autonumber
+actor "Backoffice Operator" as Admin
+participant ":AirportController" as Ctrl
+participant "dto:AddCertificationDTO" as DTO
+participant ":AirportService" as Svc
+participant ":AircraftModelRepository\n<<WP#1>>" as ModelRepo
+participant ":AirportRepository" as Repo
+participant "airport:Airport" as Domain
+participant "cert:AirplaneCertification" as Cert
+
+activate Admin
+Admin -> Ctrl : POST /api/airports/{iataCode}/certifications (JSON)
+activate Ctrl
+
+Ctrl -> DTO** : create()
+Ctrl -> Svc : addAirplaneCertification(iataCode, dto.aircraftModelName)
+activate Svc
+
+' Validação no sistema do colega
+Svc -> ModelRepo : findByModelName(modelName)
+activate ModelRepo
+ModelRepo --> Svc : Optional<AircraftModel>
+deactivate ModelRepo
+
+' Obter o Aeroporto
+Svc -> Repo : findByIataCode_Code(iataCode)
+activate Repo
+Repo --> Svc : Optional<Airport>
+deactivate Repo
+
+' Alterar o Domínio
+Svc -> Domain : addCertification(modelName)
+activate Domain
+Domain -> Cert** : create(modelName)
+Domain --> Svc : updated
+deactivate Domain
+
+' Guardar
+Svc -> Repo : save(airport)
+activate Repo
+Repo --> Svc : savedAirport
+deactivate Repo
+
+Svc --> Ctrl : savedAirport
+deactivate Svc
+
+Ctrl --> Admin : 200 OK (JSON View)
+deactivate Ctrl
+deactivate Admin
+@enduml

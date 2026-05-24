@@ -34,6 +34,9 @@ public class Airport {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @ElementCollection
+    private List<AirplaneCertification> certifications = new ArrayList<>();
+
     private String name;
     private String airportPhoto;
 
@@ -58,11 +61,22 @@ public class Airport {
 
     public void changeStatus(Status newStatus) {
         if (newStatus == null) {
-            throw new IllegalArgumentException("O novo estado não pode ser nulo.");
+            throw new IllegalArgumentException("The new state cannot be null.");
         }
         if (this.status == newStatus) {
-            throw new IllegalArgumentException("O aeroporto já se encontra no estado " + newStatus);
+            throw new IllegalArgumentException("The airport is already in that state " + newStatus);
         }
         this.status = newStatus;
+    }
+
+    public void addCertification(String modelName) {
+        boolean alreadyCertified = certifications.stream()
+                .anyMatch(cert -> cert.getModelName().equals(modelName));
+
+        if (alreadyCertified) {
+            throw new IllegalArgumentException("The airport already is certified for this model: " + modelName);
+        }
+
+        this.certifications.add(new AirplaneCertification(modelName, java.time.LocalDate.now()));
     }
 }
