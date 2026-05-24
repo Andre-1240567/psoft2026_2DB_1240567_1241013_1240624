@@ -1,30 +1,33 @@
 package pt.isep.psoft.alsafe.bootstrap;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft;
+import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.Manufacturer;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import pt.isep.psoft.alsafe.aircraftmanagement.domain.Manufacturer;
-import pt.isep.psoft.alsafe.airportmanagement.domain.Timezone;
+import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftModelRepository;
+import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftRepository;
+
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
 import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Location;
+import pt.isep.psoft.alsafe.airportmanagement.domain.Timezone;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
-
-import pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft;
-import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
-import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftRepository;
-import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftModelRepository;
 
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
 
+import pt.isep.psoft.alsafe.security.domain.SystemUser;
+import pt.isep.psoft.alsafe.security.repositories.SystemUserRepository;
+
 import java.time.LocalDate;
 import java.util.UUID;
 
+// #1 — duplicate imports removed (CommandLineRunner and Component were imported twice in the original)
 @Component
 public class Bootstrapper implements CommandLineRunner {
 
@@ -32,26 +35,57 @@ public class Bootstrapper implements CommandLineRunner {
     private final AircraftModelRepository aircraftModelRepository;
     private final AircraftRepository aircraftRepository;
     private final FlightRouteRepository flightRouteRepository;
+    private final SystemUserRepository userRepository;              // #4
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public Bootstrapper(AirportRepository airportRepository,
                         AircraftModelRepository aircraftModelRepository,
                         AircraftRepository aircraftRepository,
-                        FlightRouteRepository flightRouteRepository) {
-        this.airportRepository = airportRepository;
+                        FlightRouteRepository flightRouteRepository,
+                        SystemUserRepository userRepository) {      // #4
+        this.airportRepository       = airportRepository;
         this.aircraftModelRepository = aircraftModelRepository;
-        this.aircraftRepository = aircraftRepository;
-        this.flightRouteRepository = flightRouteRepository;
+        this.aircraftRepository      = aircraftRepository;
+        this.flightRouteRepository   = flightRouteRepository;
+        this.userRepository          = userRepository;              // #4
     }
 
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Launching Bootstrapper...");
+        bootstrapUsers();          // #4 — added: initialize user credentials (required by WP#0A spec)
         bootstrapAirports();
         bootstrapAircraftModels();
         bootstrapFlightRoutes();
         bootstrapAircrafts();
         System.out.println("Bootstrapper deployed!");
     }
+
+    // #4 — Initialize system administrators and backoffice operators (required by WP#0A spec)
+    // Passwords are hashed with BCrypt — never stored in plain text
+    private void bootstrapUsers() {
+        if (userRepository.count() == 0) {
+            userRepository.save(new SystemUser(
+                    "atcc",
+                    passwordEncoder.encode("atcc123"),
+                    "ATCC"
+            ));
+            userRepository.save(new SystemUser(
+                    "operator",
+                    passwordEncoder.encode("operator123"),
+                    "BACKOFFICE_OPERATOR"
+            ));
+            userRepository.save(new SystemUser(
+                    "admin",
+                    passwordEncoder.encode("admin123"),
+                    "ADMIN,BACKOFFICE_OPERATOR,ATCC"
+            ));
+            System.out.println(" -> Users loaded.");
+        }
+    }
+
+    // --- Colleagues' code below — not modified ---
 
     private void bootstrapAirports() {
         if (airportRepository.count() == 0) {
@@ -62,7 +96,7 @@ public class Bootstrapper implements CommandLineRunner {
             airportRepository.save(new Airport(new IATACode("LIS"), "Humberto Delgado", locLis, new Timezone("UTC+01:00")));
 
             Location locMad = new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.4719, -3.5626));
-            airportRepository.save(new Airport(new IATACode("MAD"), "Barajas", locMad,  new Timezone("UTC+02:00")));
+            airportRepository.save(new Airport(new IATACode("MAD"), "Barajas", locMad, new Timezone("UTC+02:00")));
 
             System.out.println(" -> Airports loaded.");
         }
@@ -73,7 +107,6 @@ public class Bootstrapper implements CommandLineRunner {
             aircraftModelRepository.save(new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0));
             aircraftModelRepository.save(new AircraftModel(Manufacturer.AIRBUS, "A320neo", 160, 24000.0, 6300.0, 828.0));
             aircraftModelRepository.save(new AircraftModel(Manufacturer.BOEING, "777X", 400, 35000.0, 8000.0, 900.0));
-
             System.out.println(" -> Aircraft Models loaded.");
         }
     }
@@ -101,9 +134,7 @@ public class Bootstrapper implements CommandLineRunner {
     }
 
     private void bootstrapAircrafts() {
-
         if (aircraftRepository.count() == 0) {
-
             AircraftModel b737 = aircraftModelRepository.findByModelName("737 MAX").orElseThrow();
             AircraftModel a320 = aircraftModelRepository.findByModelName("A320neo").orElseThrow();
 

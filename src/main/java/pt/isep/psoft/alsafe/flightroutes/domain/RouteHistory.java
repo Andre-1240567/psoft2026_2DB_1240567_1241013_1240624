@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 public class RouteHistory {
-    
+
     private LocalDateTime changeDate;
     private String description;
     private String author;

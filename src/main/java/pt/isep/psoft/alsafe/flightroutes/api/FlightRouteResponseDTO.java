@@ -1,30 +1,68 @@
 package pt.isep.psoft.alsafe.flightroutes.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
+import pt.isep.psoft.alsafe.flightroutes.domain.RouteHistory;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
-public class FlightRouteResponseDTO {
-    
-    private FlightRoute data;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-    @JsonProperty("_links")
-    private List<LinkDTO> links = new ArrayList<>();
+@Getter
+public class FlightRouteResponseDTO extends RepresentationModel<FlightRouteResponseDTO> {
+
+    private final String routeId;
+    private final String originIataCode;
+    private final String destinationIataCode;
+    private final Double distance;
+    private final Integer estimatedFlightTime;
+    private final Double minRangeRequired;
+    private final Integer minCapacityRequired;
+    private final RouteStatus routeStatus;
+    private final Long version;
+    private final List<RouteHistoryDTO> history;
 
     public FlightRouteResponseDTO(FlightRoute route) {
-        this.data = route;
-        String baseUri = "/api/flight-routes/" + route.getRouteId();
+        this.routeId             = route.getRouteId();
+        this.originIataCode      = route.getOrigin().getIataCode().getCode();
+        this.destinationIataCode = route.getDestination().getIataCode().getCode();
+        this.distance            = route.getDistance();
+        this.estimatedFlightTime = route.getEstimatedFlightTime();
+        this.minRangeRequired    = route.getRouteRequirement().getMinRangeRequired();
+        this.minCapacityRequired = route.getRouteRequirement().getMinCapacityRequired();
+        this.routeStatus         = route.getRouteStatus();
+        this.version             = route.getVersion();
+        
+        // This safely triggers lazy loading ONLY if executed inside the Service's @Transactional boundary
+        this.history             = route.getHistory().stream()
+                                        .map(RouteHistoryDTO::new)
+                                        .toList();
 
-        this.links.add(new LinkDTO(baseUri, "self", "GET"));
+        FlightRouteController ctrl = methodOn(FlightRouteController.class);
+
+        this.add(linkTo(ctrl.getRouteById(route.getRouteId())).withSelfRel());
+        this.add(linkTo(ctrl.getRouteHistory(route.getRouteId())).withRel("history"));
 
         if (route.getRouteStatus() == RouteStatus.ACTIVE) {
-            this.links.add(new LinkDTO(baseUri + "/deactivate", "deactivate", "PATCH"));
-            this.links.add(new LinkDTO(baseUri, "update", "PUT"));
+            this.add(linkTo(ctrl.deactivateRoute(route.getRouteId())).withRel("deactivate"));
+            this.add(linkTo(ctrl.updateRoute(route.getRouteId(), new UpdateFlightRouteDTO())).withRel("update"));
+        }
+    }
+
+    @Getter
+    public static class RouteHistoryDTO {
+        private final LocalDateTime changeDate; // Changed to proper native date type
+        private final String description;
+        private final String author;
+
+        public RouteHistoryDTO(RouteHistory history) {
+            this.changeDate  = history.getChangeDate();
+            this.description = history.getDescription();
+            this.author      = history.getAuthor();
         }
     }
 }

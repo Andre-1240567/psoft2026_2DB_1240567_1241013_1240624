@@ -3,7 +3,7 @@ autonumber
 actor "ATCC" as ATCC
 participant ":FlightRouteController" as Ctrl
 participant ":FlightRouteService" as Service
-participant "airportRepository\n:AirportRepository" as RepoAir
+participant "airportService\n:AirportService" as AirportSvc
 participant "routeRepository\n:FlightRouteRepository" as RepoRoute
 participant "origin\n:Airport" as Origin
 participant "destination\n:Airport" as Dest
@@ -17,29 +17,37 @@ activate Ctrl
 Ctrl -> Service: createFlightRoute(dto)
 activate Service
 
-' Verifica Aeroporto de Origem
-Service -> RepoAir: findByIataCode_Code(dto.originIata)
-activate RepoAir
-RepoAir --> Service: origin
-deactivate RepoAir
+Service -> AirportSvc: getAirportDetails(dto.originIata)
+activate AirportSvc
+AirportSvc --> Service: origin
+deactivate AirportSvc
 
-' Verifica Aeroporto de Destino
-Service -> RepoAir: findByIataCode_Code(dto.destinationIata)
-activate RepoAir
-RepoAir --> Service: destination
-deactivate RepoAir
+Service -> Origin: getStatus()
+activate Origin
+Origin --> Service: status
+deactivate Origin
+note right of Service: throws IllegalArgumentException (400)\nif status != OPERATIONAL
 
-' Criação dos Value Objects e Entidade
-Service -> Req**: create(dto.minRange, dto.minCapacity)
-Service -> Route**: create(id, origin, destination, dto.distance, dto.time, req, author)
+Service -> AirportSvc: getAirportDetails(dto.destinationIata)
+activate AirportSvc
+AirportSvc --> Service: destination
+deactivate AirportSvc
 
-' Persistência
+Service -> Dest: getStatus()
+activate Dest
+Dest --> Service: status
+deactivate Dest
+note right of Service: throws IllegalArgumentException (400)\nif status != OPERATIONAL
+
+Service -> Req**: create(dto.minRangeRequired, dto.minCapacityRequired)
+Service -> Route**: create(id, origin, destination, dto.distance, dto.estimatedFlightTime, req, author)
+
 Service -> RepoRoute: save(route)
 activate RepoRoute
-RepoRoute --> Service: route
+RepoRoute --> Service: savedRoute
 deactivate RepoRoute
 
-Service --> Ctrl: route
+Service --> Ctrl: FlightRouteResponseDTO
 deactivate Service
 
 Ctrl --> ATCC: 201 Created (FlightRouteResponseDTO)

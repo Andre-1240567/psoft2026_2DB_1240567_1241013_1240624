@@ -1,29 +1,45 @@
 @startuml
 skinparam classAttributeIconSize 0
 
+package "pt.isep.psoft.alsafe.flightroutes.api" {
+    class FlightRouteController {
+        + getRouteHistory(routeId: String): ResponseEntity
+    }
+    class FlightRouteResponseDTO {
+        + static class RouteHistoryDTO
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.services" {
+    class FlightRouteService {
+        + getRouteHistory(routeId: String): List<RouteHistoryDTO>
+    }
+}
+
+package "pt.isep.psoft.alsafe.flightroutes.repositories" {
+    interface FlightRouteRepository {
+        + findByIdWithHistory(routeId: String): Optional<FlightRoute>
+    }
+}
+
 package "pt.isep.psoft.alsafe.flightroutes.domain" {
-    
     class FlightRoute {
         - routeId: String
-        - routeStatus: RouteStatus
-        + addHistory(author: String)
-        + deactivate(author: String)
+        - history: List<RouteHistory>
+        + addHistory(description: String, author: String)
     }
 
     class RouteHistory {
         - changeDate: LocalDateTime
-        - routeStatus: RouteStatus
+        - description: String
         - author: String
-        + RouteHistory(author, status)
-    }
-
-    enum RouteStatus {
-        ACTIVE
-        DEACTIVATED
+        + RouteHistory(description: String, author: String)
     }
 }
 
-FlightRoute *-- "*" RouteHistory : tracks history >
-RouteHistory --> "1" RouteStatus : registers state >
+FlightRouteController --> FlightRouteService : uses
+FlightRouteService --> FlightRouteRepository : uses
+FlightRouteService ..> FlightRouteResponseDTO : maps to
+FlightRoute *-- "*" RouteHistory : tracks >
 
 @enduml

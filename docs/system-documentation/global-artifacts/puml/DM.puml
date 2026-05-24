@@ -26,11 +26,17 @@ package "User Aggregate" {
 ' --- AGGREGATE: AIRCRAFT MODEL ---
 package "Aircraft Model Aggregate" {
     enum Manufacturer <<Enum>> {
-        BOEING
-        AIRBUS
-        EMBRAER
-        BOMBARDIER
-    }
+    BOEING
+    AIRBUS
+    EMBRAER
+    COMAC
+    ATR
+    TEXTRON_AVIATION
+    GULFSTREAM_AEROSPACE
+    PILATUS_AIRCRAFT
+    CIRRUS_AIRCRAFT
+    DIAMOND_AIRCRAFT
+}
     class AircraftModel <<Aggregate Root>> <<Entity>> {
         - modelName : String
         - fuelCapacity : Double

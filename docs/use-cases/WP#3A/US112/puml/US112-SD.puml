@@ -5,9 +5,12 @@ participant ":FlightRouteController" as Ctrl
 participant ":FlightRouteService" as Service
 participant "routeRepository\n:FlightRouteRepository" as Repo
 participant "route\n:FlightRoute" as Route
+participant "req\n:RouteRequirement" as Req
 
 activate Actor
-Actor -> Ctrl: PUT /api/flight-routes/{id} (UpdateDTO)
+
+group Update flow
+Actor -> Ctrl: PUT /api/flight-routes/{id} (UpdateFlightRouteDTO)
 activate Ctrl
 
 Ctrl -> Service: updateRoute(id, dto)
@@ -15,33 +18,59 @@ activate Service
 
 Service -> Repo: findById(id)
 activate Repo
-Repo --> Service: route
+Repo --> Service: Optional<FlightRoute>
 deactivate Repo
+note right of Service: throws ResourceNotFoundException (404)\nif not found
 
-' A Magia da Concorrência
-Service -> Route: getVersion()
-Service -> Service: validate version (dto.version == route.version)
-note right of Service: If versions do not match,\nthrows IllegalStateException (409 Conflict)
+Service -> Service: validate version\n(dto.version == route.version)
+note right of Service: throws ObjectOptimisticLockingFailureException (409)\nif versions do not match
 
-Service -> Route: checkStatus()
-note right of Route: Cannot update if DEACTIVATED\nthrows IllegalStateException
+Service -> Req**: create(dto.minRangeRequired, dto.minCapacityRequired)
 
-' Atualização
-Service -> Route: updateDistance(dto.distance)
-Service -> Route: updateEstimatedFlightTime(dto.time)
-Service -> Route: updateRequirements(dto.minRange, dto.minCapacity)
-note right of Route: addHistory() is implicitly\ncalled inside the domain
+Service -> Route: updateDetails(dto.distance, dto.estimatedFlightTime, req, author)
+activate Route
+note right of Route: guards against DEACTIVATED status (409)\nappends history entry internally
+deactivate Route
 
-' Persistência
 Service -> Repo: save(route)
 activate Repo
-Repo --> Service: updatedRoute
+Repo --> Service: savedRoute
 deactivate Repo
 
-Service --> Ctrl: updatedRoute
+Service --> Ctrl: FlightRouteResponseDTO
 deactivate Service
-
 Ctrl --> Actor: 200 OK (FlightRouteResponseDTO)
 deactivate Ctrl
+end
+
+group Deactivate flow
+Actor -> Ctrl: PATCH /api/flight-routes/{id}/deactivate
+activate Ctrl
+
+Ctrl -> Service: deactivateRoute(id)
+activate Service
+
+Service -> Repo: findById(id)
+activate Repo
+Repo --> Service: Optional<FlightRoute>
+deactivate Repo
+note right of Service: throws ResourceNotFoundException (404)\nif not found
+
+Service -> Route: deactivate(author)
+activate Route
+note right of Route: guards against already DEACTIVATED (409)\nappends history entry internally
+deactivate Route
+
+Service -> Repo: save(route)
+activate Repo
+Repo --> Service: savedRoute
+deactivate Repo
+
+Service --> Ctrl: FlightRouteResponseDTO
+deactivate Service
+Ctrl --> Actor: 200 OK (FlightRouteResponseDTO)
+deactivate Ctrl
+end
+
 deactivate Actor
 @enduml
