@@ -4,35 +4,41 @@ skinparam classAttributeIconSize 0
 package "pt.isep.psoft.alsafe.flightroutes.api" {
     class FlightRouteController {
         + getRouteById(id: String): ResponseEntity
-        + searchRoutes(origin, dest, page, size): ResponseEntity<Page>
+        + searchRoutes(originIata, destinationIata, page, size, assembler): ResponseEntity<PagedModel>
     }
     class FlightRouteResponseDTO {
-        + routeId: String
-        + originIata: String
-        + destinationIata: String
-        + status: String
-        + _links: Map
+        - routeId: String
+        - originIataCode: String
+        - destinationIataCode: String
+        - distance: Double
+        - estimatedFlightTime: Integer
+        - minRangeRequired: Double
+        - minCapacityRequired: Integer
+        - routeStatus: RouteStatus
+        - version: Long
+        - history: List<RouteHistoryDTO>
     }
 }
 
 package "pt.isep.psoft.alsafe.flightroutes.services" {
     class FlightRouteService {
-        + getRouteById(id: String): FlightRoute
-        + searchRoutes(origin, dest, pageable): Page<FlightRoute>
+        + getRouteById(id: String): FlightRouteResponseDTO
+        + searchRoutes(originIata, destinationIata, pageable): Page<FlightRouteResponseDTO>
     }
 }
 
 package "pt.isep.psoft.alsafe.flightroutes.repositories" {
     interface FlightRouteRepository {
-        + findById(id: String): Optional<FlightRoute>
+        + findByIdWithHistory(routeId: String): Optional<FlightRoute>
         + findByOrigin_IataCode_Code(origin, pageable): Page<FlightRoute>
         + findByDestination_IataCode_Code(dest, pageable): Page<FlightRoute>
-        + findByOrigin_IataCode_CodeAndDestination_IataCode_Code(origin, dest, pageable): Page<FlightRoute>
+        + findAll(pageable): Page<FlightRoute>
     }
 }
 
-FlightRouteController ..> FlightRouteResponseDTO : creates
 FlightRouteController --> FlightRouteService : uses
 FlightRouteService --> FlightRouteRepository : uses
+FlightRouteService ..> FlightRouteResponseDTO : creates
+FlightRouteController ..> FlightRouteResponseDTO : returns
 
 @enduml

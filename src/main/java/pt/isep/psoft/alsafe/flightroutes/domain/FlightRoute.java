@@ -9,12 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "flight_route")
 @Getter
 @NoArgsConstructor
 public class FlightRoute {
 
-    @Id
-    private String routeId;
+    @EmbeddedId
+    private RouteId routeId;
 
     @ManyToOne(optional = false)
     private Airport origin;
@@ -26,7 +27,7 @@ public class FlightRoute {
     private Long version;
 
     private Double distance;
-    
+
     private Integer estimatedFlightTime;
 
     @Embedded
@@ -36,25 +37,56 @@ public class FlightRoute {
     private RouteStatus routeStatus;
 
     @ElementCollection
+    @CollectionTable(name = "flight_route_history", joinColumns = @JoinColumn(name = "route_id"))
     private List<RouteHistory> history = new ArrayList<>();
 
-    public FlightRoute(String routeId, Airport origin, Airport destination, 
-                       Double distance, Integer estimatedFlightTime, 
+    public FlightRoute(String routeId, Airport origin, Airport destination,
+                       Double distance, Integer estimatedFlightTime,
                        RouteRequirement routeRequirement, String author) {
-        
+
+        if (routeId == null || routeId.isBlank()) {
+            throw new IllegalArgumentException("Route ID cannot be blank.");
+        }
+        if (origin == null) {
+            throw new IllegalArgumentException("Origin airport cannot be null.");
+        }
+        if (destination == null) {
+            throw new IllegalArgumentException("Destination airport cannot be null.");
+        }
         if (origin.getIataCode().getCode().equals(destination.getIataCode().getCode())) {
-            throw new IllegalArgumentException("The origin and destination cannot be from the same airport.");
+            throw new IllegalArgumentException("The origin and destination cannot be the same airport.");
+        }
+        if (distance == null || distance <= 0) {
+            throw new IllegalArgumentException("Distance must be a positive value.");
+        }
+        if (estimatedFlightTime == null || estimatedFlightTime <= 0) {
+            throw new IllegalArgumentException("Estimated flight time must be a positive value.");
+        }
+        if (routeRequirement == null) {
+            throw new IllegalArgumentException("Route requirement cannot be null.");
+        }
+        // Guard: aircraft minimum range must be able to cover the route distance
+        if (routeRequirement.getMinRangeRequired() < distance) {
+            throw new IllegalArgumentException("Minimum range required cannot be less than the route distance.");
         }
 
-        this.routeId = routeId;
+        this.routeId = new RouteId(routeId);
         this.origin = origin;
         this.destination = destination;
         this.distance = distance;
         this.estimatedFlightTime = estimatedFlightTime;
         this.routeRequirement = routeRequirement;
         this.routeStatus = RouteStatus.ACTIVE;
-        
-        this.addHistory("Flight Route created.", author);
+
+        this.addHistory("Flight route created.", author);
+    }
+
+    /**
+     * Convenience getter returning the raw String ID, used by services and DTOs
+     * that already operated on the String representation before RouteId was introduced.
+     */
+    public String getRouteIdValue() {
+        return routeId.getId();
     }
 
     public void addHistory(String description, String author) {
@@ -66,18 +98,31 @@ public class FlightRoute {
             throw new IllegalStateException("The route is already deactivated.");
         }
         this.routeStatus = RouteStatus.DEACTIVATED;
-        this.addHistory("Flight Route deactivated.", author);
+        this.addHistory("Flight route deactivated.", author);
     }
 
-    public void updateDetails(Double distance, Integer estimatedFlightTime, RouteRequirement routeRequirement, String author) {
+    public void updateDetails(Double distance, Integer estimatedFlightTime,
+                              RouteRequirement routeRequirement, String author) {
         if (this.routeStatus == RouteStatus.DEACTIVATED) {
-            throw new IllegalStateException("You cannot update a disabled route.");
+            throw new IllegalStateException("Cannot update a deactivated route.");
         }
-        
+        if (distance == null || distance <= 0) {
+            throw new IllegalArgumentException("Distance must be a positive value.");
+        }
+        if (estimatedFlightTime == null || estimatedFlightTime <= 0) {
+            throw new IllegalArgumentException("Estimated flight time must be a positive value.");
+        }
+        if (routeRequirement == null) {
+            throw new IllegalArgumentException("Route requirement cannot be null.");
+        }
+        if (routeRequirement.getMinRangeRequired() < distance) {
+            throw new IllegalArgumentException("Minimum range required cannot be less than the route distance.");
+        }
+
         this.distance = distance;
         this.estimatedFlightTime = estimatedFlightTime;
         this.routeRequirement = routeRequirement;
-        
-        this.addHistory("Flight Route details updated.", author);
+
+        this.addHistory("Flight route details updated.", author);
     }
 }

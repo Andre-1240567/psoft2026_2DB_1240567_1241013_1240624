@@ -1,30 +1,58 @@
 package pt.isep.psoft.alsafe.flightroutes.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
+import org.springframework.hateoas.RepresentationModel;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
+import pt.isep.psoft.alsafe.flightroutes.domain.RouteHistory;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
-public class FlightRouteResponseDTO {
-    
-    private FlightRoute data;
+/**
+ * Pure data-carrier DTO. HATEOAS links are added by FlightRouteModelAssembler,
+ * following the Single Responsibility Principle.
+ */
+@Getter
+public class FlightRouteResponseDTO extends RepresentationModel<FlightRouteResponseDTO> {
 
-    @JsonProperty("_links")
-    private List<LinkDTO> links = new ArrayList<>();
+    private final String routeId;
+    private final String originIataCode;
+    private final String destinationIataCode;
+    private final Double distance;
+    private final Integer estimatedFlightTime;
+    private final Double minRangeRequired;
+    private final Integer minCapacityRequired;
+    private final RouteStatus routeStatus;
+    private final Long version;
+    private final List<RouteHistoryDTO> history;
 
     public FlightRouteResponseDTO(FlightRoute route) {
-        this.data = route;
-        String baseUri = "/api/flight-routes/" + route.getRouteId();
+        this.routeId             = route.getRouteIdValue();
+        this.originIataCode      = route.getOrigin().getIataCode().getCode();
+        this.destinationIataCode = route.getDestination().getIataCode().getCode();
+        this.distance            = route.getDistance();
+        this.estimatedFlightTime = route.getEstimatedFlightTime();
+        this.minRangeRequired    = route.getRouteRequirement().getMinRangeRequired();
+        this.minCapacityRequired = route.getRouteRequirement().getMinCapacityRequired();
+        this.routeStatus         = route.getRouteStatus();
+        this.version             = route.getVersion();
 
-        this.links.add(new LinkDTO(baseUri, "self", "GET"));
+        this.history = route.getHistory().stream()
+                            .map(RouteHistoryDTO::new)
+                            .toList();
+    }
 
-        if (route.getRouteStatus() == RouteStatus.ACTIVE) {
-            this.links.add(new LinkDTO(baseUri + "/deactivate", "deactivate", "PATCH"));
-            this.links.add(new LinkDTO(baseUri, "update", "PUT"));
+    @Getter
+    public static class RouteHistoryDTO {
+        private final LocalDateTime changeDate;
+        private final String description;
+        private final String author;
+
+        public RouteHistoryDTO(RouteHistory history) {
+            this.changeDate  = history.getChangeDate();
+            this.description = history.getDescription();
+            this.author      = history.getAuthor();
         }
     }
 }

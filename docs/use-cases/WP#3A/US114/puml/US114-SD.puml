@@ -12,21 +12,20 @@ activate Ctrl
 Ctrl -> Service: searchRoutes(originIata, destinationIata, pageable)
 activate Service
 
-note right of Service: 21/20 Touch:\noriginIata.toUpperCase()\ndestinationIata.toUpperCase()
-Service -> Service: Input Sanitization (Case-Insensitivity)
+note right of Service: IATA codes uppercased\nbefore querying
 
 alt originIata != null && destinationIata != null
-    Service -> Repo: findByOrigin_IataCode_CodeAndDestination_IataCode_Code(..., pageable)
+    Service -> Repo: findByOrigin_IataCode_CodeAndDestination_IataCode_Code(origin, dest, pageable)
     activate Repo
     Repo --> Service: Page<FlightRoute>
     deactivate Repo
 else originIata != null
-    Service -> Repo: findByOrigin_IataCode_Code(..., pageable)
+    Service -> Repo: findByOrigin_IataCode_Code(origin, pageable)
     activate Repo
     Repo --> Service: Page<FlightRoute>
     deactivate Repo
 else destinationIata != null
-    Service -> Repo: findByDestination_IataCode_Code(..., pageable)
+    Service -> Repo: findByDestination_IataCode_Code(dest, pageable)
     activate Repo
     Repo --> Service: Page<FlightRoute>
     deactivate Repo
@@ -37,13 +36,12 @@ else neither provided
     deactivate Repo
 end
 
-Service --> Ctrl: routePage
+note right of Service: resultPage.map(FlightRouteResponseDTO::new)\nexecuted inside @Transactional boundary
+
+Service --> Ctrl: Page<FlightRouteResponseDTO>
 deactivate Service
 
-Ctrl -> Ctrl: routePage.map(FlightRouteResponseDTO::new)
-note right of Ctrl: Maps Page of Entities to Page of DTOs
-
-Ctrl --> Actor: 200 OK (Page<FlightRouteResponseDTO>)
+Ctrl --> Actor: 200 OK (PagedModel<EntityModel<FlightRouteResponseDTO>>)
 deactivate Ctrl
 deactivate Actor
 @enduml

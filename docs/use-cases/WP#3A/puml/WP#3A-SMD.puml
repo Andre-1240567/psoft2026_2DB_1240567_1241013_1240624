@@ -1,7 +1,7 @@
 @startuml
 hide empty description
 
-[*] --> ACTIVE : US110: Route Created\n[Constraints Validated]
+[*] --> ACTIVE : US110: Route Created\n[airports operational, constraints validated]
 
 state ACTIVE {
   ACTIVE : The flight route is operational.
@@ -14,8 +14,8 @@ state DEACTIVATED {
   DEACTIVATED : Preserved for historical auditing.
 }
 
-ACTIVE --> ACTIVE : US112: Update Route\n[Optimistic Lock Valid]
-ACTIVE --> DEACTIVATED : US112: Deactivate Route\n[Action requested]
+ACTIVE --> ACTIVE : US112: Update Route\n[version matches]
+ACTIVE --> DEACTIVATED : US112: Deactivate Route\n[action requested]
 
 DEACTIVATED --> [*] : End of mutating lifecycle
 

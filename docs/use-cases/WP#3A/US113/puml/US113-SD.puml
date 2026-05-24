@@ -4,28 +4,51 @@ actor "ATCC" as Actor
 participant ":FlightRouteController" as Ctrl
 participant ":FlightRouteService" as Service
 participant "routeRepository\n:FlightRouteRepository" as Repo
-participant "route\n:FlightRoute" as Route
-participant "dto\n:FlightRouteResponseDTO" as DTO
 
 activate Actor
+
+group Get route by ID
 Actor -> Ctrl: GET /api/flight-routes/{id}
 activate Ctrl
 
 Ctrl -> Service: getRouteById(id)
 activate Service
 
-Service -> Repo: findById(id)
+Service -> Repo: findByIdWithHistory(routeId)
 activate Repo
+note right of Repo: LEFT JOIN FETCH r.history\nloads history in one query
 Repo --> Service: Optional<FlightRoute>
 deactivate Repo
 
-Service --> Ctrl: route
-deactivate Service
+note right of Service: throws ResourceNotFoundException (404)\nif not found
 
-Ctrl -> DTO**: create(route)
-note right of DTO: Maps domain entity to DTO\nand adds HATEOAS _links
+Service --> Ctrl: FlightRouteResponseDTO
+deactivate Service
 
 Ctrl --> Actor: 200 OK (FlightRouteResponseDTO)
 deactivate Ctrl
+end
+
+group Search routes from a specific airport
+Actor -> Ctrl: GET /api/flight-routes?originIata=XXX&page=0&size=10
+activate Ctrl
+
+Ctrl -> Service: searchRoutes(originIata, null, pageable)
+activate Service
+
+Service -> Repo: findByOrigin_IataCode_Code(originIata, pageable)
+activate Repo
+Repo --> Service: Page<FlightRoute>
+deactivate Repo
+
+note right of Service: each FlightRoute mapped to\nFlightRouteResponseDTO inside\nthe open @Transactional boundary
+
+Service --> Ctrl: Page<FlightRouteResponseDTO>
+deactivate Service
+
+Ctrl --> Actor: 200 OK (PagedModel<EntityModel<FlightRouteResponseDTO>>)
+deactivate Ctrl
+end
+
 deactivate Actor
 @enduml

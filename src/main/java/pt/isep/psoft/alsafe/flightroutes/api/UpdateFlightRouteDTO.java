@@ -18,7 +18,7 @@ public class UpdateFlightRouteDTO {
     @Positive(message = "The minimum required range must be a positive value.")
     private Double minRangeRequired;
 
-    @NotNull(message = "The minimum required capacity is mandatory for the upgrade.")
+    @NotNull(message = "The minimum required capacity is mandatory for the update.")
     @Positive(message = "The minimum required capacity must be greater than zero seats.")
     private Integer minCapacityRequired;
 

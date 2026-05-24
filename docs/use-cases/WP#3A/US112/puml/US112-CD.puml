@@ -17,8 +17,8 @@ package "pt.isep.psoft.alsafe.flightroutes.api" {
 
 package "pt.isep.psoft.alsafe.flightroutes.services" {
     class FlightRouteService {
-        + updateRoute(id: String, dto: UpdateFlightRouteDTO): FlightRoute
-        + deactivateRoute(id: String): FlightRoute
+        + updateRoute(id: String, dto: UpdateFlightRouteDTO): FlightRouteResponseDTO
+        + deactivateRoute(id: String): FlightRouteResponseDTO
     }
 }
 
@@ -34,8 +34,7 @@ package "pt.isep.psoft.alsafe.flightroutes.domain" {
         - routeId: String
         - version: Long
         - routeStatus: RouteStatus
-        + updateDistance(dist: Double)
-        + updateRequirements(range, capacity)
+        + updateDetails(distance: Double, estimatedFlightTime: Integer, req: RouteRequirement, author: String)
         + deactivate(author: String)
         + getVersion(): Long
     }
@@ -44,6 +43,6 @@ package "pt.isep.psoft.alsafe.flightroutes.domain" {
 FlightRouteController .right.> UpdateFlightRouteDTO
 FlightRouteController --> FlightRouteService : uses
 FlightRouteService --> FlightRouteRepository : uses
-FlightRouteService --> FlightRoute : updates
+FlightRouteService ..> FlightRoute : uses
 
 @enduml
