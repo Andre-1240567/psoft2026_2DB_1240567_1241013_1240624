@@ -33,6 +33,8 @@
 ## Design Justification
 - **Information Expert Pattern:** The status change is not handled externally; instead, the `Airport` domain entity exposes a `changeStatus(AirportStatus newStatus)` method, ensuring that state transitions and business validations remain encapsulated inside the domain object.
 
-## Sequence Diagrams
-- [System Sequence Diagram](puml/US109-SSD.puml)
-- [Sequence Diagram](puml/US109-SD.puml)
+### System Sequence Diagram
+![System Sequence Diagram](svg/US109-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US109-SD.svg)

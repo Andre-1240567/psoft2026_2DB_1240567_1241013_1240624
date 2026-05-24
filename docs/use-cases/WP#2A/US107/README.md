@@ -27,6 +27,8 @@
 ## Design Justification
 - **Direct Querying:** Uses Spring Data JPA's `findByIataCode_Code` to retrieve the aggregate directly.
 
-## Sequence Diagrams
-- [System Sequence Diagram](puml/US107-SSD.puml)
-- [Sequence Diagram](puml/US107-SD.puml)
+### System Sequence Diagram
+![System Sequence Diagram](svg/US107-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US107-SD.svg)

@@ -34,6 +34,8 @@
 - **Domain-Driven Design (DDD):** `Airport` acts as the Aggregate Root. Concepts like `IATACode`, `Location`, `GPSCoordinates`, and `Timezone` were modeled as Value Objects (`@Embeddable`) to encapsulate validation and prevent Primitive Obsession.
 - **Transactional Consistency:** The creation of the airport and its runways is wrapped in a `@Transactional` boundary in the `AirportService`.
 
-## Sequence Diagrams
-- [System Sequence Diagram](puml/US106-SSD.puml)
-- [Sequence Diagram](puml/US106-SD.puml)
+### System Sequence Diagram
+![System Sequence Diagram](svg/US106-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US106-SD.svg)

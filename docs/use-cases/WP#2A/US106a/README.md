@@ -36,5 +36,8 @@
 - **Aggregate Isolation:** Following DDD, the `AirplaneCertification` value object inside the `Airport` aggregate stores only the `aircraftModelName` (a String identifier) rather than a direct reference to the `AircraftModel` entity. This decouples WP#2 from WP#1.
 - **Application Service Validation:** The referential integrity is validated at the application service level (`AirportService`), which consults the `AircraftModelRepository` before mutating the domain.
 
-## Sequence Diagrams
-- *(Adicionar os links dos diagramas US106a quando gerados)*
+### System Sequence Diagram
+![System Sequence Diagram](svg/US106a-SSD.svg)
+
+### Sequence Diagram
+![Sequence Diagram](svg/US106a-SD.svg)

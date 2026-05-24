@@ -9,11 +9,21 @@
     {
       "name": "US106- Create Airport",
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "POST",
         "header": [],
         "body": {
           "mode": "raw",
-          "raw": "{\r\n  \"iataCode\": \"OPO\",\r\n  \"name\": \"Aeroporto Francisco Sá Carneiro\",\r\n  \"region\": \"Norte\",\r\n  \"country\": \"Portugal\",\r\n  \"city\": \"Porto\",\r\n  \"latitude\": 41.2481,\r\n  \"longitude\": -8.6814,\r\n  \"timezone\": \"UTC+01:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
+          "raw": "{\r\n  \"iataCode\": \"LAX\",\r\n  \"name\": \"Los Angeles International Airport\",\r\n  \"region\": \"North America\",\r\n  \"country\": \"United States of America\",\r\n  \"city\": \"Los Angeles\",\r\n  \"latitude\": 33.9425,\r\n  \"longitude\": -118.4072,\r\n  \"timezone\": \"UTC-07:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
           "options": {
             "raw": {
               "language": "json"
@@ -38,10 +48,20 @@
     {
       "name": "US107- View Airport Details",
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/airports/OPO",
+          "raw": "http://localhost:8080/api/airports/LAX",
           "protocol": "http",
           "host": [
             "localhost"
@@ -50,7 +70,7 @@
           "path": [
             "api",
             "airports",
-            "OPO"
+            "LAX"
           ]
         }
       },
@@ -59,10 +79,20 @@
     {
       "name": "US108- Search Airport by City",
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:8080/api/airports?city=Porto",
+          "raw": "http://localhost:8080/api/airports?city=Los Angeles",
           "protocol": "http",
           "host": [
             "localhost"
@@ -75,7 +105,7 @@
           "query": [
             {
               "key": "city",
-              "value": "Porto"
+              "value": "Los Angeles"
             }
           ]
         }
@@ -85,6 +115,16 @@
     {
       "name": "US109- Change Status (Closed)",
       "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
         "method": "PATCH",
         "header": [],
         "body": {
@@ -97,7 +137,7 @@
           }
         },
         "url": {
-          "raw": "http://localhost:8080/api/airports/OPO/status",
+          "raw": "http://localhost:8080/api/airports/LAX/status",
           "protocol": "http",
           "host": [
             "localhost"
@@ -106,8 +146,49 @@
           "path": [
             "api",
             "airports",
-            "OPO",
+            "LAX",
             "status"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "US106a- Certification",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"aircraftModelName\": \"B737-800\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/airports/LAX/certifications",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "api",
+            "airports",
+            "LAX",
+            "certifications"
           ]
         }
       },
