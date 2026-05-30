@@ -122,7 +122,6 @@ public class FlightRouteService {
 
         Page<FlightRoute> resultPage;
 
->>>>>>>>> Temporary merge branch 2
         if (originIata != null && destinationIata != null) {
             resultPage = routeRepository
                     .findByOrigin_IataCode_CodeAndDestination_IataCode_Code(
