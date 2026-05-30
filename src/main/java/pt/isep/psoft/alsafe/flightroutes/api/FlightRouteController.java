@@ -1,6 +1,8 @@
 package pt.isep.psoft.alsafe.flightroutes.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
@@ -23,16 +25,20 @@ import java.util.List;
 public class FlightRouteController {
 
     private final FlightRouteService flightRouteService;
-    private final FlightRouteModelAssembler assembler;
 
-    public FlightRouteController(FlightRouteService flightRouteService,
-                                 FlightRouteModelAssembler assembler) {
+    public FlightRouteController(FlightRouteService flightRouteService) {
         this.flightRouteService = flightRouteService;
-        this.assembler = assembler;
     }
 
     @Operation(summary = "Create a flight route",
                description = "Creates a new flight route between two OPERATIONAL airports. Requires ATCC role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Flight route created successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data, non-operational airport, or same origin and destination"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required"),
+        @ApiResponse(responseCode = "404", description = "Origin or destination airport not found")
+    })
     @PreAuthorize("hasRole('ATCC')")
     @PostMapping
     public ResponseEntity<FlightRouteResponseDTO> createRoute(@Valid @RequestBody CreateFlightRouteDTO dto) {
@@ -40,7 +46,13 @@ public class FlightRouteController {
     }
 
     @Operation(summary = "Get history of a flight route",
-               description = "Returns the change history of a flight route. Requires ATCC role.")
+               description = "Returns the full change history of a flight route. Requires ATCC role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "History returned successfully"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required"),
+        @ApiResponse(responseCode = "404", description = "Flight route not found")
+    })
     @PreAuthorize("hasRole('ATCC')")
     @GetMapping("/{id}/history")
     public ResponseEntity<List<FlightRouteResponseDTO.RouteHistoryDTO>> getRouteHistory(
@@ -49,7 +61,14 @@ public class FlightRouteController {
     }
 
     @Operation(summary = "Deactivate a flight route",
-               description = "Deactivates an active flight route. Requires ATCC or BACKOFFICE_OPERATOR role.")
+               description = "Permanently deactivates an active flight route. Requires ATCC or BACKOFFICE_OPERATOR role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Route deactivated successfully"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC or BACKOFFICE_OPERATOR required"),
+        @ApiResponse(responseCode = "404", description = "Flight route not found"),
+        @ApiResponse(responseCode = "409", description = "Route is already deactivated")
+    })
     @PreAuthorize("hasRole('ATCC') or hasRole('BACKOFFICE_OPERATOR')")
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<FlightRouteResponseDTO> deactivateRoute(@PathVariable("id") String routeId) {
@@ -58,6 +77,14 @@ public class FlightRouteController {
 
     @Operation(summary = "Update a flight route",
                description = "Updates the details of an active flight route. Requires ATCC or BACKOFFICE_OPERATOR role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Route updated successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid input data"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC or BACKOFFICE_OPERATOR required"),
+        @ApiResponse(responseCode = "404", description = "Flight route not found"),
+        @ApiResponse(responseCode = "409", description = "Concurrency conflict (stale version) or route is deactivated")
+    })
     @PreAuthorize("hasRole('ATCC') or hasRole('BACKOFFICE_OPERATOR')")
     @PutMapping("/{id}")
     public ResponseEntity<FlightRouteResponseDTO> updateRoute(
@@ -67,7 +94,13 @@ public class FlightRouteController {
     }
 
     @Operation(summary = "Get a flight route by ID",
-               description = "Returns the details of a specific flight route. Requires ATCC role.")
+               description = "Returns the full details (including history) of a specific flight route. Requires ATCC role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Route found and returned"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required"),
+        @ApiResponse(responseCode = "404", description = "Flight route not found")
+    })
     @PreAuthorize("hasRole('ATCC')")
     @GetMapping("/{id}")
     public ResponseEntity<FlightRouteResponseDTO> getRouteById(@PathVariable("id") String routeId) {
@@ -75,7 +108,13 @@ public class FlightRouteController {
     }
 
     @Operation(summary = "Search flight routes",
-               description = "Returns a paginated list of flight routes with HATEOAS links. Requires ATCC role.")
+               description = "Returns a paginated, HATEOAS-enriched list of routes. " +
+                             "Filter by originIata, destinationIata, both, or neither. Requires ATCC role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Paginated list of routes returned"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required")
+    })
     @PreAuthorize("hasRole('ATCC')")
     @GetMapping
     public ResponseEntity<PagedModel<EntityModel<FlightRouteResponseDTO>>> searchRoutes(

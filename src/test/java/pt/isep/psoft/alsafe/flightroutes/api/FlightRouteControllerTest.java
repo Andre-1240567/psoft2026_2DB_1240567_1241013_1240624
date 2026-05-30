@@ -1,5 +1,6 @@
 package pt.isep.psoft.alsafe.flightroutes.api;
 
+import org.springframework.hateoas.Link;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -80,8 +81,11 @@ class FlightRouteControllerTest {
         dto.setMinRangeRequired(500.0);
         dto.setMinCapacityRequired(150);
 
+        FlightRouteResponseDTO mockedResponse = new FlightRouteResponseDTO(validRoute);
+        mockedResponse.add(Link.of("/api/flight-routes/teste-id-123").withSelfRel());
+
         when(flightRouteService.createFlightRoute(any(CreateFlightRouteDTO.class)))
-                .thenReturn(new FlightRouteResponseDTO(validRoute));
+                .thenReturn(mockedResponse);
 
         mockMvc.perform(post("/api/flight-routes")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -143,11 +147,6 @@ class FlightRouteControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-    /**
-     * Since the DTO regex is now [A-Z]{3} (uppercase only), both "OPO1" (wrong length)
-     * and "mad" (lowercase) are rejected at the DTO validation layer before any service call.
-     * The test name is explicit about what it covers.
-     */
     @Test
     void ensureCreateRouteWithInvalidIataFormat_tooLong_returns400() throws Exception {
         CreateFlightRouteDTO invalidDto = new CreateFlightRouteDTO();
@@ -205,8 +204,11 @@ class FlightRouteControllerTest {
 
     @Test
     void ensureGetRouteByIdReturns200OK() throws Exception {
+        FlightRouteResponseDTO mockedResponse = new FlightRouteResponseDTO(validRoute);
+        mockedResponse.add(Link.of("/api/flight-routes/teste-id-123").withSelfRel());
+
         when(flightRouteService.getRouteById("teste-id-123"))
-                .thenReturn(new FlightRouteResponseDTO(validRoute));
+                .thenReturn(mockedResponse);
 
         mockMvc.perform(get("/api/flight-routes/teste-id-123"))
                 .andExpect(status().isOk())
@@ -282,8 +284,11 @@ class FlightRouteControllerTest {
         dto.setMinCapacityRequired(180);
         dto.setVersion(0L);
 
+        FlightRouteResponseDTO mockedResponse = new FlightRouteResponseDTO(validRoute);
+        mockedResponse.add(Link.of("/api/flight-routes/teste-id-123").withSelfRel());
+
         when(flightRouteService.updateRoute(eq("teste-id-123"), any(UpdateFlightRouteDTO.class)))
-                .thenReturn(new FlightRouteResponseDTO(validRoute));
+                .thenReturn(mockedResponse);
 
         mockMvc.perform(put("/api/flight-routes/teste-id-123")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -354,8 +359,11 @@ class FlightRouteControllerTest {
 
     @Test
     void ensureDeactivateRouteReturns200OK() throws Exception {
+        FlightRouteResponseDTO mockedResponse = new FlightRouteResponseDTO(validRoute);
+        mockedResponse.add(Link.of("/api/flight-routes/teste-id-123").withSelfRel());
+
         when(flightRouteService.deactivateRoute(eq("teste-id-123")))
-                .thenReturn(new FlightRouteResponseDTO(validRoute));
+                .thenReturn(mockedResponse);
 
         mockMvc.perform(patch("/api/flight-routes/teste-id-123/deactivate"))
                 .andExpect(status().isOk())

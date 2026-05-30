@@ -50,15 +50,16 @@ The following cross-cutting concerns are enforced across all endpoints in this W
 ### Use Case Diagram (UCD)
 Maps actors to their available operations, including the `<<include>>` relationship for
 automatic history tracking on every mutating use case.
-![WP3A Use Case Diagram](svg/WP#3A-UCD.svg)
+![WP3A Use Case Diagram](svg/WP%233A-UCD.svg)
 
 ### Domain Model (DM)
 Represents the conceptual entities, value objects, and aggregates of the Flight Routes
 subdomain, decoupled from technical implementation details.
-![WP3A Domain Model](svg/WP#3A-DM.svg)
+![WP3A Domain Model](svg/WP%233A-DM.svg)
 
 ### State Machine Diagram (SMD)
 Details the strict lifecycle of a `FlightRoute` entity — from creation (`ACTIVE`) through
 optional mutation to permanent deactivation (`DEACTIVATED`) — and the guards enforced at
 each transition.
+>>>>>>>>> Temporary merge branch 2
 ![WP3A State Machine Diagram](svg/WP#3A-SMD.svg)
