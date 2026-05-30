@@ -120,18 +120,22 @@ public class FlightRouteService {
         if (originIata      != null) originIata      = originIata.toUpperCase();
         if (destinationIata != null) destinationIata = destinationIata.toUpperCase();
 
-        // Strategy pattern: delegate to the first strategy that supports the given filters.
-        // SearchAllStrategy is the ordered-last fallback, so orElseThrow is never triggered
-        // in practice — but it guards against a misconfigured strategy list.
-        final String finalOrigin = originIata;
-        final String finalDest   = destinationIata;
+        Page<FlightRoute> resultPage;
 
-        RouteSearchStrategy strategy = searchStrategies.stream()
-                .filter(s -> s.supports(finalOrigin, finalDest))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("No search strategy found for the given parameters."));
+>>>>>>>>> Temporary merge branch 2
+        if (originIata != null && destinationIata != null) {
+            resultPage = routeRepository
+                    .findByOrigin_IataCode_CodeAndDestination_IataCode_Code(
+                            originIata, destinationIata, pageable);
+        } else if (originIata != null) {
+            resultPage = routeRepository.findByOrigin_IataCode_Code(originIata, pageable);
+        } else if (destinationIata != null) {
+            resultPage = routeRepository.findByDestination_IataCode_Code(destinationIata, pageable);
+        } else {
+            resultPage = routeRepository.findAll(pageable);
+        }
 
-        return strategy.execute(finalOrigin, finalDest, pageable).map(assembler::toModel);
+        return resultPage.map(assembler::toModel);
     }
 
     // ---------------------------------------------------------------------------

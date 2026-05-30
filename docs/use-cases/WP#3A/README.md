@@ -61,4 +61,5 @@ subdomain, decoupled from technical implementation details.
 Details the strict lifecycle of a `FlightRoute` entity — from creation (`ACTIVE`) through
 optional mutation to permanent deactivation (`DEACTIVATED`) — and the guards enforced at
 each transition.
-![WP3A State Machine Diagram](svg/WP%233A-SMD.svg)
+>>>>>>>>> Temporary merge branch 2
+![WP3A State Machine Diagram](svg/WP#3A-SMD.svg)
