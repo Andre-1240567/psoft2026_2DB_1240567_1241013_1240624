@@ -25,12 +25,9 @@ import java.util.List;
 public class FlightRouteController {
 
     private final FlightRouteService flightRouteService;
-    private final FlightRouteModelAssembler assembler;
 
-    public FlightRouteController(FlightRouteService flightRouteService,
-                                 FlightRouteModelAssembler assembler) {
+    public FlightRouteController(FlightRouteService flightRouteService) {
         this.flightRouteService = flightRouteService;
-        this.assembler = assembler;
     }
 
     @Operation(summary = "Create a flight route",

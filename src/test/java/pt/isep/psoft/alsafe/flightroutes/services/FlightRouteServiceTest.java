@@ -255,9 +255,13 @@ class FlightRouteServiceTest {
         FlightRoute r2 = createFakeRoute("r2", "OPO", "MAD");
         Page<FlightRoute> page = new PageImpl<>(List.of(r1, r2));
 
+        // Calcular o DTO antes
+        FlightRouteResponseDTO dto1 = fakeDto(r1);
+        FlightRouteResponseDTO dto2 = fakeDto(r2);
+
         when(routeRepository.findAll(pageable)).thenReturn(page);
-        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
-        when(assembler.toModel(r2)).thenReturn(fakeDto(r2));
+        when(assembler.toModel(r1)).thenReturn(dto1);
+        when(assembler.toModel(r2)).thenReturn(dto2);
 
         Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes(null, null, pageable);
 
@@ -274,9 +278,13 @@ class FlightRouteServiceTest {
         FlightRoute r2 = createFakeRoute("r2", "OPO", "MAD");
         Page<FlightRoute> page = new PageImpl<>(List.of(r1, r2));
 
+        // Calcular o DTO antes
+        FlightRouteResponseDTO dto1 = fakeDto(r1);
+        FlightRouteResponseDTO dto2 = fakeDto(r2);
+
         when(routeRepository.findByOrigin_IataCode_Code("OPO", pageable)).thenReturn(page);
-        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
-        when(assembler.toModel(r2)).thenReturn(fakeDto(r2));
+        when(assembler.toModel(r1)).thenReturn(dto1);
+        when(assembler.toModel(r2)).thenReturn(dto2);
 
         Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes("OPO", null, pageable);
 
@@ -291,8 +299,11 @@ class FlightRouteServiceTest {
         FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
         Page<FlightRoute> page = new PageImpl<>(List.of(r1));
 
+        // Calcular o DTO antes
+        FlightRouteResponseDTO dto1 = fakeDto(r1);
+
         when(routeRepository.findByDestination_IataCode_Code("LIS", pageable)).thenReturn(page);
-        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
+        when(assembler.toModel(r1)).thenReturn(dto1);
 
         Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes(null, "LIS", pageable);
 
@@ -307,9 +318,12 @@ class FlightRouteServiceTest {
         FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
         Page<FlightRoute> page = new PageImpl<>(List.of(r1));
 
+        // Calcular o DTO antes
+        FlightRouteResponseDTO dto1 = fakeDto(r1);
+
         when(routeRepository.findByOrigin_IataCode_CodeAndDestination_IataCode_Code("OPO", "LIS", pageable))
                 .thenReturn(page);
-        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
+        when(assembler.toModel(r1)).thenReturn(dto1);
 
         Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes("OPO", "LIS", pageable);
 
@@ -325,9 +339,12 @@ class FlightRouteServiceTest {
         FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
         Page<FlightRoute> page = new PageImpl<>(List.of(r1));
 
+        // Calcular o DTO antes
+        FlightRouteResponseDTO dto1 = fakeDto(r1);
+
         // Service must uppercase "opo" → "OPO" before querying
         when(routeRepository.findByOrigin_IataCode_Code("OPO", pageable)).thenReturn(page);
-        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
+        when(assembler.toModel(r1)).thenReturn(dto1);
 
         Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes("opo", null, pageable);
 

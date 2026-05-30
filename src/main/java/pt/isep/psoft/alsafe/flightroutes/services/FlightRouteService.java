@@ -30,6 +30,8 @@ public class FlightRouteService {
     private final FlightRouteRepository routeRepository;
     private final AirportService airportService;
     private final FlightRouteModelAssembler assembler;
+    
+    // Lista injetada automaticamente pelo Spring com todas as estratégias
     private final List<RouteSearchStrategy> searchStrategies;
 
     public FlightRouteService(FlightRouteRepository routeRepository,
@@ -115,25 +117,21 @@ public class FlightRouteService {
     }
 
     @Transactional(readOnly = true)
-    public Page<FlightRouteResponseDTO> searchRoutes(String originIata, String destinationIata,
-                                                     Pageable pageable) {
-        if (originIata      != null) originIata      = originIata.toUpperCase();
-        if (destinationIata != null) destinationIata = destinationIata.toUpperCase();
+    public Page<FlightRouteResponseDTO> searchRoutes(String originIata, String destinationIata, Pageable pageable) {
+        // Garantir o Uppercase logo no início
+        final String origin = originIata != null ? originIata.toUpperCase() : null;
+        final String dest = destinationIata != null ? destinationIata.toUpperCase() : null;
 
-        Page<FlightRoute> resultPage;
+        // O Padrão Strategy em Ação: Encontra a primeira estratégia que suporta os parâmetros
+        RouteSearchStrategy activeStrategy = searchStrategies.stream()
+                .filter(strategy -> strategy.supports(origin, dest))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No valid search strategy found for the provided filters."));
 
-        if (originIata != null && destinationIata != null) {
-            resultPage = routeRepository
-                    .findByOrigin_IataCode_CodeAndDestination_IataCode_Code(
-                            originIata, destinationIata, pageable);
-        } else if (originIata != null) {
-            resultPage = routeRepository.findByOrigin_IataCode_Code(originIata, pageable);
-        } else if (destinationIata != null) {
-            resultPage = routeRepository.findByDestination_IataCode_Code(destinationIata, pageable);
-        } else {
-            resultPage = routeRepository.findAll(pageable);
-        }
+        // Executa a query através da estratégia encontrada
+        Page<FlightRoute> resultPage = activeStrategy.execute(origin, dest, pageable);
 
+        // Mapeia para DTO
         return resultPage.map(assembler::toModel);
     }
 
