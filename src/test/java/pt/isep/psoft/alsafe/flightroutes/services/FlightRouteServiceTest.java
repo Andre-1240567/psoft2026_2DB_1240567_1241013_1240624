@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
@@ -25,6 +24,7 @@ import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
+import pt.isep.psoft.alsafe.flightroutes.services.strategy.*;
 import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;
 
 import java.util.List;
@@ -37,32 +37,34 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class FlightRouteServiceTest {
 
-    @Mock
-    private FlightRouteRepository routeRepository;
+    @Mock private FlightRouteRepository routeRepository;
+    @Mock private AirportService airportService;
+    @Mock private FlightRouteModelAssembler assembler;
+    @Mock private SecurityContext securityContext;
+    @Mock private Authentication authentication;
 
-    @Mock
-    private AirportService airportService;
-
-    @Mock
-    private FlightRouteModelAssembler assembler;
-
-    @Mock
-    private SecurityContext securityContext;
-
-    @Mock
-    private Authentication authentication;
-
-    @InjectMocks
+    // Built manually so the real strategy logic is exercised (not mocked)
     private FlightRouteService flightRouteService;
 
     @BeforeEach
-    void mockSecurityContext() {
+    void setUp() {
+        // Security context
         lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
         lenient().when(authentication.isAuthenticated()).thenReturn(true);
         lenient().when(authentication.getName()).thenReturn("atcc_jose");
         lenient().when(authentication.getPrincipal()).thenReturn("atcc_jose");
-
         SecurityContextHolder.setContext(securityContext);
+
+        // Build the service with real strategy implementations (backed by the mocked repository)
+        List<RouteSearchStrategy> strategies = List.of(
+                new SearchByBothStrategy(routeRepository),
+                new SearchByOriginStrategy(routeRepository),
+                new SearchByDestinationStrategy(routeRepository),
+                new SearchAllStrategy(routeRepository)
+        );
+
+        flightRouteService = new FlightRouteService(
+                routeRepository, airportService, assembler, strategies);
     }
 
     @AfterEach
@@ -88,13 +90,11 @@ class FlightRouteServiceTest {
 
     private FlightRoute createFakeRoute(String id, String originIata, String destIata) {
         Airport origin      = createFakeAirport(originIata, Status.OPERATIONAL);
-        Airport destination = createFakeAirport(destIata, Status.OPERATIONAL);
-        // minRange (600) >= distance (500) — valid
+        Airport destination = createFakeAirport(destIata,  Status.OPERATIONAL);
         RouteRequirement req = new RouteRequirement(600.0, 150);
-
         FlightRoute route = new FlightRoute(id, origin, destination, 500.0, 60, req, "atcc_jose");
 
-        // Spy to simulate a persisted entity that already has a JPA-assigned version of 0L
+        // Simulate a JPA-persisted entity that already has version = 0
         FlightRoute spyRoute = spy(route);
         lenient().when(spyRoute.getVersion()).thenReturn(0L);
         return spyRoute;
@@ -129,10 +129,10 @@ class FlightRouteServiceTest {
         FlightRouteResponseDTO result = flightRouteService.createFlightRoute(dto);
 
         assertNotNull(result);
-        assertEquals("OPO",             result.getOriginIataCode());
-        assertEquals("MAD",             result.getDestinationIataCode());
-        assertEquals(500.0,             result.getDistance());
-        assertEquals(60,                result.getEstimatedFlightTime());
+        assertEquals("OPO",              result.getOriginIataCode());
+        assertEquals("MAD",              result.getDestinationIataCode());
+        assertEquals(500.0,              result.getDistance());
+        assertEquals(60,                 result.getEstimatedFlightTime());
         assertEquals(RouteStatus.ACTIVE, result.getRouteStatus());
 
         verify(airportService, times(1)).getAirportDetails("OPO");
@@ -159,11 +159,6 @@ class FlightRouteServiceTest {
         verify(routeRepository, never()).save(any());
     }
 
-    /**
-     * AirportService may throw either ResourceNotFoundException or IllegalArgumentException
-     * for an unknown IATA. The service wraps IllegalArgumentException in a
-     * ResourceNotFoundException so the controller always returns 404.
-     */
     @Test
     void ensureExceptionIsThrownWhenOriginAirportDoesNotExist_viaResourceNotFoundException() {
         CreateFlightRouteDTO dto = new CreateFlightRouteDTO();
@@ -193,7 +188,6 @@ class FlightRouteServiceTest {
         dto.setMinRangeRequired(600.0);
         dto.setMinCapacityRequired(150);
 
-        // Teammate's service may throw IllegalArgumentException — we wrap it as 404
         when(airportService.getAirportDetails("XXX"))
                 .thenThrow(new IllegalArgumentException("Airport not found: XXX"));
 
@@ -230,8 +224,10 @@ class FlightRouteServiceTest {
     @Test
     void ensureGetRouteByIdReturnsRouteWhenFound() {
         FlightRoute route = createFakeRoute("route-001", "OPO", "LIS");
+        FlightRouteResponseDTO dto = fakeDto(route);
+
         when(routeRepository.findByIdWithHistory("route-001")).thenReturn(Optional.of(route));
-        when(assembler.toModel(route)).thenReturn(fakeDto(route));
+        when(assembler.toModel(route)).thenReturn(dto);
 
         FlightRouteResponseDTO result = flightRouteService.getRouteById("route-001");
 
@@ -249,7 +245,7 @@ class FlightRouteServiceTest {
     }
 
     // -----------------------------------------------------------------------
-    // searchRoutes
+    // searchRoutes — exercises the real Strategy implementations
     // -----------------------------------------------------------------------
 
     @Test
@@ -268,6 +264,7 @@ class FlightRouteServiceTest {
         assertNotNull(result);
         assertEquals(2, result.getContent().size());
         verify(routeRepository, times(1)).findAll(pageable);
+        verify(routeRepository, never()).findByOrigin_IataCode_Code(any(), any());
     }
 
     @Test
@@ -285,6 +282,23 @@ class FlightRouteServiceTest {
 
         assertEquals(2, result.getContent().size());
         verify(routeRepository, times(1)).findByOrigin_IataCode_Code("OPO", pageable);
+        verify(routeRepository, never()).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void ensureSearchByDestinationIataReturnsPaginatedResults() {
+        Pageable pageable = PageRequest.of(0, 5);
+        FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
+        Page<FlightRoute> page = new PageImpl<>(List.of(r1));
+
+        when(routeRepository.findByDestination_IataCode_Code("LIS", pageable)).thenReturn(page);
+        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
+
+        Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes(null, "LIS", pageable);
+
+        assertEquals(1, result.getContent().size());
+        verify(routeRepository, times(1)).findByDestination_IataCode_Code("LIS", pageable);
+        verify(routeRepository, never()).findAll(any(Pageable.class));
     }
 
     @Test
@@ -302,6 +316,23 @@ class FlightRouteServiceTest {
         assertEquals(1, result.getContent().size());
         verify(routeRepository, times(1))
                 .findByOrigin_IataCode_CodeAndDestination_IataCode_Code("OPO", "LIS", pageable);
+        verify(routeRepository, never()).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void ensureSearchIsCaseInsensitive() {
+        Pageable pageable = PageRequest.of(0, 5);
+        FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
+        Page<FlightRoute> page = new PageImpl<>(List.of(r1));
+
+        // Service must uppercase "opo" → "OPO" before querying
+        when(routeRepository.findByOrigin_IataCode_Code("OPO", pageable)).thenReturn(page);
+        when(assembler.toModel(r1)).thenReturn(fakeDto(r1));
+
+        Page<FlightRouteResponseDTO> result = flightRouteService.searchRoutes("opo", null, pageable);
+
+        assertEquals(1, result.getContent().size());
+        verify(routeRepository, times(1)).findByOrigin_IataCode_Code("OPO", pageable);
     }
 
     // -----------------------------------------------------------------------
@@ -320,7 +351,7 @@ class FlightRouteServiceTest {
         dto.setEstimatedFlightTime(75);
         dto.setMinRangeRequired(700.0);
         dto.setMinCapacityRequired(180);
-        dto.setVersion(0L); // matches spyRoute.getVersion()
+        dto.setVersion(0L);
 
         FlightRouteResponseDTO result = flightRouteService.updateRoute("route-001", dto);
 
@@ -340,7 +371,7 @@ class FlightRouteServiceTest {
         dto.setEstimatedFlightTime(75);
         dto.setMinRangeRequired(700.0);
         dto.setMinCapacityRequired(180);
-        dto.setVersion(999L); // intentionally stale
+        dto.setVersion(999L);  // intentionally stale
 
         assertThrows(org.springframework.orm.ObjectOptimisticLockingFailureException.class, () ->
                 flightRouteService.updateRoute("route-001", dto));

@@ -18,6 +18,7 @@ import pt.isep.psoft.alsafe.flightroutes.api.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
+import pt.isep.psoft.alsafe.flightroutes.services.strategy.RouteSearchStrategy;
 import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;
 
 import java.util.List;
@@ -29,13 +30,16 @@ public class FlightRouteService {
     private final FlightRouteRepository routeRepository;
     private final AirportService airportService;
     private final FlightRouteModelAssembler assembler;
+    private final List<RouteSearchStrategy> searchStrategies;
 
     public FlightRouteService(FlightRouteRepository routeRepository,
                               AirportService airportService,
-                              FlightRouteModelAssembler assembler) {
-        this.routeRepository = routeRepository;
-        this.airportService  = airportService;
-        this.assembler       = assembler;
+                              FlightRouteModelAssembler assembler,
+                              List<RouteSearchStrategy> searchStrategies) {
+        this.routeRepository  = routeRepository;
+        this.airportService   = airportService;
+        this.assembler        = assembler;
+        this.searchStrategies = searchStrategies;
     }
 
     @Transactional
@@ -44,8 +48,6 @@ public class FlightRouteService {
         String originIata      = dto.getOriginIata().toUpperCase();
         String destinationIata = dto.getDestinationIata().toUpperCase();
 
-        // AirportService.getAirportDetails throws ResourceNotFoundException when not found.
-        // We propagate it as-is so the controller layer returns 404.
         Airport origin      = resolveAirport(originIata);
         Airport destination = resolveAirport(destinationIata);
 
@@ -83,9 +85,6 @@ public class FlightRouteService {
         FlightRoute route = routeRepository.findById(routeId)
                 .orElseThrow(() -> new ResourceNotFoundException("Flight route not found: " + routeId));
 
-        // Optimistic-lock guard: reject stale client versions before touching the entity.
-        // JPA's @Version would catch this at flush time, but doing it here gives a clear,
-        // early failure with a meaningful message instead of a lower-level JPA exception.
         if (dto.getVersion() == null || !route.getVersion().equals(dto.getVersion())) {
             throw new ObjectOptimisticLockingFailureException(FlightRoute.class, routeId);
         }
@@ -121,40 +120,30 @@ public class FlightRouteService {
         if (originIata      != null) originIata      = originIata.toUpperCase();
         if (destinationIata != null) destinationIata = destinationIata.toUpperCase();
 
-        Page<FlightRoute> resultPage;
+        // Strategy pattern: delegate to the first strategy that supports the given filters.
+        // SearchAllStrategy is the ordered-last fallback, so orElseThrow is never triggered
+        // in practice — but it guards against a misconfigured strategy list.
+        final String finalOrigin = originIata;
+        final String finalDest   = destinationIata;
 
-        if (originIata != null && destinationIata != null) {
-            resultPage = routeRepository
-                    .findByOrigin_IataCode_CodeAndDestination_IataCode_Code(
-                            originIata, destinationIata, pageable);
-        } else if (originIata != null) {
-            resultPage = routeRepository.findByOrigin_IataCode_Code(originIata, pageable);
-        } else if (destinationIata != null) {
-            resultPage = routeRepository.findByDestination_IataCode_Code(destinationIata, pageable);
-        } else {
-            resultPage = routeRepository.findAll(pageable);
-        }
+        RouteSearchStrategy strategy = searchStrategies.stream()
+                .filter(s -> s.supports(finalOrigin, finalDest))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("No search strategy found for the given parameters."));
 
-        return resultPage.map(assembler::toModel);
+        return strategy.execute(finalOrigin, finalDest, pageable).map(assembler::toModel);
     }
 
     // ---------------------------------------------------------------------------
     // Helpers
     // ---------------------------------------------------------------------------
 
-    /**
-     * Wraps the teammate's airport lookup so that any IllegalArgumentException it throws
-     * for a missing airport is re-raised as a ResourceNotFoundException (HTTP 404).
-     */
     private Airport resolveAirport(String iata) {
         try {
             return airportService.getAirportDetails(iata);
         } catch (IllegalArgumentException ex) {
             throw new ResourceNotFoundException("Airport with IATA code '" + iata + "' not found.");
         }
-        
-        // This safe mapping triggers lazy collections within the open Transaction
-        return resultPage.map(FlightRouteResponseDTO::new);
     }
 
     private String getCurrentUser() {
