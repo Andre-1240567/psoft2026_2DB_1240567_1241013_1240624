@@ -38,7 +38,17 @@ public class Airport {
     private List<AirplaneCertification> certifications = new ArrayList<>();
 
     private String name;
-    private String airportPhoto;
+    
+    @ElementCollection
+    @CollectionTable(
+            name = "airport_photos",
+            joinColumns = @JoinColumn(name = "airport_id")
+    )
+    private List<String> photos = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "airport_id")
+    private List<Terminal> terminals = new ArrayList<>();
 
     protected Airport() {}
 
@@ -57,6 +67,20 @@ public class Airport {
             throw new IllegalArgumentException("Runway cannot be null.");
         }
         this.runways.add(runway);
+    }
+
+    public void addTerminal(Terminal terminal){
+        if(terminal == null){
+            throw new IllegalArgumentException("Terminal cannot be null.");
+        }
+        this.terminals.add(terminal);
+    }
+    
+    public void addPhoto(String photoUrl){
+        if(photoUrl == null || photoUrl.trim().isEmpty()){
+             throw new IllegalArgumentException("Photo URL cannot be empty.");
+        }
+        this.photos.add(photoUrl);
     }
 
     public void changeStatus(Status newStatus) {

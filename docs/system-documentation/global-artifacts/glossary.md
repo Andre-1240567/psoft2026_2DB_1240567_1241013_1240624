@@ -16,7 +16,7 @@ This document defines the core domain concepts for the AISafe system, focusing o
 | **Facility Service** | Structured information about services available at an airport (e.g., lounges, parking, specialized passenger assistance). | **Value Object** |
 | **Flight Route** | A fixed point-to-point connection between an origin and a destination airport, acting as the operational blueprint. Includes a fixed distance and estimated flight time. | **Entity / Aggregate Root** |
 | **Flight Status** | The specific lifecycle stage of a scheduled flight. Possible values: `SCHEDULED`, `DELAYED`, `IN_FLIGHT`, `COMPLETED`, `CANCELED`. | **Enum** |
-| **Gate** | A specific departure or arrival point located within an airport Terminal. | **Entity** |
+| **Gate** | A specific departure or arrival point located within an airport Terminal. | **Value Object** |
 | **GPS Coordinates** | The precise geographical mapping (latitude and longitude) of a location, used for mapping and route distance validation. | **Value Object** |
 | **IATA Code** | A unique three-letter identifier for an airport (e.g., LIS, OPO) following international aviation standards. | **Value Object** |
 | **Location** | Geographical and political data of an airport including its Region, Country, and City. It encompasses the GPS Coordinates. | **Value Object** |

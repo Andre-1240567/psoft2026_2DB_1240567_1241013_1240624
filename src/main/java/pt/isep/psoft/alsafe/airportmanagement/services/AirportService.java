@@ -5,6 +5,8 @@ import org.springframework.transaction.annotation.Transactional;
 import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftModelRepository;
 import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateAirportRequestDTO;
 import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateRunwayRequestDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateTerminalRequestDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateServiceDTO;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
@@ -42,6 +44,33 @@ public class AirportService {
                 newAirport.addRunway(runway);
             }
         }
+        
+        if (dto.getPhotos() != null) {
+            for (String photo : dto.getPhotos()) {
+                newAirport.addPhoto(photo);
+            }
+        }
+        
+        if (dto.getTerminals() != null) {
+            for (CreateTerminalRequestDTO terminalDTO : dto.getTerminals()) {
+                Terminal terminal = new Terminal(terminalDTO.getDesignation());
+                
+                if (terminalDTO.getGates() != null) {
+                    for (String gateDesignation : terminalDTO.getGates()) {
+                        terminal.addGate(new Gate(gateDesignation));
+                    }
+                }
+                
+                if (terminalDTO.getServices() != null) {
+                    for (CreateServiceDTO serviceDTO : terminalDTO.getServices()) {
+                        terminal.addService(new FacilityService(serviceDTO.getServiceType(), serviceDTO.getDescription()));
+                    }
+                }
+                
+                newAirport.addTerminal(terminal);
+            }
+        }
+
         return airportRepository.save(newAirport);
 
     }
