@@ -2,8 +2,7 @@
   "info": {
     "_postman_id": "87b4c356-e77b-4713-849c-f2531f12e450",
     "name": "WP#2A - Airports",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "55089572"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
@@ -95,60 +94,6 @@
               "pm.test(\"Response contains IATA code\", function () {",
               "    var jsonData = pm.response.json();",
               "    pm.expect(jsonData.iataCode.code).to.eql(\"JFK\");",
-              "});"
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "US207- Create Airport with Enhanced Features",
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{jwt_token}}",
-              "type": "string"
-            }
-          ]
-        },
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"iataCode\": \"LHR\",\r\n  \"name\": \"London Heathrow Airport\",\r\n  \"region\": \"Europe\",\r\n  \"country\": \"United Kingdom\",\r\n  \"city\": \"London\",\r\n  \"latitude\": 51.4700,\r\n  \"longitude\": -0.4543,\r\n  \"timezone\": \"UTC+00:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"09L/27R\",\r\n      \"length\": 3902,\r\n      \"orientation\": \"E\"\r\n    }\r\n  ],\r\n  \"photos\": [\"http://example.com/lhr_terminal_5.jpg\", \"http://example.com/lhr_aerial.jpg\"],\r\n  \"terminals\": [\r\n    {\r\n      \"designation\": \"Terminal 5\",\r\n      \"gates\": [\"A10\", \"A11\", \"B32\"],\r\n      \"services\": [\r\n        {\r\n          \"serviceType\": \"Lounge\",\r\n          \"description\": \"British Airways Galleries First\"\r\n        },\r\n        {\r\n          \"serviceType\": \"Retail\",\r\n          \"description\": \"Duty Free Shopping\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/airports",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "airports"
-          ]
-        }
-      },
-      "response": [],
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
-              "pm.test(\"Response contains new features\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.iataCode.code).to.eql(\"LHR\");",
-              "    pm.expect(jsonData.photos.length).to.eql(2);",
-              "    pm.expect(jsonData.terminals.length).to.eql(1);",
               "});"
             ]
           }

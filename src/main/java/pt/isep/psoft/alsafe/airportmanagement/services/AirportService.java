@@ -3,13 +3,12 @@ package pt.isep.psoft.alsafe.airportmanagement.services;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftModelRepository;
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateAirportRequestDTO;
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateRunwayRequestDTO;
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateTerminalRequestDTO;
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateServiceDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.*;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
 
@@ -109,6 +108,30 @@ public class AirportService {
         Airport airport = getAirportDetails(iataCode);
 
         airport.addCertification(modelName);
+
+        return airportRepository.save(airport);
+    }
+
+    @Transactional
+    public Airport updateAirportDetails(String iataCode, UpdateAirportDetailsRequestDTO dto) {
+        Airport airport = getAirportDetails(iataCode);
+
+        OperationalHours operationalHours = null;
+        if (dto.getOperationalHours() != null) {
+            LocalTime opening = LocalTime.parse(dto.getOperationalHours().getOpeningTime());
+            LocalTime closing = LocalTime.parse(dto.getOperationalHours().getClosingTime());
+            operationalHours = new OperationalHours(opening, closing);
+        }
+
+        List<Contact> contacts = null;
+        if (dto.getContacts() != null) {
+            contacts = new ArrayList<>();
+            for (ContactDTO contactDTO : dto.getContacts()) {
+                contacts.add(new Contact(contactDTO.getValue(), contactDTO.getDepartment(), contactDTO.getType()));
+            }
+        }
+
+        airport.updateDetails(operationalHours, contacts);
 
         return airportRepository.save(airport);
     }

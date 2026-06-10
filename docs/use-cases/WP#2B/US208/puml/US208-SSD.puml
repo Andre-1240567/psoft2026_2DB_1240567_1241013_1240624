@@ -1,0 +1,14 @@
+@startuml US208-SSD
+title System Sequence Diagram - US208: Update Airport Details
+
+autonumber
+actor "Backoffice Operator" as BO
+participant ":System" as Sys
+
+BO -> Sys: Request to update airport details (operational hours, contacts) for a specific IATA code
+activate Sys
+
+Sys --> BO: Returns the updated airport details and confirms success
+deactivate Sys
+
+@enduml

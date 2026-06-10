@@ -6,8 +6,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateAirportRequestDTO;
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.ChangeAirportStatusDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.*;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
 
@@ -65,6 +64,19 @@ public class AirportController {
             @Valid @RequestBody pt.isep.psoft.alsafe.airportmanagement.api.dto.AddCertificationDTO dto) {
 
         Airport updatedAirport = airportService.addAirplaneCertification(iataCode, dto.getAircraftModelName());
+        return ResponseEntity.ok(updatedAirport);
+    }
+
+    @PatchMapping("/{iataCode}/details")
+    @Operation(summary = "US208 - Update airport details including operational hours and contact information")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Airport details updated successfully")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Airport not found")
+    public ResponseEntity<Airport> updateAirportDetails(
+            @PathVariable("iataCode") String iataCode,
+            @Valid @RequestBody UpdateAirportDetailsRequestDTO dto) {
+
+        Airport updatedAirport = airportService.updateAirportDetails(iataCode, dto);
         return ResponseEntity.ok(updatedAirport);
     }
 }

@@ -1,0 +1,17 @@
+@startuml WP#2B-UCD
+left to right direction
+
+actor "Backoffice Operator" as Operator
+actor "ATCC" as ATCC
+
+package "Airport Subdomain (WP#2B)" {
+  usecase "US207: Register Airport with Detailed Info" as US207
+  usecase "US208: Update Airport Details" as US208
+  usecase "US209: View Routes by Airport" as US209
+}
+
+Operator --> US207
+Operator --> US208
+ATCC --> US209
+
+@enduml

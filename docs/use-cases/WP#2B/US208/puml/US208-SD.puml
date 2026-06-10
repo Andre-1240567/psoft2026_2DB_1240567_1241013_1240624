@@ -1,0 +1,70 @@
+@startuml US208-SD
+title Sequence Diagram - US208: Update Airport Details
+
+autonumber
+actor "Backoffice Operator" as BO
+
+participant ":AirportController" as Ctrl
+participant ":AirportService" as Service
+participant "dto:UpdateAirportDetailsRequestDTO" as DTO
+participant "airportRepository:AirportRepository" as Repo
+participant "airport:Airport" as Airport
+participant "opHours:OperationalHours" as OpHours
+participant "contact:Contact" as Contact
+
+BO -> Ctrl: PATCH /api/airports/{iataCode}/details (dto)
+activate Ctrl
+
+Ctrl -> Service: updateAirportDetails(iataCode, dto)
+activate Service
+
+Service -> Repo: findByIataCode_Code(iataCode)
+activate Repo
+Repo --> Service: Optional<Airport>
+deactivate Repo
+
+alt if airport found
+    
+    Service -> DTO: getOperationalHours()
+    activate DTO
+    DTO --> Service: opHoursDto
+    deactivate DTO
+    
+    opt if opHoursDto != null
+        Service -> OpHours**: create(openingTime, closingTime)
+    end
+    
+    Service -> DTO: getContacts()
+    activate DTO
+    DTO --> Service: contactListDto
+    deactivate DTO
+    
+    opt if contactListDto != null
+        loop for each contactDto
+            Service -> Contact**: create(value, department, type)
+        end
+    end
+
+    Service -> Airport: updateDetails(operationalHours, contacts)
+    activate Airport
+    Airport --> Service: 
+    deactivate Airport
+    
+    Service -> Repo: save(airport)
+    activate Repo
+    Repo --> Service: savedAirport
+    deactivate Repo
+    
+    Service --> Ctrl: savedAirport
+    
+    Ctrl --> BO: 200 OK (savedAirport)
+    
+else if airport not found
+    Service --> Ctrl: throw IllegalArgumentException
+    Ctrl --> BO: 404 Not Found / 400 Bad Request
+end
+
+deactivate Service
+deactivate Ctrl
+
+@enduml
