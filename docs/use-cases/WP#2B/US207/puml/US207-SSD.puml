@@ -1,0 +1,14 @@
+@startuml US207-SSD
+title System Sequence Diagram - US207: Register Airport with Enhanced Features
+
+autonumber
+actor "Backoffice Operator" as BO
+participant ":System" as Sys
+
+BO -> Sys: Register airport with basic details, optional photos, and terminals (gates, services)
+activate Sys
+
+Sys --> BO: Returns created airport details and confirms success
+deactivate Sys
+
+@enduml

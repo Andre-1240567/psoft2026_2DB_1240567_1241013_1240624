@@ -1,0 +1,166 @@
+{
+  "info": {
+    "_postman_id": "98c5d467-f88c-5824-95ad-03642g23f561",
+    "name": "WP#2B - Enhanced Airport Features",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. AUTH - Login as BACKOFFICE_OPERATOR",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "var jsonData = pm.response.json();",
+              "if(jsonData.token) {",
+              "    pm.environment.set(\"jwt_token\", jsonData.token);",
+              "    console.log(\"Token saved!\");",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"operator\", \"password\": \"operator123\"}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
+      "name": "US207- Create Airport with Enhanced Features",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"iataCode\": \"LHR\",\r\n  \"name\": \"London Heathrow Airport\",\r\n  \"region\": \"Europe\",\r\n  \"country\": \"United Kingdom\",\r\n  \"city\": \"London\",\r\n  \"latitude\": 51.4700,\r\n  \"longitude\": -0.4543,\r\n  \"timezone\": \"UTC+00:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"09L/27R\",\r\n      \"length\": 3902,\r\n      \"orientation\": \"E\"\r\n    }\r\n  ],\r\n  \"photos\": [\"http://example.com/lhr_terminal_5.jpg\", \"http://example.com/lhr_aerial.jpg\"],\r\n  \"terminals\": [\r\n    {\r\n      \"designation\": \"Terminal 5\",\r\n      \"gates\": [\"A10\", \"A11\", \"B32\"],\r\n      \"services\": [\r\n        {\r\n          \"serviceType\": \"Lounge\",\r\n          \"description\": \"British Airways Galleries First\"\r\n        },\r\n        {\r\n          \"serviceType\": \"Retail\",\r\n          \"description\": \"Duty Free Shopping\"\r\n        }\r\n      ]\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/airports",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "airports"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Response contains new features\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.iataCode.code).to.eql(\"LHR\");",
+              "    pm.expect(jsonData.photos.length).to.eql(2);",
+              "    pm.expect(jsonData.terminals.length).to.eql(1);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "US208- Update Airport Details",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"operationalHours\": {\r\n    \"openingTime\": \"06:00\",\r\n    \"closingTime\": \"23:30\"\r\n  },\r\n  \"contacts\": [\r\n    {\r\n      \"value\": \"+44 844 335 1801\",\r\n      \"department\": \"General Enquiries\",\r\n      \"type\": \"PHONE\"\r\n    },\r\n    {\r\n      \"value\": \"info@heathrow.com\",\r\n      \"department\": \"Information Desk\",\r\n      \"type\": \"EMAIL\"\r\n    }\r\n  ]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/airports/LHR/details",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "airports",
+            "LHR",
+            "details"
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Response contains operational hours\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.operationalHours).to.not.be.null;",
+              "    pm.expect(jsonData.operationalHours.openingTime).to.eql(\"06:00:00\");",
+              "});",
+              "pm.test(\"Response contains contacts\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.contacts).to.be.an(\"array\");",
+              "    pm.expect(jsonData.contacts.length).to.eql(2);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

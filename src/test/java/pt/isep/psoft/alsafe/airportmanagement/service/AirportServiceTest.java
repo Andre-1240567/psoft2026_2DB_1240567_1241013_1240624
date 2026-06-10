@@ -15,6 +15,12 @@ import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
 
 import java.util.Optional;
 
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.UpdateAirportDetailsRequestDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.OperationalHoursDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.ContactDTO;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
