@@ -1,0 +1,13 @@
+@startuml
+autonumber
+actor "ATCC" as ATCC
+participant "System" as System
+
+activate ATCC
+ATCC -> System : GET /api/airports/{iataCode}/routes
+activate System
+System --> ATCC : 200 OK (Paged list of routes)
+deactivate System
+deactivate ATCC
+
+@enduml

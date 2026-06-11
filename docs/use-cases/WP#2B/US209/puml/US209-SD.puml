@@ -1,0 +1,34 @@
+@startuml
+autonumber
+
+actor "ATCC" as ATCC
+participant ":AirportController" as Controller
+participant ":FlightRouteService" as Service
+participant ":AirportService" as AirportService
+participant ":FlightRouteRepository" as Repository
+
+activate ATCC
+ATCC -> Controller : getRoutesByAirport(iataCode, page, size)
+activate Controller
+
+Controller -> Service : getRoutesByAirport(iataCode, pageable)
+activate Service
+
+Service -> AirportService : getAirportDetails(iataCode)
+activate AirportService
+AirportService --> Service : airport
+deactivate AirportService
+
+Service -> Repository : findByOrigin_IataCode_CodeOrDestination_IataCode_Code(iata, iata, pageable)
+activate Repository
+Repository --> Service : page<FlightRoute>
+deactivate Repository
+
+Service --> Controller : page<FlightRouteResponseDTO>
+deactivate Service
+
+Controller --> ATCC : 200 OK (PagedModel)
+deactivate Controller
+deactivate ATCC
+
+@enduml
