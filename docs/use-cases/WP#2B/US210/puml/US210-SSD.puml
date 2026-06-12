@@ -1,0 +1,13 @@
+@startuml
+autonumber
+actor "Backoffice Operator" as Operator
+participant "System" as System
+
+activate Operator
+Operator -> System : GET /api/airports/statistics/busiest
+activate System
+System --> Operator : 200 OK (List of BusiestAirportDTO)
+deactivate System
+deactivate Operator
+
+@enduml

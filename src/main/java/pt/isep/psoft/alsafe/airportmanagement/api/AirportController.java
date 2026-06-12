@@ -6,9 +6,18 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
+import org.springframework.security.access.prepost.PreAuthorize;
 import pt.isep.psoft.alsafe.airportmanagement.api.dto.*;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
+import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 
 import java.util.List;
 
@@ -18,9 +27,11 @@ import java.util.List;
 public class AirportController {
 
     private final AirportService airportService;
+    private final FlightRouteService flightRouteService;
 
-    public AirportController(AirportService airportService) {
+    public AirportController(AirportService airportService, FlightRouteService flightRouteService) {
         this.airportService = airportService;
+        this.flightRouteService = flightRouteService;
     }
 
     @PostMapping
@@ -78,5 +89,28 @@ public class AirportController {
 
         Airport updatedAirport = airportService.updateAirportDetails(iataCode, dto);
         return ResponseEntity.ok(updatedAirport);
+    }
+
+    @PreAuthorize("hasRole('ATCC')")
+    @GetMapping("/{iataCode}/routes")
+    @Operation(summary = "US209 - View all routes that depart from or arrive at a specific airport")
+    public ResponseEntity<PagedModel<EntityModel<FlightRouteResponseDTO>>> getRoutesByAirport(
+            @PathVariable("iataCode") String iataCode,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            PagedResourcesAssembler<FlightRouteResponseDTO> pagedAssembler) {
+
+        Pageable pageable = PageRequest.of(page, size);
+        Page<FlightRouteResponseDTO> responsePage = flightRouteService.getRoutesByAirport(iataCode, pageable);
+
+        return ResponseEntity.ok(pagedAssembler.toModel(responsePage));
+    }
+
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
+    @GetMapping("/statistics/busiest")
+    @Operation(summary = "US210 - Generate statistics on the busiest airports by number of routes")
+    public ResponseEntity<List<BusiestAirportDTO>> getBusiestAirports() {
+        List<BusiestAirportDTO> stats = flightRouteService.getBusiestAirports();
+        return ResponseEntity.ok(stats);
     }
 }

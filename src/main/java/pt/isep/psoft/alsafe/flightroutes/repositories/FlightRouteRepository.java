@@ -10,6 +10,7 @@ import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteId;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface FlightRouteRepository extends JpaRepository<FlightRoute, RouteId> {
@@ -26,6 +27,10 @@ public interface FlightRouteRepository extends JpaRepository<FlightRoute, RouteI
 
     @EntityGraph(attributePaths = {"history"})
     Page<FlightRoute> findByDestination_IataCode_Code(String destinationIata, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"history"})
+    Page<FlightRoute> findByOrigin_IataCode_CodeOrDestination_IataCode_Code(
+            String originIata, String destinationIata, Pageable pageable);
 
     // --- US114: search by origin + destination ---
 
@@ -58,4 +63,18 @@ public interface FlightRouteRepository extends JpaRepository<FlightRoute, RouteI
 
     @Query("SELECT r FROM FlightRoute r LEFT JOIN FETCH r.history WHERE r.routeId.id = :routeId")
     Optional<FlightRoute> findByIdWithHistory(@Param("routeId") String routeId);
+
+    // --- US210: Busiest airports by number of routes ---
+
+    @Query(value = "SELECT a.iata_code as iata, COUNT(*) as routeCount " +
+                   "FROM airport a " +
+                   "JOIN ( " +
+                   "  SELECT origin_id AS airport_id FROM flight_route " +
+                   "  UNION ALL " +
+                   "  SELECT destination_id AS airport_id FROM flight_route " +
+                   ") r ON a.id = r.airport_id " +
+                   "GROUP BY a.iata_code " +
+                   "ORDER BY routeCount DESC",
+           nativeQuery = true)
+    List<Object[]> findBusiestAirportsStatistics();
 }

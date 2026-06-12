@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.BusiestAirportDTO;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Status;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
@@ -133,6 +134,25 @@ public class FlightRouteService {
 
         // Mapeia para DTO
         return resultPage.map(assembler::toModel);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<FlightRouteResponseDTO> getRoutesByAirport(String airportIata, Pageable pageable) {
+        String iata = airportIata.toUpperCase();
+
+        // Verify airport exists (throws ResourceNotFoundException if it doesn't)
+        resolveAirport(iata);
+
+        Page<FlightRoute> resultPage = routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code(iata, iata, pageable);
+        return resultPage.map(assembler::toModel);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BusiestAirportDTO> getBusiestAirports() {
+        List<Object[]> results = routeRepository.findBusiestAirportsStatistics();
+        return results.stream()
+                .map(row -> new BusiestAirportDTO((String) row[0], ((Number) row[1]).longValue()))
+                .toList();
     }
 
     // ---------------------------------------------------------------------------
