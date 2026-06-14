@@ -1,0 +1,196 @@
+{
+  "info": {
+    "_postman_id": "b1a2b3c4-d5e6-7f8g-9h0i-j1k2l3m4n5o6",
+    "name": "WP#1B - Enhanced Aircraft Features",
+    "description": "Endpoints for Work Package 1B (US201 onwards), including JWT Authentication.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login (Get JWT Token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "var jsonData = pm.response.json();",
+                  "if(jsonData.token) {",
+                  "    pm.environment.set(\"jwt_token\", jsonData.token);",
+                  "    console.log(\"Token saved!\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"username\": \"admin\", \"password\": \"admin123\"}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "US201 - Update Aircraft Model Specifications",
+      "item": [
+        {
+          "name": "1. Get Aircraft Models (To find ID and Version)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/aircraft-models",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircraft-models"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "2. Update Aircraft Model (Success)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Verify seating capacity updated\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.seatingCapacity).to.eql(250);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"seatingCapacity\": 250,\n    \"fuelCapacity\": 35000.0,\n    \"maxRange\": 8000.0,\n    \"cruisingSpeed\": 860.0,\n    \"version\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/aircraft-models/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircraft-models",
+                "1"
+              ]
+            },
+            "description": "Change the ID in the URL to the model you want to update. Set the 'version' in the JSON body to match the current version of the object."
+          },
+          "response": []
+        },
+        {
+          "name": "3. Update Aircraft Model (Conflict - Optimistic Locking)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status is 409 Conflict\", function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"seatingCapacity\": 250,\n    \"fuelCapacity\": 35000.0,\n    \"maxRange\": 8000.0,\n    \"cruisingSpeed\": 860.0,\n    \"version\": 999\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/aircraft-models/1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircraft-models",
+                "1"
+              ]
+            },
+            "description": "This request sends an intentionally wrong version (999) to verify that Optimistic Locking prevents the update."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ]
+}
