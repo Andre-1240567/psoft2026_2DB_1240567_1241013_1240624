@@ -65,7 +65,6 @@ public class FlightRoute {
         if (routeRequirement == null) {
             throw new IllegalArgumentException("Route requirement cannot be null.");
         }
-        // Guard: aircraft minimum range must be able to cover the route distance
         if (routeRequirement.getMinRangeRequired() < distance) {
             throw new IllegalArgumentException("Minimum range required cannot be less than the route distance.");
         }

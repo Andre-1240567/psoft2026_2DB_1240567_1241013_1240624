@@ -69,8 +69,6 @@ public class Bootstrapper implements CommandLineRunner {
         System.out.println("Bootstrapper deployed!");
     }
 
-    // Initialize system administrators and backoffice operators (WP#0A)
-    // Passwords are hashed with BCrypt — never stored in plain text
     private void bootstrapUsers() {
         if (userRepository.count() == 0) {
             userRepository.save(new SystemUser(

@@ -33,7 +33,6 @@ public class ScheduledFlight {
     private Long version;
 
     protected ScheduledFlight() {
-        // Required by JPA
     }
 
     public ScheduledFlight(FlightRoute route, Aircraft aircraft, LocalDateTime scheduledDeparture, LocalDateTime scheduledArrival) {

@@ -23,7 +23,6 @@ public class SearchAllStrategy implements RouteSearchStrategy {
 
     @Override
     public boolean supports(String originIata, String destinationIata) {
-        // Fallback — always true, so it must be the last strategy evaluated.
         return true;
     }
 

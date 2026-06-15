@@ -20,10 +20,12 @@ public interface ScheduledFlightRepository extends JpaRepository<ScheduledFlight
     List<ScheduledFlight> findByAircraft_RegistrationNumber(String registrationNumber);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT CASE WHEN COUNT(sf) > 0 THEN true ELSE false END FROM ScheduledFlight sf " +
-           "WHERE sf.aircraft = :aircraft " +
-           "AND sf.scheduledDeparture < :newArrival " +
-           "AND sf.scheduledArrival > :newDeparture")
+    @Query("SELECT sf FROM ScheduledFlight sf WHERE sf.aircraft = :aircraft AND " +
+           "(sf.departureTime <= :bufferArrival AND sf.arrivalTime >= :bufferDeparture)")
+    List<ScheduledFlight> findOverlappingFlightsWithLock(
+            @Param("aircraft") pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft aircraft, 
+            @Param("bufferDeparture") java.time.LocalDateTime bufferDeparture, 
+            @Param("bufferArrival") java.time.LocalDateTime bufferArrival);
     boolean existsByAircraftAndTimeRangeWithLock(
             @Param("aircraft") Aircraft aircraft,
             @Param("newDeparture") LocalDateTime newDeparture,

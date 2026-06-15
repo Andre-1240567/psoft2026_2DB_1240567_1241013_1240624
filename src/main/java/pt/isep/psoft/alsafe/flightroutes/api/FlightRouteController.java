@@ -20,6 +20,9 @@ import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 
 import java.util.List;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @Tag(name = "Flight Routes", description = "Endpoints for managing flight routes (WP#3A & WP#3B)")
 @RestController
 @RequestMapping("/api/flight-routes")
@@ -108,7 +111,6 @@ public class FlightRouteController {
         return ResponseEntity.ok(flightRouteService.getRouteById(routeId));
     }
 
-    // --- REFACTOR: US114 + US214 Fundidas ---
     @Operation(summary = "Search and list flight routes (US114 & US214)",
                description = "Returns a paginated, HATEOAS-enriched list of routes. " +
                              "Can filter by originIata, destinationIata, status (e.g. ACTIVE), " +
@@ -133,14 +135,10 @@ public class FlightRouteController {
         Pageable pageable = PageRequest.of(page, size);
         Page<FlightRouteResponseDTO> responsePage;
 
-        // Se houver pedido de ordenação especial (US214), reencaminha para a nova lógica.
-        // Assumimos que a ordenação por popularidade faz mais sentido para rotas ativas.
-        if (sortBy != null && (sortBy.equalsIgnoreCase("popularity") || sortBy.equalsIgnoreCase("distance"))) {
-            RouteStatus filterStatus = status != null ? status : RouteStatus.ACTIVE; // Defaults to ACTIVE for US214
+        if (sortBy != null) {
+            RouteStatus filterStatus = status != null ? status : RouteStatus.ACTIVE;
             responsePage = flightRouteService.getActiveRoutesSorted(filterStatus, sortBy, pageable);
         } else {
-            // Lógica antiga (US114) - Nota: Se precisares do `status` aqui, 
-            // as tuas estratégias terão de ser atualizadas para o suportar.
             responsePage = flightRouteService.searchRoutes(originIata, destinationIata, pageable);
         }
 
@@ -184,6 +182,11 @@ public class FlightRouteController {
         }
 
         List<AlternativeRouteResponseDTO> alternatives = flightRouteService.findAlternativeRoutes(originIata, destinationIata, algorithm);
+        
+        alternatives.forEach(alt -> alt.add(
+                linkTo(methodOn(FlightRouteController.class).getAlternativeRoutes(originIata, destinationIata, algorithm)).withSelfRel()
+        ));
+
         return ResponseEntity.ok(alternatives);
     }
 }

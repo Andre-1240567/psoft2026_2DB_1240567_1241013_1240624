@@ -78,11 +78,8 @@ public class ScheduledFlightService {
             throw new IllegalArgumentException("Aircraft maximum range is insufficient for this route.");
         }
 
-        // TODO: quando as configurações de capacidade forem implementadas no domínio,
-        // substituir getModel().getSeatingCapacity() pela capacidade da configuração ativa
-        // do avião (aircraft.getActiveConfigurationName()).
-        if (aircraft.getModel().getSeatingCapacity() < route.getRouteRequirement().getMinCapacityRequired()) {
-            throw new IllegalArgumentException("Aircraft seating capacity is insufficient for this route's requirements.");
+        if (aircraft.getActiveCapacity() < route.getRouteRequirement().getMinCapacityRequired()) {
+            throw new IllegalArgumentException("Aircraft active capacity is insufficient for this route's requirements.");
         }
 
         if (aircraft.getStatus() != AircraftStatus.AVAILABLE) {
@@ -92,13 +89,11 @@ public class ScheduledFlightService {
         LocalDateTime bufferedDeparture = departureTime.minusMinutes(TURNAROUND_BUFFER_MINUTES);
         LocalDateTime bufferedArrival = arrivalTime.plusMinutes(TURNAROUND_BUFFER_MINUTES);
 
-        boolean isOverlapping = scheduledFlightRepository.existsByAircraftAndTimeRangeWithLock(
+        List<ScheduledFlight> overlaps = scheduledFlightRepository.findOverlappingFlightsWithLock(
                 aircraft, bufferedDeparture, bufferedArrival);
 
-        if (isOverlapping) {
-            throw new IllegalStateException(
-                    "The aircraft is already scheduled for another flight during this timeframe " +
-                    "(including the " + TURNAROUND_BUFFER_MINUTES + " min turnaround buffer).");
+        if (!overlaps.isEmpty()) {
+            throw new IllegalStateException("The aircraft is already scheduled...");
         }
 
         ScheduledFlight newFlight = new ScheduledFlight(route, aircraft, departureTime, arrivalTime);

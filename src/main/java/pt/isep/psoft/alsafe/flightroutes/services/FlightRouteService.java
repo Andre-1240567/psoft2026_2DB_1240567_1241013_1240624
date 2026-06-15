@@ -35,10 +35,8 @@ public class FlightRouteService {
     private final AirportService airportService;
     private final FlightRouteModelAssembler assembler;
     
-    // Estratégias para a US114 (Procura Direta)
     private final List<RouteSearchStrategy> searchStrategies;
     
-    // Estratégias para a US216 (Rotas Alternativas com Escalas)
     private final List<AlternativeRoutingStrategy> routingStrategies;
 
     public FlightRouteService(FlightRouteRepository routeRepository,
@@ -140,7 +138,6 @@ public class FlightRouteService {
         return resultPage.map(assembler::toModel);
     }
 
-    // --- MÉTODOS DO TEU WP#3B ---
     @Transactional(readOnly = true)
     public Page<FlightRouteResponseDTO> getActiveRoutesSorted(RouteStatus status, String sortBy, Pageable pageable) {
         String validSortBy = "distance";
@@ -185,7 +182,6 @@ public class FlightRouteService {
         }).toList();
     }
 
-    // --- MÉTODOS DOS TEUS COLEGAS (VINDOS DA MAIN) ---
     @Transactional(readOnly = true)
     public Page<FlightRouteResponseDTO> getRoutesByAirport(String airportIata, Pageable pageable) {
         String iata = airportIata.toUpperCase();
