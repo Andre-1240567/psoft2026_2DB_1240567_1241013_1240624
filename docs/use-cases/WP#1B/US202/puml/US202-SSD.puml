@@ -1,0 +1,21 @@
+@startuml US202-SSD
+autonumber
+title System Sequence Diagram (SSD) - US202: Register Aircraft Model with Image
+
+actor "Backoffice Operator" as Operator
+participant ":System" as System
+
+activate Operator
+Operator -> System: initiates the registration of a new aircraft model
+activate System
+
+System --> Operator: requests necessary data (manufacturer, model name, seating capacity, fuel capacity, max range, cruising speed, optional image)
+deactivate System
+
+Operator -> System: selects manufacturer, inputs the requested data, and optionally attaches an image
+activate System
+
+System --> Operator: confirms aircraft model registration and returns details (including image if provided)
+deactivate System
+deactivate Operator
+@enduml

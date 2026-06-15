@@ -23,7 +23,8 @@ public class AircraftModelService {
                 dto.getSeatingCapacity(),
                 dto.getFuelCapacity(),
                 dto.getMaxRange(),
-                dto.getCruisingSpeed()
+                dto.getCruisingSpeed(),
+                dto.getImage()
         );
 
         return repository.save(newModel);

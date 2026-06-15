@@ -35,7 +35,15 @@ public class AircraftModel {
     @Column(nullable = false)
     private Double cruisingSpeed;
 
+    @Lob
+    @Column(name = "image")
+    private byte[] image;
+
     public AircraftModel(Manufacturer manufacturer, String modelName, Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed) {
+        this(manufacturer, modelName, seatingCapacity, fuelCapacity, maxRange, cruisingSpeed, null);
+    }
+
+    public AircraftModel(Manufacturer manufacturer, String modelName, Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed, byte[] image) {
         if (manufacturer == null) {
             throw new IllegalArgumentException("Manufacturer cannot be null.");
         }
@@ -62,6 +70,7 @@ public class AircraftModel {
         this.fuelCapacity = fuelCapacity;
         this.maxRange = maxRange;
         this.cruisingSpeed = cruisingSpeed;
+        this.image = image;
     }
 
     public void updateSpecifications(Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed) {
