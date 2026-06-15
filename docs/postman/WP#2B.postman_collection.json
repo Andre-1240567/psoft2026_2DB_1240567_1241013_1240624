@@ -305,6 +305,56 @@
           }
         }
       ]
+    },
+    {
+      "name": "US211 - View Airports Grouped by Region",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/airports/grouped?groupBy=region",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "airports",
+            "grouped"
+          ],
+          "query": [
+            {
+              "key": "groupBy",
+              "value": "region"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Response is a Map\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an(\"object\");",
+              "});"
+            ]
+          }
+        }
+      ]
     }
   ]
 }
