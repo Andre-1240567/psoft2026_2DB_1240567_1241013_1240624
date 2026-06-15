@@ -15,6 +15,20 @@ class AircraftTest {
     }
 
     @Test
+    void ensureAircraftUsesModelCapacityIfNoCapacityProvided() {
+        AircraftModel model = new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0);
+        Aircraft aircraft = new Aircraft("CS-TPA", model, LocalDate.now(), "Economy");
+        assertEquals(180, aircraft.getActiveCapacity());
+    }
+
+    @Test
+    void ensureAircraftUsesProvidedCapacity() {
+        AircraftModel model = new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0);
+        Aircraft aircraft = new Aircraft("CS-TPA", model, LocalDate.now(), "Economy", 150);
+        assertEquals(150, aircraft.getActiveCapacity());
+    }
+
+    @Test
     void ensureAircraftStatusCanBeUpdated() {
         AircraftModel model = new AircraftModel(Manufacturer.AIRBUS, "A320neo", 160, 24000.0, 6300.0, 828.0);
         Aircraft aircraft = new Aircraft("CS-TPA", model, LocalDate.now(), "Economy");
