@@ -21,6 +21,12 @@ import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 
 import java.util.List;
 
+import org.springframework.hateoas.CollectionModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import java.util.stream.Collectors;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/airports")
 @Tag(name = "Airports", description = "Endpoints for managing Airports and Certifications (WP#2A)")
@@ -28,54 +34,56 @@ public class AirportController {
 
     private final AirportService airportService;
     private final FlightRouteService flightRouteService;
+    private final AirportModelAssembler airportModelAssembler;
 
-    public AirportController(AirportService airportService, FlightRouteService flightRouteService) {
+    public AirportController(AirportService airportService, FlightRouteService flightRouteService, AirportModelAssembler airportModelAssembler) {
         this.airportService = airportService;
         this.flightRouteService = flightRouteService;
+        this.airportModelAssembler = airportModelAssembler;
     }
 
     @PostMapping
     @Operation(summary = "US106 - Create a new Airport")
-    public ResponseEntity<Airport> createAirport(@Valid @RequestBody CreateAirportRequestDTO request) {
+    public ResponseEntity<AirportViewDTO> createAirport(@Valid @RequestBody CreateAirportRequestDTO request) {
         Airport createdAirport = airportService.createAirport(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdAirport);
+        return ResponseEntity.status(HttpStatus.CREATED).body(airportModelAssembler.toModel(createdAirport));
     }
 
     @GetMapping("/{iataCode}")
     @Operation(summary = "US107 - Get details of a specific Airport by IATA Code")
-    public ResponseEntity<Airport> getAirportDetails(@PathVariable("iataCode") String iataCode) {
+    public ResponseEntity<AirportViewDTO> getAirportDetails(@PathVariable("iataCode") String iataCode) {
         Airport airport = airportService.getAirportDetails(iataCode);
-        return ResponseEntity.ok(airport);
+        return ResponseEntity.ok(airportModelAssembler.toModel(airport));
     }
 
     @GetMapping
     @Operation(summary = "US108 - Search Airports by city")
-    public ResponseEntity<List<Airport>> searchAirports(@RequestParam(value = "city", required = false) String city) {
+    public ResponseEntity<CollectionModel<AirportViewDTO>> searchAirports(@RequestParam(value = "city", required = false) String city) {
         if (city == null || city.trim().isEmpty()) {
             throw new IllegalArgumentException("O parâmetro de pesquisa 'city' é obrigatório.");
         }
         List<Airport> airports = airportService.searchAirportsByCity(city);
-        return ResponseEntity.ok(airports);
+        return ResponseEntity.ok(airportModelAssembler.toCollectionModel(airports));
     }
 
     @PatchMapping("/{iataCode}/status")
     @Operation(summary = "US109 - Change the operational status of an Airport")
-    public ResponseEntity<Airport> changeOperationalStatus(
+    public ResponseEntity<AirportViewDTO> changeOperationalStatus(
             @PathVariable("iataCode") String iataCode,
             @Valid @RequestBody ChangeAirportStatusDTO dto) {
 
         Airport updatedAirport = airportService.changeOperationalStatus(iataCode, dto.getNewStatus());
-        return ResponseEntity.ok(updatedAirport);
+        return ResponseEntity.ok(airportModelAssembler.toModel(updatedAirport));
     }
 
     @PostMapping("/{iataCode}/certifications")
     @Operation(summary = "US106a - Add an airplane certification to an Airport")
-    public ResponseEntity<Airport> addAirplaneCertification(
+    public ResponseEntity<AirportViewDTO> addAirplaneCertification(
             @PathVariable("iataCode") String iataCode,
             @Valid @RequestBody pt.isep.psoft.alsafe.airportmanagement.api.dto.AddCertificationDTO dto) {
 
         Airport updatedAirport = airportService.addAirplaneCertification(iataCode, dto.getAircraftModelName());
-        return ResponseEntity.ok(updatedAirport);
+        return ResponseEntity.ok(airportModelAssembler.toModel(updatedAirport));
     }
 
     @PatchMapping("/{iataCode}/details")
@@ -83,12 +91,12 @@ public class AirportController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Airport details updated successfully")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Airport not found")
-    public ResponseEntity<Airport> updateAirportDetails(
+    public ResponseEntity<AirportViewDTO> updateAirportDetails(
             @PathVariable("iataCode") String iataCode,
             @Valid @RequestBody UpdateAirportDetailsRequestDTO dto) {
 
         Airport updatedAirport = airportService.updateAirportDetails(iataCode, dto);
-        return ResponseEntity.ok(updatedAirport);
+        return ResponseEntity.ok(airportModelAssembler.toModel(updatedAirport));
     }
 
     @PreAuthorize("hasRole('ATCC')")
@@ -109,8 +117,38 @@ public class AirportController {
     @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
     @GetMapping("/statistics/busiest")
     @Operation(summary = "US210 - Generate statistics on the busiest airports by number of routes")
-    public ResponseEntity<List<BusiestAirportDTO>> getBusiestAirports() {
+    public ResponseEntity<CollectionModel<BusiestAirportDTO>> getBusiestAirports() {
         List<BusiestAirportDTO> stats = flightRouteService.getBusiestAirports();
-        return ResponseEntity.ok(stats);
+        
+        stats.forEach(dto -> 
+            dto.add(linkTo(methodOn(AirportController.class).getAirportDetails(dto.getIataCode())).withRel("airport_details"))
+        );
+
+        CollectionModel<BusiestAirportDTO> model = CollectionModel.of(stats, 
+            linkTo(methodOn(AirportController.class).getBusiestAirports()).withSelfRel());
+            
+        return ResponseEntity.ok(model);
+    }
+
+    @PreAuthorize("hasRole('ATCC')")
+    @GetMapping("/grouped")
+    @Operation(summary = "US211 - View airports grouped by region or country")
+    public ResponseEntity<Map<String, CollectionModel<AirportViewDTO>>> getAirportsGroupedBy(
+            @RequestParam(value = "groupBy") String groupBy) {
+
+        Map<String, List<Airport>> groupedAirports = airportService.getAirportsGroupedBy(groupBy);
+        
+        Map<String, CollectionModel<AirportViewDTO>> responseMap = groupedAirports.entrySet().stream()
+            .collect(Collectors.toMap(
+                Map.Entry::getKey,
+                entry -> {
+                    List<AirportViewDTO> dtos = entry.getValue().stream()
+                        .map(airportModelAssembler::toModel)
+                        .toList();
+                    return CollectionModel.of(dtos);
+                }
+            ));
+            
+        return ResponseEntity.ok(responseMap);
     }
 }
