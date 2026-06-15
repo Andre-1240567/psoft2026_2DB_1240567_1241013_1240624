@@ -14,6 +14,7 @@ import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.Manufacturer;
 import pt.isep.psoft.alsafe.aircraftmanagement.services.AircraftService;
 import pt.isep.psoft.alsafe.security.jwt.JwtUtils;
+import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 
 import java.time.LocalDate;
 
@@ -36,6 +37,9 @@ class AircraftControllerTest {
 
     @MockBean
     private JwtUtils jwtUtils;
+
+    @MockBean
+    private FlightRouteService flightRouteService;
 
     @Autowired
     private ObjectMapper objectMapper;
