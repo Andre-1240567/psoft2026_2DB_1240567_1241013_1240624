@@ -136,4 +136,19 @@ public class AirportService {
         return airportRepository.save(airport);
     }
 
+    @Transactional(readOnly = true)
+    public java.util.Map<String, List<Airport>> getAirportsGroupedBy(String groupBy) {
+        List<Airport> allAirports = airportRepository.findAll();
+
+        if ("region".equalsIgnoreCase(groupBy)) {
+            return allAirports.stream()
+                    .collect(java.util.stream.Collectors.groupingBy(a -> a.getLocation().getRegion()));
+        } else if ("country".equalsIgnoreCase(groupBy)) {
+            return allAirports.stream()
+                    .collect(java.util.stream.Collectors.groupingBy(a -> a.getLocation().getCountry()));
+        } else {
+            throw new IllegalArgumentException("Invalid grouping criteria. Use 'region' or 'country'.");
+        }
+    }
+
 }

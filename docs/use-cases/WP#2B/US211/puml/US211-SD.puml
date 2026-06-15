@@ -1,0 +1,28 @@
+@startuml
+autonumber
+
+actor "ATCC" as ATCC
+participant ":AirportController" as Controller
+participant ":AirportService" as Service
+participant ":AirportRepository" as Repository
+
+activate ATCC
+ATCC -> Controller : getAirportsGroupedBy(groupBy)
+activate Controller
+
+Controller -> Service : getAirportsGroupedBy(groupBy)
+activate Service
+
+Service -> Repository : findAll()
+activate Repository
+Repository --> Service : List<Airport>
+deactivate Repository
+
+Service --> Controller : Map<String, List<Airport>>
+deactivate Service
+
+Controller --> ATCC : 200 OK (Map)
+deactivate Controller
+deactivate ATCC
+
+@enduml
