@@ -388,4 +388,60 @@ class FlightRouteControllerTest {
         mockMvc.perform(patch("/api/flight-routes/teste-id-123/deactivate"))
                 .andExpect(status().isConflict());
     }
+
+    // -----------------------------------------------------------------------
+    // REFACTOR US114 + US214: GET /api/flight-routes (Sorted by Popularity/Distance)
+    // -----------------------------------------------------------------------
+
+    @Test
+    void ensureGetActiveRoutesSortedByPopularityReturns200() throws Exception {
+        Page<FlightRouteResponseDTO> page = new PageImpl<>(List.of(new FlightRouteResponseDTO(validRoute)));
+
+        when(flightRouteService.getActiveRoutesSorted(any(), eq("popularity"), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/flight-routes")
+                        .param("sortBy", "popularity")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andExpect(status().isOk());
+    }
+
+    // -----------------------------------------------------------------------
+    // US215: GET /api/flight-routes/network/total-distance
+    // -----------------------------------------------------------------------
+
+    @Test
+    void ensureGetTotalNetworkDistanceReturns200AndValidJson() throws Exception {
+        when(flightRouteService.getTotalNetworkDistance()).thenReturn(15000.5);
+
+        mockMvc.perform(get("/api/flight-routes/network/total-distance"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalDistance").value(15000.5));
+    }
+
+    // -----------------------------------------------------------------------
+    // US216: GET /api/flight-routes/alternatives
+    // -----------------------------------------------------------------------
+
+    @Test
+    void ensureGetAlternativeRoutesReturns200() throws Exception {
+        when(flightRouteService.findAlternativeRoutes("OPO", "MAD", "fewest-stops"))
+                .thenReturn(List.of());
+
+        mockMvc.perform(get("/api/flight-routes/alternatives")
+                        .param("originIata", "OPO")
+                        .param("destinationIata", "MAD")
+                        .param("algorithm", "fewest-stops"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void ensureGetAlternativeRoutesWithSameOriginAndDestinationReturns400() throws Exception {
+        mockMvc.perform(get("/api/flight-routes/alternatives")
+                        .param("originIata", "OPO")
+                        .param("destinationIata", "OPO") // Mesma origem
+                        .param("algorithm", "fewest-stops"))
+                .andExpect(status().isBadRequest());
+    }
 }

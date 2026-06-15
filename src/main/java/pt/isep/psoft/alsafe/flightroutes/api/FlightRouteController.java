@@ -15,11 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 
 import java.util.List;
 
-@Tag(name = "Flight Routes", description = "Endpoints for managing flight routes (WP#3A)")
+@Tag(name = "Flight Routes", description = "Endpoints for managing flight routes (WP#3A & WP#3B)")
 @RestController
 @RequestMapping("/api/flight-routes")
 public class FlightRouteController {
@@ -107,11 +108,14 @@ public class FlightRouteController {
         return ResponseEntity.ok(flightRouteService.getRouteById(routeId));
     }
 
-    @Operation(summary = "Search flight routes",
+    // --- REFACTOR: US114 + US214 Fundidas ---
+    @Operation(summary = "Search and list flight routes (US114 & US214)",
                description = "Returns a paginated, HATEOAS-enriched list of routes. " +
-                             "Filter by originIata, destinationIata, both, or neither. Requires ATCC role.")
+                             "Can filter by originIata, destinationIata, status (e.g. ACTIVE), " +
+                             "and sort by 'popularity' or 'distance'. Requires ATCC role.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Paginated list of routes returned"),
+        @ApiResponse(responseCode = "400", description = "Invalid sort parameter provided"),
         @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
         @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required")
     })
@@ -120,14 +124,66 @@ public class FlightRouteController {
     public ResponseEntity<PagedModel<EntityModel<FlightRouteResponseDTO>>> searchRoutes(
             @RequestParam(required = false) String originIata,
             @RequestParam(required = false) String destinationIata,
+            @RequestParam(required = false) RouteStatus status,
+            @RequestParam(required = false) String sortBy,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             PagedResourcesAssembler<FlightRouteResponseDTO> pagedAssembler) {
 
         Pageable pageable = PageRequest.of(page, size);
-        Page<FlightRouteResponseDTO> responsePage =
-                flightRouteService.searchRoutes(originIata, destinationIata, pageable);
+        Page<FlightRouteResponseDTO> responsePage;
+
+        // Se houver pedido de ordenação especial (US214), reencaminha para a nova lógica.
+        // Assumimos que a ordenação por popularidade faz mais sentido para rotas ativas.
+        if (sortBy != null && (sortBy.equalsIgnoreCase("popularity") || sortBy.equalsIgnoreCase("distance"))) {
+            RouteStatus filterStatus = status != null ? status : RouteStatus.ACTIVE; // Defaults to ACTIVE for US214
+            responsePage = flightRouteService.getActiveRoutesSorted(filterStatus, sortBy, pageable);
+        } else {
+            // Lógica antiga (US114) - Nota: Se precisares do `status` aqui, 
+            // as tuas estratégias terão de ser atualizadas para o suportar.
+            responsePage = flightRouteService.searchRoutes(originIata, destinationIata, pageable);
+        }
 
         return ResponseEntity.ok(pagedAssembler.toModel(responsePage));
+    }
+
+    @Operation(summary = "US215: Calculate total network distance",
+               description = "Calculates the total distance covered by all ACTIVE flight routes in the network. Requires ATCC role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Total distance calculated successfully"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required")
+    })
+    @PreAuthorize("hasRole('ATCC')")
+    @GetMapping("/network/total-distance")
+    public ResponseEntity<java.util.Map<String, Double>> getTotalNetworkDistance() {
+        
+        Double totalDistance = flightRouteService.getTotalNetworkDistance();
+        
+        return ResponseEntity.ok(java.util.Map.of("totalDistance", totalDistance));
+    }
+
+    @Operation(summary = "US216: Search for alternative routes",
+               description = "Finds alternative combinations of active flight routes connecting two airports via layovers. Defaults to fewest-stops algorithm. Requires ATCC role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "List of alternative routes returned successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid algorithm or same origin and destination"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required"),
+        @ApiResponse(responseCode = "404", description = "Origin or destination airport not found")
+    })
+    @PreAuthorize("hasRole('ATCC')")
+    @GetMapping("/alternatives")
+    public ResponseEntity<List<AlternativeRouteResponseDTO>> getAlternativeRoutes(
+            @RequestParam String originIata,
+            @RequestParam String destinationIata,
+            @RequestParam(defaultValue = "fewest-stops") String algorithm) {
+
+        if (originIata.equalsIgnoreCase(destinationIata)) {
+            throw new IllegalArgumentException("Origin and destination must be different.");
+        }
+
+        List<AlternativeRouteResponseDTO> alternatives = flightRouteService.findAlternativeRoutes(originIata, destinationIata, algorithm);
+        return ResponseEntity.ok(alternatives);
     }
 }

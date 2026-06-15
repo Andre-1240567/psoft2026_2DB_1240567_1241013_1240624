@@ -56,8 +56,4 @@ public class ScheduledFlight {
         this.scheduledDeparture = scheduledDeparture;
         this.scheduledArrival = scheduledArrival;
     }
-    
-    public boolean overlapsWith(LocalDateTime checkDeparture, LocalDateTime checkArrival) {
-        return (this.scheduledDeparture.isBefore(checkArrival) && this.scheduledArrival.isAfter(checkDeparture));
-    }
 }

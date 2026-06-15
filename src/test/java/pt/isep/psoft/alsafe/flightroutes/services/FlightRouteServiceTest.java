@@ -24,6 +24,7 @@ import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
+import pt.isep.psoft.alsafe.flightroutes.services.routing.AlternativeRoutingStrategy;
 import pt.isep.psoft.alsafe.flightroutes.services.strategy.*;
 import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;
 
@@ -43,6 +44,9 @@ class FlightRouteServiceTest {
     @Mock private SecurityContext securityContext;
     @Mock private Authentication authentication;
 
+    // NOVO MOCK: Precisamos de simular a lista de estratégias de rotas alternativas da US216
+    @Mock private AlternativeRoutingStrategy mockedRoutingStrategy;
+
     // Built manually so the real strategy logic is exercised (not mocked)
     private FlightRouteService flightRouteService;
 
@@ -55,16 +59,20 @@ class FlightRouteServiceTest {
         lenient().when(authentication.getPrincipal()).thenReturn("atcc_jose");
         SecurityContextHolder.setContext(securityContext);
 
-        // Build the service with real strategy implementations (backed by the mocked repository)
-        List<RouteSearchStrategy> strategies = List.of(
+        // Build the service with real search strategy implementations (backed by the mocked repository)
+        List<RouteSearchStrategy> searchStrategies = List.of(
                 new SearchByBothStrategy(routeRepository),
                 new SearchByOriginStrategy(routeRepository),
                 new SearchByDestinationStrategy(routeRepository),
                 new SearchAllStrategy(routeRepository)
         );
 
+        // Lista simulada de Routing Strategies para satisfazer o novo construtor (US216)
+        List<AlternativeRoutingStrategy> routingStrategies = List.of(mockedRoutingStrategy);
+
+        // O Construtor corrigido com os 5 parâmetros!
         flightRouteService = new FlightRouteService(
-                routeRepository, airportService, assembler, strategies);
+                routeRepository, airportService, assembler, searchStrategies, routingStrategies);
     }
 
     @AfterEach

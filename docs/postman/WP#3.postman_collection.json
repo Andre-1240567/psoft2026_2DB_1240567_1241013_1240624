@@ -1,0 +1,385 @@
+{
+  "info": {
+    "_postman_id": "8a7c2b3d-1234-4d5e-9f0a-112233445566",
+    "name": "WP#3 - Flight Routes & Scheduling",
+    "description": "Full E2E test suite for Work Packages 3A and 3B.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. AUTH - Login as ATCC",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set(\"jwt_token\", jsonData.token);",
+              "    console.log(\"JWT Token saved!\");",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"atcc\",\n    \"password\": \"atcc123\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "auth", "login" ]
+        }
+      }
+    },
+    {
+      "name": "1. [WP3A] US110 - Create Flight Route (OPO-MAD)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "pm.test(\"Response contains HATEOAS _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set(\"routeId\", jsonData.routeId);",
+              "    pm.environment.set(\"routeVersion\", jsonData.version);",
+              "    console.log(\"ID da rota guardado: \" + jsonData.routeId);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"originIata\": \"OPO\",\n    \"destinationIata\": \"MAD\",\n    \"distance\": 420.5,\n    \"estimatedFlightTime\": 70,\n    \"minRangeRequired\": 500.0,\n    \"minCapacityRequired\": 100\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "flight-routes" ]
+        }
+      }
+    },
+    {
+      "name": "2. [WP3A] US112 - Update Flight Route",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK after Update\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Distance was updated successfully\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.distance).to.eql(450.0);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set(\"routeVersion\", jsonData.version);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"distance\": 450.0,\n    \"estimatedFlightTime\": 75,\n    \"minRangeRequired\": 550.0,\n    \"minCapacityRequired\": 120,\n    \"version\": {{routeVersion}}\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes/{{routeId}}",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "flight-routes", "{{routeId}}" ]
+        }
+      }
+    },
+    {
+      "name": "3. [WP3A] US114 & [WP3B] US214 - Search Active Routes (Sorted by Popularity)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Contains Paginated Data\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('page');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes?status=ACTIVE&sortBy=popularity&page=0&size=10",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "flight-routes" ],
+          "query": [
+            { "key": "status", "value": "ACTIVE" },
+            { "key": "sortBy", "value": "popularity" },
+            { "key": "page", "value": "0" },
+            { "key": "size", "value": "10" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "4. [WP3B] US215 - Get Total Network Distance",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test(\"Contains totalDistance property\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('totalDistance');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes/network/total-distance",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "flight-routes", "network", "total-distance" ]
+        }
+      }
+    },
+    {
+      "name": "5. [WP3B] US216 - Alternative Routes (OPO-MAD)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes/alternatives?originIata=OPO&destinationIata=MAD&algorithm=fewest-stops",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "flight-routes", "alternatives" ],
+          "query": [
+            { "key": "originIata", "value": "OPO" },
+            { "key": "destinationIata", "value": "MAD" },
+            { "key": "algorithm", "value": "fewest-stops" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "6. [WP3B] US212 - Schedule Flight (OPO-MAD)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201 Created\", function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "",
+              "if (pm.response.code === 201) {",
+              "    var jsonData = pm.response.json();",
+              "    pm.environment.set(\"flightNumber\", jsonData.flightNumber);",
+              "    console.log(\"Flight Number guardado: \" + jsonData.flightNumber);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"routeId\": \"{{routeId}}\",\n    \"aircraftRegistration\": \"CS-TPA\",\n    \"departureTime\": \"2026-12-01T10:00:00\",\n    \"arrivalTime\": \"2026-12-01T12:00:00\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "scheduled-flights" ]
+        }
+      }
+    },
+    {
+      "name": "7. [WP3B] US212 - Schedule Flight Error (Time Conflict)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 409 Conflict due to overlapping\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"routeId\": \"{{routeId}}\",\n    \"aircraftRegistration\": \"CS-TPA\",\n    \"departureTime\": \"2026-12-01T11:00:00\",\n    \"arrivalTime\": \"2026-12-01T13:00:00\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "scheduled-flights" ]
+        }
+      }
+    },
+    {
+      "name": "8. [WP3B] US213 - Get Scheduled Flights for Aircraft",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights/aircraft/CS-TPA",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "scheduled-flights", "aircraft", "CS-TPA" ]
+        }
+      }
+    },
+    {
+      "name": "9. [WP3A] US112 - Deactivate Route",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK after Deactivation\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Route Status changed to DEACTIVATED\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.routeStatus).to.eql(\"DEACTIVATED\");",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [ { "key": "token", "value": "{{jwt_token}}", "type": "string" } ]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/flight-routes/{{routeId}}/deactivate",
+          "host": [ "{{base_url}}" ],
+          "path": [ "api", "flight-routes", "{{routeId}}", "deactivate" ]
+        }
+      }
+    }
+  ]
+}

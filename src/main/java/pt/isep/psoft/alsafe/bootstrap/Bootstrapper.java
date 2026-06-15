@@ -20,15 +20,17 @@ import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
+import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
+import pt.isep.psoft.alsafe.flightroutes.repositories.ScheduledFlightRepository;
 
 import pt.isep.psoft.alsafe.security.domain.SystemUser;
 import pt.isep.psoft.alsafe.security.repositories.SystemUserRepository;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-// #1 — duplicate imports removed (CommandLineRunner and Component were imported twice in the original)
 @Component
 public class Bootstrapper implements CommandLineRunner {
 
@@ -36,7 +38,8 @@ public class Bootstrapper implements CommandLineRunner {
     private final AircraftModelRepository aircraftModelRepository;
     private final AircraftRepository aircraftRepository;
     private final FlightRouteRepository flightRouteRepository;
-    private final SystemUserRepository userRepository;              // #4
+    private final ScheduledFlightRepository scheduledFlightRepository;
+    private final SystemUserRepository userRepository;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -44,26 +47,29 @@ public class Bootstrapper implements CommandLineRunner {
                         AircraftModelRepository aircraftModelRepository,
                         AircraftRepository aircraftRepository,
                         FlightRouteRepository flightRouteRepository,
-                        SystemUserRepository userRepository) {      // #4
-        this.airportRepository       = airportRepository;
-        this.aircraftModelRepository = aircraftModelRepository;
-        this.aircraftRepository      = aircraftRepository;
-        this.flightRouteRepository   = flightRouteRepository;
-        this.userRepository          = userRepository;              // #4
+                        ScheduledFlightRepository scheduledFlightRepository,
+                        SystemUserRepository userRepository) {
+        this.airportRepository        = airportRepository;
+        this.aircraftModelRepository  = aircraftModelRepository;
+        this.aircraftRepository       = aircraftRepository;
+        this.flightRouteRepository    = flightRouteRepository;
+        this.scheduledFlightRepository = scheduledFlightRepository;
+        this.userRepository           = userRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
         System.out.println("Launching Bootstrapper...");
-        bootstrapUsers();          // #4 — added: initialize user credentials (required by WP#0A spec)
+        bootstrapUsers();
         bootstrapAirports();
         bootstrapAircraftModels();
         bootstrapFlightRoutes();
         bootstrapAircrafts();
+        bootstrapScheduledFlights();
         System.out.println("Bootstrapper deployed!");
     }
 
-    // #4 — Initialize system administrators and backoffice operators (required by WP#0A spec)
+    // Initialize system administrators and backoffice operators (WP#0A)
     // Passwords are hashed with BCrypt — never stored in plain text
     private void bootstrapUsers() {
         if (userRepository.count() == 0) {
@@ -86,28 +92,26 @@ public class Bootstrapper implements CommandLineRunner {
         }
     }
 
-    // --- Colleagues' code below — not modified ---
-
     private void bootstrapAirports() {
-    if (airportRepository.count() == 0) {
-        Location locOpo = new Location("Norte", "Portugal", "Porto", new GPSCoordinates(41.2481, -8.6814));
-        Airport opo = new Airport(new IATACode("OPO"), "Sá Carneiro", locOpo, new Timezone("UTC+01:00"));
-        opo.changeStatus(Status.OPERATIONAL);
-        airportRepository.save(opo);
+        if (airportRepository.count() == 0) {
+            Location locOpo = new Location("Norte", "Portugal", "Porto", new GPSCoordinates(41.2481, -8.6814));
+            Airport opo = new Airport(new IATACode("OPO"), "Sá Carneiro", locOpo, new Timezone("UTC+01:00"));
+            opo.changeStatus(Status.OPERATIONAL);
+            airportRepository.save(opo);
 
-        Location locLis = new Location("Centro", "Portugal", "Lisboa", new GPSCoordinates(38.7742, -9.1342));
-        Airport lis = new Airport(new IATACode("LIS"), "Humberto Delgado", locLis, new Timezone("UTC+01:00"));
-        lis.changeStatus(Status.OPERATIONAL);
-        airportRepository.save(lis);
+            Location locLis = new Location("Centro", "Portugal", "Lisboa", new GPSCoordinates(38.7742, -9.1342));
+            Airport lis = new Airport(new IATACode("LIS"), "Humberto Delgado", locLis, new Timezone("UTC+01:00"));
+            lis.changeStatus(Status.OPERATIONAL);
+            airportRepository.save(lis);
 
-        Location locMad = new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.4719, -3.5626));
-        Airport mad = new Airport(new IATACode("MAD"), "Barajas", locMad, new Timezone("UTC+02:00"));
-        mad.changeStatus(Status.OPERATIONAL);
-        airportRepository.save(mad);
+            Location locMad = new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.4719, -3.5626));
+            Airport mad = new Airport(new IATACode("MAD"), "Barajas", locMad, new Timezone("UTC+02:00"));
+            mad.changeStatus(Status.OPERATIONAL);
+            airportRepository.save(mad);
 
-        System.out.println(" -> Airports loaded.");
+            System.out.println(" -> Airports loaded.");
+        }
     }
-}
 
     private void bootstrapAircraftModels() {
         if (aircraftModelRepository.count() == 0) {
@@ -153,7 +157,71 @@ public class Bootstrapper implements CommandLineRunner {
             aircraftRepository.save(a2);
             aircraftRepository.save(a3);
 
+            Airport opo = airportRepository.findByIataCode_Code("OPO").orElseThrow();
+            Airport lis = airportRepository.findByIataCode_Code("LIS").orElseThrow();
+            Airport mad = airportRepository.findByIataCode_Code("MAD").orElseThrow();
+
+            opo.addCertification("A320neo");
+            opo.addCertification("737 MAX");
+            lis.addCertification("A320neo");
+            lis.addCertification("737 MAX");
+            mad.addCertification("A320neo");
+            mad.addCertification("737 MAX");
+
+            airportRepository.save(opo);
+            airportRepository.save(lis);
+            airportRepository.save(mad);
+
             System.out.println(" -> Aircrafts loaded.");
+            System.out.println(" -> Airport certifications loaded.");
+        }
+    }
+
+
+    private void bootstrapScheduledFlights() {
+        if (scheduledFlightRepository.count() == 0) {
+            Aircraft csTPa = aircraftRepository.findById("CS-TPA").orElseThrow();
+            Aircraft csTPb = aircraftRepository.findById("CS-TPB").orElseThrow();
+            Aircraft csTPc = aircraftRepository.findById("CS-TPC").orElseThrow();
+
+            FlightRoute opolis = flightRouteRepository.findAll().stream()
+                    .filter(r -> r.getOrigin().getIataCode().getCode().equals("OPO")
+                              && r.getDestination().getIataCode().getCode().equals("LIS"))
+                    .findFirst().orElseThrow();
+
+            FlightRoute lismad = flightRouteRepository.findAll().stream()
+                    .filter(r -> r.getOrigin().getIataCode().getCode().equals("LIS")
+                              && r.getDestination().getIataCode().getCode().equals("MAD"))
+                    .findFirst().orElseThrow();
+
+            FlightRoute madopo = flightRouteRepository.findAll().stream()
+                    .filter(r -> r.getOrigin().getIataCode().getCode().equals("MAD")
+                              && r.getDestination().getIataCode().getCode().equals("OPO"))
+                    .findFirst().orElseThrow();
+
+            scheduledFlightRepository.save(new ScheduledFlight(opolis, csTPa,
+                    LocalDateTime.now().minusDays(90), LocalDateTime.now().minusDays(90).plusMinutes(45)));
+            scheduledFlightRepository.save(new ScheduledFlight(lismad, csTPb,
+                    LocalDateTime.now().minusDays(85), LocalDateTime.now().minusDays(85).plusMinutes(80)));
+            scheduledFlightRepository.save(new ScheduledFlight(madopo, csTPc,
+                    LocalDateTime.now().minusDays(80), LocalDateTime.now().minusDays(80).plusMinutes(70)));
+            scheduledFlightRepository.save(new ScheduledFlight(opolis, csTPb,
+                    LocalDateTime.now().minusDays(75), LocalDateTime.now().minusDays(75).plusMinutes(45)));
+            scheduledFlightRepository.save(new ScheduledFlight(lismad, csTPa,
+                    LocalDateTime.now().minusDays(70), LocalDateTime.now().minusDays(70).plusMinutes(80)));
+            scheduledFlightRepository.save(new ScheduledFlight(madopo, csTPa,
+                    LocalDateTime.now().minusDays(60), LocalDateTime.now().minusDays(60).plusMinutes(70)));
+            scheduledFlightRepository.save(new ScheduledFlight(opolis, csTPc,
+                    LocalDateTime.now().minusDays(45), LocalDateTime.now().minusDays(45).plusMinutes(45)));
+            scheduledFlightRepository.save(new ScheduledFlight(lismad, csTPc,
+                    LocalDateTime.now().minusDays(30), LocalDateTime.now().minusDays(30).plusMinutes(80)));
+            scheduledFlightRepository.save(new ScheduledFlight(opolis, csTPa,
+                    LocalDateTime.now().minusDays(15), LocalDateTime.now().minusDays(15).plusMinutes(45)));
+
+            scheduledFlightRepository.save(new ScheduledFlight(lismad, csTPb,
+                    LocalDateTime.now().plusDays(5), LocalDateTime.now().plusDays(5).plusMinutes(80)));
+
+            System.out.println(" -> Scheduled Flights loaded.");
         }
     }
 }

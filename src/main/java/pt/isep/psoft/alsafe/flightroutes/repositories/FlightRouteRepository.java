@@ -58,4 +58,24 @@ public interface FlightRouteRepository extends JpaRepository<FlightRoute, RouteI
 
     @Query("SELECT r FROM FlightRoute r LEFT JOIN FETCH r.history WHERE r.routeId.id = :routeId")
     Optional<FlightRoute> findByIdWithHistory(@Param("routeId") String routeId);
+
+    // --- US214: List active routes sorted by popularity or distance ---
+
+    @EntityGraph(attributePaths = {"history"})
+    @Query("SELECT r FROM FlightRoute r " +
+           "LEFT JOIN ScheduledFlight sf ON sf.route = r " +
+           "WHERE r.routeStatus = :status " +
+           "GROUP BY r " +
+           "ORDER BY " +
+           "  CASE WHEN :sortBy = 'popularity' THEN COUNT(sf) END DESC, " +
+           "  CASE WHEN :sortBy = 'distance' THEN r.distance END ASC")
+    Page<FlightRoute> findActiveRoutesSorted(
+            @Param("status") RouteStatus status,
+            @Param("sortBy") String sortBy,
+            Pageable pageable);
+
+    // --- US215: Calculate total distance of the active network ---
+
+    @Query("SELECT COALESCE(SUM(r.distance), 0.0) FROM FlightRoute r WHERE r.routeStatus = :status")
+    Double calculateTotalNetworkDistance(@Param("status") RouteStatus status);
 }

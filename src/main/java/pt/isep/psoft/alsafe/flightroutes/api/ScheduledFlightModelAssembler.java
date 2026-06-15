@@ -10,10 +10,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 /**
  * Assembler responsible for converting ScheduledFlight domain entities into
  * ScheduledFlightResponseDTO representations with HATEOAS links.
+ *
  * @author José Alves
  */
 @Component
-public class ScheduledFlightModelAssembler 
+public class ScheduledFlightModelAssembler
         extends RepresentationModelAssemblerSupport<ScheduledFlight, ScheduledFlightResponseDTO> {
 
     public ScheduledFlightModelAssembler() {
@@ -22,10 +23,9 @@ public class ScheduledFlightModelAssembler
 
     @Override
     public ScheduledFlightResponseDTO toModel(ScheduledFlight flight) {
-        // Instanciar o DTO com os dados da entidade
         ScheduledFlightResponseDTO dto = new ScheduledFlightResponseDTO(
                 flight.getFlightNumber(),
-                flight.getRoute().getRouteIdValue(), // Utiliza o teu método exato da FlightRoute
+                flight.getRoute().getRouteIdValue(),
                 flight.getAircraft().getRegistrationNumber(),
                 flight.getScheduledDeparture(),
                 flight.getScheduledArrival()
@@ -33,9 +33,11 @@ public class ScheduledFlightModelAssembler
 
         ScheduledFlightController ctrl = methodOn(ScheduledFlightController.class);
 
-        // HATEOAS Links
-        // Link para ver todos os voos desta mesma aeronave (US213)
-        dto.add(linkTo(ctrl.getFlightsByAircraft(flight.getAircraft().getRegistrationNumber())).withRel("all-aircraft-flights"));
+        dto.add(linkTo(ctrl.getFlightById(flight.getFlightNumber())).withSelfRel());
+
+        dto.add(linkTo(ctrl.getFlightsByAircraft(
+                flight.getAircraft().getRegistrationNumber()
+        )).withRel("all-aircraft-flights"));
 
         return dto;
     }
