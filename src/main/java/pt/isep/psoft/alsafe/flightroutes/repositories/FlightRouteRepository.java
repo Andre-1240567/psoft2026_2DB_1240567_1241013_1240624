@@ -59,6 +59,10 @@ public interface FlightRouteRepository extends JpaRepository<FlightRoute, RouteI
     @EntityGraph(attributePaths = {"history"})
     Page<FlightRoute> findAll(Pageable pageable);
 
+    // --- US203: Find compatible routes for an aircraft ---
+    @Query("SELECT r FROM FlightRoute r WHERE r.routeStatus = 'ACTIVE' AND r.routeRequirement.minRangeRequired <= :maxRange AND r.routeRequirement.minCapacityRequired <= :capacity")
+    List<FlightRoute> findCompatibleRoutes(@Param("maxRange") Double maxRange, @Param("capacity") Integer capacity);
+
     // --- US111: fetch route with history in a single query ---
 
     @Query("SELECT r FROM FlightRoute r LEFT JOIN FETCH r.history WHERE r.routeId.id = :routeId")

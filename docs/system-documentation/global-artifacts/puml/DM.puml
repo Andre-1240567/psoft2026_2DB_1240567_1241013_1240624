@@ -69,6 +69,7 @@ package "Aircraft Aggregate" {
         - registrationNumber : String
         - manufacturingDate : Date
         - activeConfigurationName : String
+        - activeCapacity : Int
         - version : Long
     }
     Aircraft "1" *-- "1" AircraftStatus : current status >

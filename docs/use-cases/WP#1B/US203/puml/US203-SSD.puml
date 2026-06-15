@@ -1,0 +1,11 @@
+@startuml
+autonumber
+actor "ATCC" as ATCC
+
+System -> ATCC: Authentication successful
+ATCC -> System: Requests compatible routes for an aircraft (registrationNumber)
+activate System
+System --> ATCC: Returns list of compatible flight routes
+deactivate System
+
+@enduml

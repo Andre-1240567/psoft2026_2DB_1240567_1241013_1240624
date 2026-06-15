@@ -23,6 +23,9 @@ public class Aircraft {
     @Column(nullable = false)
     private String activeConfigurationName;
 
+    @Column(nullable = false)
+    private Integer activeCapacity;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AircraftStatus status;
@@ -31,6 +34,10 @@ public class Aircraft {
     private Long version;
 
     public Aircraft(String registrationNumber, AircraftModel model, LocalDate manufacturingDate, String activeConfigurationName) {
+        this(registrationNumber, model, manufacturingDate, activeConfigurationName, null);
+    }
+
+    public Aircraft(String registrationNumber, AircraftModel model, LocalDate manufacturingDate, String activeConfigurationName, Integer activeCapacity) {
         if (registrationNumber == null || registrationNumber.trim().isEmpty()) {
             throw new IllegalArgumentException("Registration number cannot be empty");
         }
@@ -45,6 +52,8 @@ public class Aircraft {
         this.model = model;
         this.manufacturingDate = manufacturingDate;
         this.activeConfigurationName = activeConfigurationName;
+        // Default to the model's seating capacity if a specific active capacity is not provided
+        this.activeCapacity = (activeCapacity != null && activeCapacity > 0) ? activeCapacity : model.getSeatingCapacity();
         this.status = AircraftStatus.AVAILABLE;
     }
 

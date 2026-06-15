@@ -148,6 +148,12 @@ public class FlightRouteService {
     }
 
     @Transactional(readOnly = true)
+    public List<FlightRouteResponseDTO> getCompatibleRoutesForAircraft(Double maxRange, Integer capacity) {
+        List<FlightRoute> compatibleRoutes = routeRepository.findCompatibleRoutes(maxRange, capacity);
+        return compatibleRoutes.stream().map(assembler::toModel).toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<BusiestAirportDTO> getBusiestAirports() {
         List<Object[]> results = routeRepository.findBusiestAirportsStatistics();
         return results.stream()

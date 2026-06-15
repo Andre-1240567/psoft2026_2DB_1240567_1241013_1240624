@@ -244,6 +244,31 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "US203 - View Compatible Routes for Aircraft",
+			"item": [
+				{
+					"name": "Get Compatible Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/aircrafts/CS-TPA/compatible-routes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"aircrafts",
+								"CS-TPA",
+								"compatible-routes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	],
 	"auth": {

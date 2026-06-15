@@ -18,9 +18,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 public class AircraftController {
 
     private final AircraftService aircraftService;
+    private final pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService flightRouteService;
 
-    public AircraftController(AircraftService aircraftService) {
+    public AircraftController(AircraftService aircraftService, pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService flightRouteService) {
         this.aircraftService = aircraftService;
+        this.flightRouteService = flightRouteService;
     }
 
     @PreAuthorize("hasRole('ATCC')") //US102
@@ -82,5 +84,20 @@ public class AircraftController {
         responseDTO.add(linkTo(methodOn(AircraftController.class).getAircraftDetails(responseDTO.getRegistrationNumber())).withSelfRel());
 
         return ResponseEntity.ok(responseDTO);
+    }
+
+    @PreAuthorize("hasRole('ATCC')") //US203
+    @GetMapping("/{registrationNumber}/compatible-routes")
+    @Operation(summary = "View which routes are compatible with a specific aircraft (US203)")
+    public ResponseEntity<java.util.List<pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO>> getCompatibleRoutes(
+            @PathVariable String registrationNumber) {
+        Aircraft aircraft = aircraftService.getAircraftDetails(registrationNumber);
+        Double maxRange = aircraft.getModel().getMaxRange();
+        Integer capacity = aircraft.getActiveCapacity();
+
+        java.util.List<pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO> compatibleRoutes =
+                flightRouteService.getCompatibleRoutesForAircraft(maxRange, capacity);
+        
+        return ResponseEntity.ok(compatibleRoutes);
     }
 }
