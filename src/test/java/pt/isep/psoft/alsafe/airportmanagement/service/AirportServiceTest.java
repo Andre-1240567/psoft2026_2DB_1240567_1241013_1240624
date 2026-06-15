@@ -15,6 +15,12 @@ import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
 
 import java.util.Optional;
 
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.UpdateAirportDetailsRequestDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.OperationalHoursDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.ContactDTO;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -142,5 +148,50 @@ class AirportServiceTest {
         assertTrue(exception.getMessage().contains("Invalid status"));
 
         verify(airportRepository, never()).save(any());
+    }
+
+    @Test
+    void ensureGetAirportsGroupedByRegionSuccess() {
+        // Arrange
+        List<Airport> airports = new ArrayList<>();
+        airports.add(dummyAirport); // LAX (North America)
+
+        GPSCoordinates coordinates2 = new GPSCoordinates(48.8584, 2.2945);
+        Location location2 = new Location("Europe", "France", "Paris", coordinates2);
+        Airport dummyAirport2 = new Airport(new IATACode("CDG"), "Paris Charles de Gaulle", location2, new Timezone("UTC+01:00"));
+        airports.add(dummyAirport2);
+
+        when(airportRepository.findAll()).thenReturn(airports);
+
+        // Act
+        java.util.Map<String, List<Airport>> result = airportService.getAirportsGroupedBy("region");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.containsKey("North America"));
+        assertTrue(result.containsKey("Europe"));
+    }
+
+    @Test
+    void ensureGetAirportsGroupedByCountrySuccess() {
+        // Arrange
+        List<Airport> airports = new ArrayList<>();
+        airports.add(dummyAirport); // USA
+
+        when(airportRepository.findAll()).thenReturn(airports);
+
+        // Act
+        java.util.Map<String, List<Airport>> result = airportService.getAirportsGroupedBy("country");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertTrue(result.containsKey("USA"));
+    }
+
+    @Test
+    void ensureGetAirportsGroupedByFailsForInvalidCriteria() {
+        assertThrows(IllegalArgumentException.class, () -> airportService.getAirportsGroupedBy("invalid"));
     }
 }

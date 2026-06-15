@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import pt.isep.psoft.alsafe.aircraftmanagement.services.AircraftModelService;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
 import org.springframework.security.access.prepost.PreAuthorize;
+import pt.isep.psoft.alsafe.aircraftmanagement.api.dto.UpdateAircraftModelDTO;
 
 @RestController
 @RequestMapping("/api/aircraft-models")
@@ -26,5 +27,12 @@ public class AircraftModelController {
     @Operation(summary = "Register a new aircraft model (US101)")
     public AircraftModel create(@Valid @RequestBody CreateAircraftModelDTO dto) {
         return service.createAircraftModel(dto);
+    }
+
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
+    @PutMapping("/{id}")
+    @Operation(summary = "Update an aircraft model's specifications (US201)")
+    public AircraftModel update(@PathVariable Long id, @Valid @RequestBody UpdateAircraftModelDTO dto) {
+        return service.updateAircraftModel(id, dto);
     }
 }

@@ -13,6 +13,9 @@ public class AircraftModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     @Column(nullable = false, unique = true)
     private String modelName;
 
@@ -32,7 +35,15 @@ public class AircraftModel {
     @Column(nullable = false)
     private Double cruisingSpeed;
 
+    @Lob
+    @Column(name = "image")
+    private byte[] image;
+
     public AircraftModel(Manufacturer manufacturer, String modelName, Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed) {
+        this(manufacturer, modelName, seatingCapacity, fuelCapacity, maxRange, cruisingSpeed, null);
+    }
+
+    public AircraftModel(Manufacturer manufacturer, String modelName, Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed, byte[] image) {
         if (manufacturer == null) {
             throw new IllegalArgumentException("Manufacturer cannot be null.");
         }
@@ -55,6 +66,27 @@ public class AircraftModel {
 
         this.manufacturer = manufacturer;
         this.modelName = modelName;
+        this.seatingCapacity = seatingCapacity;
+        this.fuelCapacity = fuelCapacity;
+        this.maxRange = maxRange;
+        this.cruisingSpeed = cruisingSpeed;
+        this.image = image;
+    }
+
+    public void updateSpecifications(Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed) {
+        if (seatingCapacity == null || seatingCapacity <= 0) {
+            throw new IllegalArgumentException("Seating capacity must be strictly positive.");
+        }
+        if (fuelCapacity == null || fuelCapacity <= 0) {
+            throw new IllegalArgumentException("Fuel capacity must be strictly positive.");
+        }
+        if (maxRange == null || maxRange <= 0) {
+            throw new IllegalArgumentException("Max range must be strictly positive.");
+        }
+        if (cruisingSpeed == null || cruisingSpeed <= 0) {
+            throw new IllegalArgumentException("Cruising speed must be strictly positive.");
+        }
+
         this.seatingCapacity = seatingCapacity;
         this.fuelCapacity = fuelCapacity;
         this.maxRange = maxRange;

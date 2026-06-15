@@ -1,0 +1,59 @@
+@startuml
+autonumber
+
+actor "ATCC" as ATCC
+participant ":AircraftController" as Controller
+participant ":FlightRouteService" as RouteService
+participant ":AircraftService" as AircraftService
+participant "aircraft:Aircraft" as Aircraft
+participant "model:AircraftModel" as AircraftModel
+participant ":FlightRouteRepository" as RouteRepo
+participant "FlightRouteModelAssembler" as Assembler
+participant "dto:FlightRouteResponseDTO" as DTO
+
+ATCC -> Controller: GET /api/aircrafts/{registrationNumber}/compatible-routes
+activate Controller
+
+Controller -> RouteService: getCompatibleRoutesForAircraft(registrationNumber)
+activate RouteService
+
+RouteService -> AircraftService: getAircraftDetails(registrationNumber)
+activate AircraftService
+AircraftService --> RouteService: aircraft
+deactivate AircraftService
+
+RouteService -> Aircraft: getModel()
+activate Aircraft
+Aircraft --> RouteService: model
+deactivate Aircraft
+
+RouteService -> AircraftModel: getMaxRange()
+activate AircraftModel
+AircraftModel --> RouteService: maxRange
+deactivate AircraftModel
+
+RouteService -> Aircraft: getActiveCapacity()
+activate Aircraft
+Aircraft --> RouteService: capacity
+deactivate Aircraft
+
+RouteService -> RouteRepo: findCompatibleRoutes(maxRange, capacity)
+activate RouteRepo
+RouteRepo --> RouteService: List<FlightRoute>
+deactivate RouteRepo
+
+loop for each FlightRoute
+    RouteService -> Assembler: toModel(route)
+    activate Assembler
+    Assembler -> DTO**: create()
+    Assembler --> RouteService: dto
+    deactivate Assembler
+end
+
+RouteService --> Controller: List<FlightRouteResponseDTO>
+deactivate RouteService
+
+Controller --> ATCC: 200 OK + JSON
+deactivate Controller
+
+@enduml

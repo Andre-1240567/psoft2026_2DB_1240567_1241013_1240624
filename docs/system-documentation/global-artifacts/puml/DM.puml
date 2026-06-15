@@ -69,6 +69,7 @@ package "Aircraft Aggregate" {
         - registrationNumber : String
         - manufacturingDate : Date
         - activeConfigurationName : String
+        - activeCapacity : Int
         - version : Long
     }
     Aircraft "1" *-- "1" AircraftStatus : current status >
@@ -88,7 +89,7 @@ package "Airport Aggregate" {
     }
     class Airport <<Aggregate Root>> <<Entity>> {
         - name : String
-        - airportPhoto : String
+        - photos : List<String>
     }
     class IATACode <<Value Object>> {
         - code : String
@@ -119,14 +120,14 @@ package "Airport Aggregate" {
         - certificationDate : Date
     }
     class Terminal <<Entity>> {
-        - name : String
+        - designation : String
     }
-    class Gate <<Entity>> {
-        - gateNumber : Int
+    class Gate <<Value Object>> {
+        - designation : String
     }
     class FacilityService <<Value Object>> {
-        - name : String
-        - type : String
+        - serviceType : String
+        - description : String
     }
     class Orientation <<Enum>> {
         N
@@ -153,7 +154,7 @@ package "Airport Aggregate" {
     Airport "1" *-- "1" AirportStatus : has >
     Airport "1" *-- "0..*" Terminal : has >
     Terminal "1" *-- "1..*" Gate : contains >
-    Airport "1" *-- "0..*" FacilityService : provides >
+    Terminal "1" *-- "0..*" FacilityService : provides >
     Runway "1" *-- "1" Orientation : points >
     Airport "1" *-- "1" Timezone : regulates in >
 }

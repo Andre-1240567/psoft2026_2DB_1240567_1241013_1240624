@@ -1,0 +1,74 @@
+@startuml US207-SD
+title Sequence Diagram - US207: Register Airport with Enhanced Features
+
+autonumber
+actor "Backoffice Operator" as BO
+
+participant ":AirportController" as Ctrl
+participant ":AirportService" as Service
+participant "dto:CreateAirportRequestDTO" as DTO
+participant "airportRepository:AirportRepository" as Repo
+participant "airport:Airport" as Airport
+participant "terminal:Terminal" as Terminal
+participant "gate:Gate" as Gate
+participant "service:FacilityService" as FacService
+
+BO -> Ctrl: POST /api/airports (dto)
+activate Ctrl
+
+Ctrl -> Service: createAirport(dto)
+activate Service
+
+Service -> Repo: findByIataCode_Code(dto.getIataCode())
+activate Repo
+Repo --> Service: Optional.empty()
+deactivate Repo
+
+Service -> Airport**: create(iataCode, name, location, timezone)
+
+opt if runways != null
+    loop for each runway
+        Service -> Airport: addRunway(runway)
+    end
+end
+
+opt if photos != null
+    loop for each photoUrl
+        Service -> Airport: addPhoto(photoUrl)
+    end
+end
+
+opt if terminals != null
+    loop for each terminalDTO
+        Service -> Terminal**: create(terminalDTO.getDesignation())
+        
+        opt if gates != null
+            loop for each gateDesignation
+                Service -> Gate**: create(gateDesignation)
+                Service -> Terminal: addGate(gate)
+            end
+        end
+        
+        opt if services != null
+            loop for each serviceDTO
+                Service -> FacService**: create(serviceDTO.getServiceType(), serviceDTO.getDescription())
+                Service -> Terminal: addService(service)
+            end
+        end
+        
+        Service -> Airport: addTerminal(terminal)
+    end
+end
+
+Service -> Repo: save(airport)
+activate Repo
+Repo --> Service: savedAirport
+deactivate Repo
+
+Service --> Ctrl: savedAirport
+deactivate Service
+
+Ctrl --> BO: 201 Created (savedAirport)
+deactivate Ctrl
+
+@enduml

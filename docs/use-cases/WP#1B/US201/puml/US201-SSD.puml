@@ -1,0 +1,21 @@
+@startuml US201-SSD
+autonumber
+title System Sequence Diagram (SSD) - US201: Update Aircraft Model Specifications
+
+actor "Backoffice Operator" as Operator
+participant ":System" as System
+
+activate Operator
+Operator -> System: initiates the update of an existing aircraft model specifications
+activate System
+
+System --> Operator: requests necessary data (new seating capacity, fuel capacity, max range, cruising speed)
+deactivate System
+
+Operator -> System: inputs the requested data
+activate System
+
+System --> Operator: confirms aircraft model update and returns updated details
+deactivate System
+deactivate Operator
+@enduml

@@ -38,7 +38,8 @@ public class AircraftService {
                 dto.getRegistrationNumber(),
                 modelOpt.get(),
                 dto.getManufacturingDate(),
-                dto.getActiveConfigurationName()
+                dto.getActiveConfigurationName(),
+                dto.getActiveCapacity()
         );
 
         return aircraftRepository.save(aircraft);

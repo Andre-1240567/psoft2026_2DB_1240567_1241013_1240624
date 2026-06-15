@@ -8,6 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.BusiestAirportDTO;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Status;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
@@ -139,6 +140,7 @@ public class FlightRouteService {
         return resultPage.map(assembler::toModel);
     }
 
+    // --- MÉTODOS DO TEU WP#3B ---
     @Transactional(readOnly = true)
     public Page<FlightRouteResponseDTO> getActiveRoutesSorted(RouteStatus status, String sortBy, Pageable pageable) {
         String validSortBy = "distance";
@@ -160,27 +162,20 @@ public class FlightRouteService {
         return routeRepository.calculateTotalNetworkDistance(RouteStatus.ACTIVE);
     }
 
-    // ---------------------------------------------------------------------------
-    // US216: Rotas Alternativas
-    // ---------------------------------------------------------------------------
     @Transactional(readOnly = true)
     public List<AlternativeRouteResponseDTO> findAlternativeRoutes(
             String originIata, String destinationIata, String algorithm) {
         
-        // Verifica se os aeroportos existem (garante fail-fast)
         resolveAirport(originIata.toUpperCase());
         resolveAirport(destinationIata.toUpperCase());
 
-        // Seleciona a estratégia dinâmica injetada pelo Spring
         AlternativeRoutingStrategy strategyToUse = routingStrategies.stream()
                 .filter(s -> s.getAlgorithmName().equalsIgnoreCase(algorithm))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Routing algorithm not supported: " + algorithm));
 
-        // Executa o algoritmo de pesquisa (ex: fewest-stops)
         List<List<FlightRoute>> paths = strategyToUse.findAlternatives(originIata.toUpperCase(), destinationIata.toUpperCase());
 
-        // Transforma o resultado de domínio para o DTO consolidado
         return paths.stream().map(path -> {
             List<FlightRouteResponseDTO> legs = path.stream().map(assembler::toModel).toList();
             Double totalDistance = path.stream().mapToDouble(FlightRoute::getDistance).sum();
@@ -188,6 +183,29 @@ public class FlightRouteService {
             
             return new AlternativeRouteResponseDTO(legs, totalDistance, totalTime);
         }).toList();
+    }
+
+    // --- MÉTODOS DOS TEUS COLEGAS (VINDOS DA MAIN) ---
+    @Transactional(readOnly = true)
+    public Page<FlightRouteResponseDTO> getRoutesByAirport(String airportIata, Pageable pageable) {
+        String iata = airportIata.toUpperCase();
+        resolveAirport(iata);
+        Page<FlightRoute> resultPage = routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code(iata, iata, pageable);
+        return resultPage.map(assembler::toModel);
+    }
+
+    @Transactional(readOnly = true)
+    public List<FlightRouteResponseDTO> getCompatibleRoutesForAircraft(Double maxRange, Integer capacity) {
+        List<FlightRoute> compatibleRoutes = routeRepository.findCompatibleRoutes(maxRange, capacity);
+        return compatibleRoutes.stream().map(assembler::toModel).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<BusiestAirportDTO> getBusiestAirports() {
+        List<Object[]> results = routeRepository.findBusiestAirportsStatistics();
+        return results.stream()
+                .map(row -> new BusiestAirportDTO((String) row[0], ((Number) row[1]).longValue()))
+                .toList();
     }
 
     // ---------------------------------------------------------------------------

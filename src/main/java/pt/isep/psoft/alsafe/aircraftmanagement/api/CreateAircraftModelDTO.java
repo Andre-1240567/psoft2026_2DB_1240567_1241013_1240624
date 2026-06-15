@@ -26,4 +26,6 @@ public class CreateAircraftModelDTO {
 
     @Positive(message = "The cruising speed should be positive")
     private Double cruisingSpeed;
+
+    private byte[] image;
 }

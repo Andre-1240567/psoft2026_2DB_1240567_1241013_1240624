@@ -2,8 +2,7 @@
   "info": {
     "_postman_id": "87b4c356-e77b-4713-849c-f2531f12e450",
     "name": "WP#2A - Airports",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "55089572"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
@@ -196,6 +195,106 @@
       ]
     },
     {
+      "name": "US108- Search Airport by Country",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/airports?country=United States of America",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "airports"
+          ],
+          "query": [
+            {
+              "key": "country",
+              "value": "United States of America"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Returns a list\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an(\"array\");",
+              "    pm.expect(jsonData.length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "US108- Search Airport by Name",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/airports?name=John F. Kennedy International Airport",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "airports"
+          ],
+          "query": [
+            {
+              "key": "name",
+              "value": "John F. Kennedy International Airport"
+            }
+          ]
+        }
+      },
+      "response": [],
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Returns a list\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an(\"array\");",
+              "    pm.expect(jsonData.length).to.be.above(0);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
       "name": "US109- Change Status (Closed)",
       "request": {
         "auth": {
@@ -293,7 +392,7 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
               "pm.test(\"Certification added\", function () {",
               "    var jsonData = pm.response.json();",
               "    var certs = jsonData.certifications;",

@@ -20,4 +20,7 @@ public class CreateAircraftDTO {
 
     @NotBlank(message = "The active setting is required.")
     private String activeConfigurationName;
+
+    @jakarta.validation.constraints.Positive(message = "Active capacity must be strictly positive")
+    private Integer activeCapacity;
 }

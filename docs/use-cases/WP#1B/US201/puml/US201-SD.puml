@@ -1,0 +1,47 @@
+@startuml US201-SD
+autonumber
+title Sequence Diagram (SD) - US201: Update Aircraft Model Specifications
+
+actor "Backoffice Operator" as Admin
+participant ":AircraftModelController" as Ctrl
+participant ":AircraftModelService" as Service
+participant "repository\n:AircraftModelRepository" as Repo
+participant "model\n:AircraftModel" as Model
+
+activate Admin
+Admin -> Ctrl: PUT /api/aircraft-models/{id} (UpdateAircraftModelDTO, version)
+activate Ctrl
+
+note right of Ctrl: DTO validates if\nmetrics are positive.
+
+Ctrl -> Service: updateAircraftModel(id, dto, version)
+activate Service
+
+Service -> Repo: findById(id)
+activate Repo
+Repo --> Service: Optional<model>
+deactivate Repo
+
+alt model not found
+    Service --> Ctrl: throws ResourceNotFoundException
+    Ctrl --> Admin: 404 Not Found
+else model found
+    Service -> Model: updateSpecifications(dto.seatingCapacity, dto.fuelCapacity, dto.maxRange, dto.cruisingSpeed)
+    activate Model
+    Model --> Service:
+    deactivate Model
+    
+    Service -> Repo: save(model)
+    activate Repo
+    note right of Repo: Optimistic locking\nthrows exception if\nversion mismatch.
+    Repo --> Service: model
+    deactivate Repo
+    
+    Service --> Ctrl: model
+end
+
+Ctrl --> Admin: 200 OK (AircraftModelResponseDTO)
+deactivate Service
+deactivate Ctrl
+deactivate Admin
+@enduml

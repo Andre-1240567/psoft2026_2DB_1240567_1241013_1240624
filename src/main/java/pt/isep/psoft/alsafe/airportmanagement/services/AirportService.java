@@ -3,11 +3,12 @@ package pt.isep.psoft.alsafe.airportmanagement.services;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftModelRepository;
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateAirportRequestDTO;
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.CreateRunwayRequestDTO;
+import pt.isep.psoft.alsafe.airportmanagement.api.dto.*;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.List;
 
@@ -42,6 +43,33 @@ public class AirportService {
                 newAirport.addRunway(runway);
             }
         }
+        
+        if (dto.getPhotos() != null) {
+            for (String photo : dto.getPhotos()) {
+                newAirport.addPhoto(photo);
+            }
+        }
+        
+        if (dto.getTerminals() != null) {
+            for (CreateTerminalRequestDTO terminalDTO : dto.getTerminals()) {
+                Terminal terminal = new Terminal(terminalDTO.getDesignation());
+                
+                if (terminalDTO.getGates() != null) {
+                    for (String gateDesignation : terminalDTO.getGates()) {
+                        terminal.addGate(new Gate(gateDesignation));
+                    }
+                }
+                
+                if (terminalDTO.getServices() != null) {
+                    for (CreateServiceDTO serviceDTO : terminalDTO.getServices()) {
+                        terminal.addService(new FacilityService(serviceDTO.getServiceType(), serviceDTO.getDescription()));
+                    }
+                }
+                
+                newAirport.addTerminal(terminal);
+            }
+        }
+
         return airportRepository.save(newAirport);
 
     }
@@ -82,6 +110,45 @@ public class AirportService {
         airport.addCertification(modelName);
 
         return airportRepository.save(airport);
+    }
+
+    @Transactional
+    public Airport updateAirportDetails(String iataCode, UpdateAirportDetailsRequestDTO dto) {
+        Airport airport = getAirportDetails(iataCode);
+
+        OperationalHours operationalHours = null;
+        if (dto.getOperationalHours() != null) {
+            LocalTime opening = LocalTime.parse(dto.getOperationalHours().getOpeningTime());
+            LocalTime closing = LocalTime.parse(dto.getOperationalHours().getClosingTime());
+            operationalHours = new OperationalHours(opening, closing);
+        }
+
+        List<Contact> contacts = null;
+        if (dto.getContacts() != null) {
+            contacts = new ArrayList<>();
+            for (ContactDTO contactDTO : dto.getContacts()) {
+                contacts.add(new Contact(contactDTO.getValue(), contactDTO.getDepartment(), contactDTO.getType()));
+            }
+        }
+
+        airport.updateDetails(operationalHours, contacts);
+
+        return airportRepository.save(airport);
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.Map<String, List<Airport>> getAirportsGroupedBy(String groupBy) {
+        List<Airport> allAirports = airportRepository.findAll();
+
+        if ("region".equalsIgnoreCase(groupBy)) {
+            return allAirports.stream()
+                    .collect(java.util.stream.Collectors.groupingBy(a -> a.getLocation().getRegion()));
+        } else if ("country".equalsIgnoreCase(groupBy)) {
+            return allAirports.stream()
+                    .collect(java.util.stream.Collectors.groupingBy(a -> a.getLocation().getCountry()));
+        } else {
+            throw new IllegalArgumentException("Invalid grouping criteria. Use 'region' or 'country'.");
+        }
     }
 
 }

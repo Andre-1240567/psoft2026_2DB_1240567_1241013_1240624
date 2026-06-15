@@ -1,0 +1,28 @@
+@startuml
+autonumber
+
+actor "Backoffice Operator" as Operator
+participant ":AirportController" as Controller
+participant ":FlightRouteService" as Service
+participant ":FlightRouteRepository" as Repository
+
+activate Operator
+Operator -> Controller : getBusiestAirports()
+activate Controller
+
+Controller -> Service : getBusiestAirports()
+activate Service
+
+Service -> Repository : findBusiestAirportsStatistics()
+activate Repository
+Repository --> Service : List<Object[]>
+deactivate Repository
+
+Service --> Controller : List<BusiestAirportDTO>
+deactivate Service
+
+Controller --> Operator : 200 OK (List<BusiestAirportDTO>)
+deactivate Controller
+deactivate Operator
+
+@enduml
