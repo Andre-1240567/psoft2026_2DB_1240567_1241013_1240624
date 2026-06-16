@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import pt.isep.psoft.alsafe.airportmanagement.api.dto.BusiestAirportDTO;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
+import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Status;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
 import pt.isep.psoft.alsafe.flightroutes.api.AlternativeRouteResponseDTO;
@@ -142,14 +143,19 @@ public class FlightRouteService {
     @Transactional(readOnly = true)
     public Page<FlightRouteResponseDTO> getActiveRoutesSorted(RouteStatus status, String sortBy, Pageable pageable) {
         if ("popularity".equalsIgnoreCase(sortBy)) {
-            sortBy = "popularity";
+            return routeRepository.findActiveRoutesByPopularity(status, pageable).map(assembler::toModel);
+            
         } else if ("distance".equalsIgnoreCase(sortBy)) {
-            sortBy = "distance";
+            Pageable sortedByDistance = org.springframework.data.domain.PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    org.springframework.data.domain.Sort.by("distance").ascending()
+            );
+            return routeRepository.findByRouteStatus(status, sortedByDistance).map(assembler::toModel);
+            
         } else {
             throw new IllegalArgumentException("Invalid sort parameter. Use 'popularity' or 'distance'.");
         }
-
-        return routeRepository.findActiveRoutesSorted(status, sortBy, pageable).map(assembler::toModel);
     }
 
     @Transactional(readOnly = true)
@@ -218,24 +224,90 @@ public class FlightRouteService {
                 .collect(Collectors.toList());
     }
 
-    // ---------------------------------------------------------------------------
-    // Helpers
-    // ---------------------------------------------------------------------------
+    @Transactional(readOnly = true)
+    public String exportGeoJson() {
+        List<FlightRoute> routes = routeRepository.findAll().stream()
+            .filter(r -> r.getRouteStatus() == RouteStatus.ACTIVE)
+            .filter(r -> r.getOrigin().getLocation().getCoordinates() != null
+                    && r.getDestination().getLocation().getCoordinates() != null)
+            .toList();
 
-    private Airport resolveAirport(String iata) {
-        try {
-            return airportService.getAirportDetails(iata);
-        } catch (IllegalArgumentException ex) {
-            throw new ResourceNotFoundException("Airport with IATA code '" + iata + "' not found.");
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\"type\":\"FeatureCollection\",\"features\":[");
+
+        for (int i = 0; i < routes.size(); i++) {
+            FlightRoute r = routes.get(i);
+            GPSCoordinates origin = r.getOrigin().getLocation().getCoordinates();
+            GPSCoordinates dest   = r.getDestination().getLocation().getCoordinates();
+
+            sb.append("{\"type\":\"Feature\",\"properties\":{")
+            .append("\"routeId\":\"").append(r.getRouteIdValue()).append("\",")
+            .append("\"origin\":\"").append(r.getOrigin().getIataCode().getCode()).append("\",")
+            .append("\"destination\":\"").append(r.getDestination().getIataCode().getCode()).append("\",")
+            .append("\"distance\":").append(r.getDistance()).append(",")
+            .append("\"status\":\"").append(r.getRouteStatus()).append("\"")
+            .append("},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[")
+            .append("[").append(origin.getLongitude()).append(",").append(origin.getLatitude()).append("],")
+            .append("[").append(dest.getLongitude()).append(",").append(dest.getLatitude()).append("]")
+            .append("]}}");
+
+            if (i < routes.size() - 1) sb.append(",");
         }
+
+        sb.append("]}");
+        return sb.toString();
     }
 
-    private String getCurrentUser() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth != null && auth.isAuthenticated()
-                && !"anonymousUser".equals(auth.getPrincipal())) {
-            return auth.getName();
+    @Transactional(readOnly = true)
+    public String exportKml() {
+        List<FlightRoute> routes = routeRepository.findAll().stream()
+            .filter(r -> r.getRouteStatus() == RouteStatus.ACTIVE)
+            .filter(r -> r.getOrigin().getLocation().getCoordinates() != null
+                    && r.getDestination().getLocation().getCoordinates() != null)
+            .toList();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+        .append("<kml xmlns=\"http://www.opengis.net/kml/2.2\">")
+        .append("<Document><name>AISafe Route Network</name>");
+
+        for (FlightRoute r : routes) {
+            GPSCoordinates origin = r.getOrigin().getLocation().getCoordinates();
+            GPSCoordinates dest   = r.getDestination().getLocation().getCoordinates();
+
+            sb.append("<Placemark>")
+            .append("<name>").append(r.getOrigin().getIataCode().getCode())
+            .append(" → ").append(r.getDestination().getIataCode().getCode()).append("</name>")
+            .append("<description>Distance: ").append(r.getDistance()).append(" km</description>")
+            .append("<LineString><coordinates>")
+            .append(origin.getLongitude()).append(",").append(origin.getLatitude()).append(",0 ")
+            .append(dest.getLongitude()).append(",").append(dest.getLatitude()).append(",0")
+            .append("</coordinates></LineString>")
+            .append("</Placemark>");
         }
-        return "System";
+
+        sb.append("</Document></kml>");
+        return sb.toString();
     }
+
+        // ---------------------------------------------------------------------------
+        // Helpers
+        // ---------------------------------------------------------------------------
+
+        private Airport resolveAirport(String iata) {
+            try {
+                return airportService.getAirportDetails(iata);
+            } catch (IllegalArgumentException ex) {
+                throw new ResourceNotFoundException("Airport with IATA code '" + iata + "' not found.");
+            }
+        }
+
+        private String getCurrentUser() {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.isAuthenticated()
+                    && !"anonymousUser".equals(auth.getPrincipal())) {
+                return auth.getName();
+            }
+            return "System";
+        }
 }

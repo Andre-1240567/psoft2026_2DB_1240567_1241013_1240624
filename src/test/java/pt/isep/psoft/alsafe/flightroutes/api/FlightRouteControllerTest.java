@@ -445,7 +445,7 @@ class FlightRouteControllerTest {
     }
 
     @Test
-        void ensureGetActiveRoutesSortedWithExplicitStatusReturns200() throws Exception {
+    void ensureGetActiveRoutesSortedWithExplicitStatusReturns200() throws Exception {
         Page<FlightRouteResponseDTO> page = new PageImpl<>(List.of(new FlightRouteResponseDTO(validRoute)));
 
         when(flightRouteService.getActiveRoutesSorted(eq(RouteStatus.ACTIVE), eq("distance"), any(Pageable.class)))
@@ -457,5 +457,71 @@ class FlightRouteControllerTest {
                         .param("page", "0")
                         .param("size", "5"))
                 .andExpect(status().isOk());
+     }
+
+        @Test
+        void ensureGetRouteUtilizationReportReturns200() throws Exception {
+        RouteUtilizationDTO dto = new RouteUtilizationDTO("route-1", "OPO", "LIS", 5L);
+
+        when(flightRouteService.getRouteUtilizationReport()).thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/api/flight-routes/reports/utilization"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].routeId").value("route-1"))
+                .andExpect(jsonPath("$[0].originIata").value("OPO"))
+                .andExpect(jsonPath("$[0].destinationIata").value("LIS"))
+                .andExpect(jsonPath("$[0].totalFlights").value(5));
         }
+
+        @Test
+        void ensureGetRouteUtilizationReportReturnsEmptyList() throws Exception {
+        when(flightRouteService.getRouteUtilizationReport()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/flight-routes/reports/utilization"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+        }
+
+
+        @Test
+        void ensureExportGeoJsonReturns200WithCorrectContentType() throws Exception {
+        when(flightRouteService.exportGeoJson())
+                .thenReturn("{\"type\":\"FeatureCollection\",\"features\":[]}");
+
+        mockMvc.perform(get("/api/flight-routes/export")
+                        .param("format", "geojson"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("application/geo+json"))
+                .andExpect(content().string("{\"type\":\"FeatureCollection\",\"features\":[]}"));
+        }
+
+        @Test
+        void ensureExportKmlReturns200WithCorrectContentType() throws Exception {
+        when(flightRouteService.exportKml())
+                .thenReturn("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml></kml>");
+
+        mockMvc.perform(get("/api/flight-routes/export")
+                        .param("format", "kml"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("application/vnd.google-earth.kml+xml"))
+                .andExpect(content().string("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml></kml>"));
+        }
+
+        @Test
+        void ensureExportWithInvalidFormatReturns400() throws Exception {
+        mockMvc.perform(get("/api/flight-routes/export")
+                        .param("format", "csv"))
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void ensureMalformedJsonReturns400() throws Exception {
+        mockMvc.perform(post("/api/flight-routes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ this is not valid json }"))
+                .andExpect(status().isBadRequest());
+        }
+
+
 }

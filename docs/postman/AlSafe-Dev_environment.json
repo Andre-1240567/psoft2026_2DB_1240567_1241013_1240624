@@ -15,6 +15,12 @@
             "enabled": true
         },
         {
+            "key": "jwt_token_operator",
+            "value": "",
+            "type": "secret",
+            "enabled": true
+        },
+        {
             "key": "routeId",
             "value": "",
             "type": "any",
@@ -22,6 +28,12 @@
         },
         {
             "key": "routeVersion",
+            "value": "",
+            "type": "any",
+            "enabled": true
+        },
+        {
+            "key": "flightNumber",
             "value": "",
             "type": "any",
             "enabled": true

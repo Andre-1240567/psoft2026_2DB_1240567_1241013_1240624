@@ -56,17 +56,14 @@ public interface FlightRouteRepository extends JpaRepository<FlightRoute, RouteI
     @Query("SELECT r FROM FlightRoute r LEFT JOIN FETCH r.history WHERE r.routeId.id = :routeId")
     Optional<FlightRoute> findByIdWithHistory(@Param("routeId") String routeId);
 
-    @EntityGraph(attributePaths = {"history"})
-    @Query("SELECT r FROM FlightRoute r " +
-           "LEFT JOIN ScheduledFlight sf ON sf.route = r " +
-           "WHERE r.routeStatus = :status " +
-           "GROUP BY r " +
-           "ORDER BY " +
-           "  CASE WHEN :sortBy = 'popularity' THEN COUNT(sf) END DESC, " +
-           "  CASE WHEN :sortBy = 'distance' THEN r.distance END ASC")
-    Page<FlightRoute> findActiveRoutesSorted(
+    @Query(value = "SELECT r FROM FlightRoute r " +
+                   "LEFT JOIN ScheduledFlight sf ON sf.route = r " +
+                   "WHERE r.routeStatus = :status " +
+                   "GROUP BY r " +
+                   "ORDER BY COUNT(sf) DESC",
+           countQuery = "SELECT count(r) FROM FlightRoute r WHERE r.routeStatus = :status")
+    Page<FlightRoute> findActiveRoutesByPopularity(
             @Param("status") RouteStatus status,
-            @Param("sortBy") String sortBy,
             Pageable pageable);
 
     @Query("SELECT COALESCE(SUM(r.distance), 0.0) FROM FlightRoute r WHERE r.routeStatus = :status")

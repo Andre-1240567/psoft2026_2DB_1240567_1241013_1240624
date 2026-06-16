@@ -20,6 +20,7 @@ import pt.isep.psoft.alsafe.flightroutes.api.AlternativeRouteResponseDTO;
 import pt.isep.psoft.alsafe.flightroutes.api.CreateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteModelAssembler;
 import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.RouteUtilizationDTO;
 import pt.isep.psoft.alsafe.flightroutes.api.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
@@ -448,18 +449,21 @@ class FlightRouteServiceTest {
     @Test
     void ensureGetActiveRoutesSortedWorksForDistance() {
         Pageable pageable = PageRequest.of(0, 5);
+        
+        Pageable sortedPageable = PageRequest.of(0, 5, org.springframework.data.domain.Sort.by("distance").ascending());
+
         FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
         Page<FlightRoute> page = new PageImpl<>(List.of(r1));
 
         FlightRouteResponseDTO dto1 = fakeDto(r1);
 
-        when(routeRepository.findActiveRoutesSorted(RouteStatus.ACTIVE, "distance", pageable)).thenReturn(page);
+        when(routeRepository.findByRouteStatus(RouteStatus.ACTIVE, sortedPageable)).thenReturn(page);
         when(assembler.toModel(r1)).thenReturn(dto1);
 
         Page<FlightRouteResponseDTO> result = flightRouteService.getActiveRoutesSorted(RouteStatus.ACTIVE, "distance", pageable);
 
         assertEquals(1, result.getContent().size());
-        verify(routeRepository).findActiveRoutesSorted(RouteStatus.ACTIVE, "distance", pageable);
+        verify(routeRepository).findByRouteStatus(RouteStatus.ACTIVE, sortedPageable);
     }
 
     @Test
@@ -470,7 +474,25 @@ class FlightRouteServiceTest {
                 flightRouteService.getActiveRoutesSorted(RouteStatus.ACTIVE, "invalid_sort", pageable));
                 
         assertEquals("Invalid sort parameter. Use 'popularity' or 'distance'.", ex.getMessage());
-        verify(routeRepository, never()).findActiveRoutesSorted(any(), any(), any());
+        
+        verify(routeRepository, never()).findActiveRoutesByPopularity(any(), any());
+        verify(routeRepository, never()).findByRouteStatus(any(), any());
+    }
+
+    @Test
+    void ensureGetActiveRoutesSortedWorksForPopularity() {
+        Pageable pageable = PageRequest.of(0, 5);
+        FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
+        Page<FlightRoute> page = new PageImpl<>(List.of(r1));
+        FlightRouteResponseDTO dto1 = fakeDto(r1);
+
+        when(routeRepository.findActiveRoutesByPopularity(RouteStatus.ACTIVE, pageable)).thenReturn(page);
+        when(assembler.toModel(r1)).thenReturn(dto1);
+
+        Page<FlightRouteResponseDTO> result = flightRouteService.getActiveRoutesSorted(RouteStatus.ACTIVE, "popularity", pageable);
+
+        assertEquals(1, result.getContent().size());
+        verify(routeRepository).findActiveRoutesByPopularity(RouteStatus.ACTIVE, pageable);
     }
 
     @Test
@@ -574,22 +596,6 @@ class FlightRouteServiceTest {
         );
         
         assertEquals("No valid search strategy found for the provided filters.", ex.getMessage());
-    }
-
-    @Test
-    void ensureGetActiveRoutesSortedWorksForPopularity() {
-        Pageable pageable = PageRequest.of(0, 5);
-        FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
-        Page<FlightRoute> page = new PageImpl<>(List.of(r1));
-        FlightRouteResponseDTO dto1 = fakeDto(r1);
-
-        when(routeRepository.findActiveRoutesSorted(RouteStatus.ACTIVE, "popularity", pageable)).thenReturn(page);
-        when(assembler.toModel(r1)).thenReturn(dto1);
-
-        Page<FlightRouteResponseDTO> result = flightRouteService.getActiveRoutesSorted(RouteStatus.ACTIVE, "popularity", pageable);
-
-        assertEquals(1, result.getContent().size());
-        verify(routeRepository).findActiveRoutesSorted(RouteStatus.ACTIVE, "popularity", pageable);
     }
 
     @Test
@@ -749,5 +755,222 @@ class FlightRouteServiceTest {
         assertTrue(ex.getMessage().contains("Destination airport"));
         assertTrue(ex.getMessage().contains("is not operational"));
         verify(routeRepository, never()).save(any());
+    }
+
+
+    @Test
+    void ensureGetRouteUtilizationReportReturnsMappedDTOs() {
+        Object[] row1 = new Object[]{"route-1", "OPO", "LIS", 5L};
+        Object[] row2 = new Object[]{"route-2", "OPO", "MAD", 3L};
+
+        when(scheduledFlightRepository.findRouteUtilizationReport()).thenReturn(List.of(row1, row2));
+
+        List<RouteUtilizationDTO> result = flightRouteService.getRouteUtilizationReport();
+
+        assertEquals(2, result.size());
+        assertEquals("route-1", result.get(0).getRouteId());
+        assertEquals("OPO",     result.get(0).getOriginIata());
+        assertEquals("LIS",     result.get(0).getDestinationIata());
+        assertEquals(5L,        result.get(0).getTotalFlights());
+        assertEquals("route-2", result.get(1).getRouteId());
+        assertEquals(3L,        result.get(1).getTotalFlights());
+
+        verify(scheduledFlightRepository, times(1)).findRouteUtilizationReport();
+    }
+
+    @Test
+    void ensureGetRouteUtilizationReportReturnsEmptyListWhenNoFlights() {
+        when(scheduledFlightRepository.findRouteUtilizationReport()).thenReturn(List.of());
+
+        List<RouteUtilizationDTO> result = flightRouteService.getRouteUtilizationReport();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(scheduledFlightRepository, times(1)).findRouteUtilizationReport();
+    }
+
+    @Test
+    void ensureExportGeoJsonContainsActiveRoutes() {
+        FlightRoute route = createFakeRoute("r1", "OPO", "LIS");
+        when(routeRepository.findAll()).thenReturn(List.of(route));
+
+        String result = flightRouteService.exportGeoJson();
+
+        assertTrue(result.contains("\"type\":\"FeatureCollection\""));
+        assertTrue(result.contains("\"OPO\""));
+        assertTrue(result.contains("\"LIS\""));
+        assertTrue(result.contains("\"type\":\"LineString\""));
+        assertTrue(result.contains("500.0"));
+    }
+
+    @Test
+    void ensureExportGeoJsonExcludesDeactivatedRoutes() {
+        FlightRoute active      = createFakeRoute("r1", "OPO", "LIS");
+        FlightRoute deactivated = createFakeRoute("r2", "OPO", "MAD");
+        deactivated.deactivate("atcc_jose");
+
+        when(routeRepository.findAll()).thenReturn(List.of(active, deactivated));
+
+        String result = flightRouteService.exportGeoJson();
+
+        assertTrue(result.contains("\"OPO\""));
+        assertTrue(result.contains("\"LIS\""));
+        assertFalse(result.contains("\"MAD\""));
+    }
+
+    @Test
+    void ensureExportGeoJsonReturnsEmptyFeatureCollectionWhenNoActiveRoutes() {
+        when(routeRepository.findAll()).thenReturn(List.of());
+
+        String result = flightRouteService.exportGeoJson();
+
+        assertEquals("{\"type\":\"FeatureCollection\",\"features\":[]}", result);
+    }
+
+
+    @Test
+    void ensureExportKmlContainsActiveRoutes() {
+        FlightRoute route = createFakeRoute("r1", "OPO", "LIS");
+        when(routeRepository.findAll()).thenReturn(List.of(route));
+
+        String result = flightRouteService.exportKml();
+
+        assertTrue(result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+        assertTrue(result.contains("<kml"));
+        assertTrue(result.contains("<Placemark>"));
+        assertTrue(result.contains("OPO → LIS"));
+        assertTrue(result.contains("500.0 km"));
+        assertTrue(result.contains("<LineString>"));
+    }
+
+    @Test
+    void ensureExportKmlExcludesDeactivatedRoutes() {
+        FlightRoute active      = createFakeRoute("r1", "OPO", "LIS");
+        FlightRoute deactivated = createFakeRoute("r2", "OPO", "MAD");
+        deactivated.deactivate("atcc_jose");
+
+        when(routeRepository.findAll()).thenReturn(List.of(active, deactivated));
+
+        String result = flightRouteService.exportKml();
+
+        assertTrue(result.contains("OPO → LIS"));
+        assertFalse(result.contains("OPO → MAD"));
+    }
+
+    @Test
+    void ensureExportKmlReturnsEmptyDocumentWhenNoActiveRoutes() {
+        when(routeRepository.findAll()).thenReturn(List.of());
+
+        String result = flightRouteService.exportKml();
+
+        assertTrue(result.contains("<Document>"));
+        assertFalse(result.contains("<Placemark>"));
+    }
+
+    @Test
+    void ensureExportGeoJsonSkipsRoutesWithNullCoordinates() {
+        Airport originNoCoords = new Airport(
+                new IATACode("OPO"), "Fake",
+                new Location("Reg", "Country", "City", null),
+                new Timezone("UTC+00:00"));
+        originNoCoords.changeStatus(Status.OPERATIONAL);
+
+        Airport destination = createFakeAirport("LIS", Status.OPERATIONAL);
+
+        RouteRequirement req = new RouteRequirement(600.0, 150);
+        FlightRoute routeNoCoords = new FlightRoute("r-nocoords", originNoCoords, destination, 500.0, 60, req, "atcc_jose");
+
+        FlightRoute validRoute = createFakeRoute("r-valid", "OPO", "MAD");
+
+        when(routeRepository.findAll()).thenReturn(List.of(routeNoCoords, validRoute));
+
+        String result = flightRouteService.exportGeoJson();
+
+        assertFalse(result.contains("r-nocoords"));
+        assertTrue(result.contains("r-valid"));
+    }
+
+    @Test
+    void ensureExportKmlSkipsRoutesWithNullCoordinates() {
+        Airport originNoCoords = new Airport(
+                new IATACode("OPO"), "Fake",
+                new Location("Reg", "Country", "City", null),
+                new Timezone("UTC+00:00"));
+        originNoCoords.changeStatus(Status.OPERATIONAL);
+
+        Airport destination = createFakeAirport("LIS", Status.OPERATIONAL);
+
+        RouteRequirement req = new RouteRequirement(600.0, 150);
+        FlightRoute routeNoCoords = new FlightRoute("r-nocoords", originNoCoords, destination, 500.0, 60, req, "atcc_jose");
+
+        FlightRoute validRoute = createFakeRoute("r-valid", "OPO", "MAD");
+
+        when(routeRepository.findAll()).thenReturn(List.of(routeNoCoords, validRoute));
+
+        String result = flightRouteService.exportKml();
+
+        assertFalse(result.contains("OPO → LIS"));
+        assertTrue(result.contains("OPO → MAD"));
+    }
+
+
+    @Test
+    void ensureExportGeoJsonSkipsRoutesWithNullDestinationCoordinates() {
+        Airport origin = createFakeAirport("OPO", Status.OPERATIONAL);
+
+        Airport destNoCoords = new Airport(
+                new IATACode("LIS"), "Fake",
+                new Location("Reg", "Country", "City", null),
+                new Timezone("UTC+00:00"));
+        destNoCoords.changeStatus(Status.OPERATIONAL);
+
+        RouteRequirement req = new RouteRequirement(600.0, 150);
+        FlightRoute routeNoCoords = new FlightRoute("r-nocoords", origin, destNoCoords, 500.0, 60, req, "atcc_jose");
+
+        FlightRoute validRoute = createFakeRoute("r-valid", "OPO", "MAD");
+
+        when(routeRepository.findAll()).thenReturn(List.of(routeNoCoords, validRoute));
+
+        String result = flightRouteService.exportGeoJson();
+
+        assertFalse(result.contains("r-nocoords"));
+        assertTrue(result.contains("r-valid"));
+    }
+
+    @Test
+    void ensureExportKmlSkipsRoutesWithNullDestinationCoordinates() {
+        Airport origin = createFakeAirport("OPO", Status.OPERATIONAL);
+
+        Airport destNoCoords = new Airport(
+                new IATACode("LIS"), "Fake",
+                new Location("Reg", "Country", "City", null),
+                new Timezone("UTC+00:00"));
+        destNoCoords.changeStatus(Status.OPERATIONAL);
+
+        RouteRequirement req = new RouteRequirement(600.0, 150);
+        FlightRoute routeNoCoords = new FlightRoute("r-nocoords", origin, destNoCoords, 500.0, 60, req, "atcc_jose");
+
+        FlightRoute validRoute = createFakeRoute("r-valid", "OPO", "MAD");
+
+        when(routeRepository.findAll()).thenReturn(List.of(routeNoCoords, validRoute));
+
+        String result = flightRouteService.exportKml();
+
+        assertFalse(result.contains("OPO → LIS"));
+        assertTrue(result.contains("OPO → MAD"));
+    }
+    @Test
+    void ensureExportGeoJsonWithMultipleRoutesFormatsCorrectly() {
+        FlightRoute r1 = createFakeRoute("r1", "OPO", "LIS");
+        FlightRoute r2 = createFakeRoute("r2", "LIS", "MAD");
+
+        when(routeRepository.findAll()).thenReturn(List.of(r1, r2));
+
+        String result = flightRouteService.exportGeoJson();
+
+        assertTrue(result.contains("\"OPO\""));
+        assertTrue(result.contains("\"LIS\""));
+        assertTrue(result.contains("\"MAD\""));
+        assertTrue(result.endsWith("]}"));
     }
 }

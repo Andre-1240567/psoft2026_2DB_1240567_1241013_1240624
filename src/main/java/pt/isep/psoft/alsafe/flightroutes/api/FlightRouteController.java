@@ -207,5 +207,28 @@ public class FlightRouteController {
         return ResponseEntity.ok(report);
     }
 
+
+    @Operation(summary = "Bonus US228: Export route network data",
+            description = "Exports all active routes in GeoJSON or KML format. Requires BACKOFFICE_OPERATOR role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Export returned successfully"),
+        @ApiResponse(responseCode = "400", description = "Invalid format — use 'geojson' or 'kml'"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — BACKOFFICE_OPERATOR required")
+    })
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
+    @GetMapping("/export")
+    public ResponseEntity<String> exportRouteNetwork(@RequestParam String format) {
+        return switch (format.toLowerCase()) {
+            case "geojson" -> ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.parseMediaType("application/geo+json"))
+                    .body(flightRouteService.exportGeoJson());
+            case "kml" -> ResponseEntity.ok()
+                    .contentType(org.springframework.http.MediaType.parseMediaType("application/vnd.google-earth.kml+xml"))
+                    .body(flightRouteService.exportKml());
+            default -> ResponseEntity.badRequest().body("Invalid format. Use 'geojson' or 'kml'.");
+        };
+    }
+
     
 }

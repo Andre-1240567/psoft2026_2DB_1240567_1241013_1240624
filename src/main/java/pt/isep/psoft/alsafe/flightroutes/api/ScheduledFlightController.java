@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
@@ -39,7 +38,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "404", description = "Flight route or aircraft not found"),
         @ApiResponse(responseCode = "409", description = "Concurrency conflict: Aircraft already scheduled for another flight during this timeframe")
     })
-    @PreAuthorize("ATCC")
+    @PreAuthorize("hasRole('ATCC')")
     @PostMapping
     public ResponseEntity<ScheduledFlightResponseDTO> scheduleFlight(
             @Valid @RequestBody CreateScheduledFlightDTO dto) {
@@ -62,7 +61,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required"),
         @ApiResponse(responseCode = "404", description = "Aircraft not found")
     })
-    @PreAuthorize("ATCC")
+    @PreAuthorize("hasRole('ATCC')")
     @GetMapping("/aircraft/{registration}")
     public ResponseEntity<CollectionModel<ScheduledFlightResponseDTO>> getFlightsByAircraft(
             @PathVariable String registration) {
@@ -84,7 +83,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required"),
         @ApiResponse(responseCode = "404", description = "Scheduled flight not found")
     })
-    @PreAuthorize("ATCC")
+    @PreAuthorize("hasRole('ATCC')")
     @GetMapping("/{flightNumber}")
     public ResponseEntity<ScheduledFlightResponseDTO> getFlightById(
             @PathVariable String flightNumber) {
@@ -102,7 +101,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "404", description = "Scheduled flight not found"),
         @ApiResponse(responseCode = "409", description = "Flight is already canceled or completed")
     })
-    @PreAuthorize("ATCC")
+    @PreAuthorize("hasRole('ATCC')")
     @PatchMapping("/{flightNumber}/cancel")
     public ResponseEntity<ScheduledFlightResponseDTO> cancelFlight(@PathVariable String flightNumber) {
         
