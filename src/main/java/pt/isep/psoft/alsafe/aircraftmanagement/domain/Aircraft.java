@@ -30,6 +30,12 @@ public class Aircraft {
     @Column(nullable = false)
     private AircraftStatus status;
 
+    @Column(nullable = false)
+    private Double totalFlightHours = 0.0;
+
+    @Column(nullable = false)
+    private Integer numberOfAssignments = 0;
+
     @Version
     private Long version;
 
@@ -55,6 +61,8 @@ public class Aircraft {
         // Default to the model's seating capacity if a specific active capacity is not provided
         this.activeCapacity = (activeCapacity != null && activeCapacity > 0) ? activeCapacity : model.getSeatingCapacity();
         this.status = AircraftStatus.AVAILABLE;
+        this.totalFlightHours = 0.0;
+        this.numberOfAssignments = 0;
     }
 
     public void updateStatus(AircraftStatus newStatus) {
@@ -62,5 +70,16 @@ public class Aircraft {
             throw new IllegalArgumentException("The state cannot be null");
         }
         this.status = newStatus;
+    }
+
+    public void addFlightHours(Double hours) {
+        if (hours == null || hours < 0) {
+            throw new IllegalArgumentException("Flight hours must be positive");
+        }
+        this.totalFlightHours += hours;
+    }
+
+    public void addAssignment() {
+        this.numberOfAssignments++;
     }
 }

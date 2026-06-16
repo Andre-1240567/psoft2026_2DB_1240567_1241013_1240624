@@ -1,0 +1,42 @@
+@startuml US206-SD
+autonumber
+title Sequence Diagram (SD) - US206: Calculate Total Operational Hours
+
+
+actor "ATCC" as ATCC
+participant ":AircraftController" as CTRL
+participant ":AircraftService" as SERV
+participant ":AircraftRepository" as REPO
+participant "dto:AircraftOperationalHoursDTO" as DTO
+
+activate ATCC
+
+ATCC -> CTRL : GET /api/aircrafts/operational-hours
+activate CTRL
+
+CTRL -> SERV : getAircraftsOperationalHours()
+activate SERV
+
+SERV -> REPO : findAll()
+activate REPO
+REPO --> SERV : listAircrafts
+deactivate REPO
+
+SERV -> SERV : sort listAircrafts by totalFlightHours descending
+
+loop for each aircraft in sortedList
+    SERV -> DTO** : create(aircraft)
+    activate DTO
+    DTO --> SERV : dto
+    deactivate DTO
+    SERV -> SERV : add dto to resultList
+end
+
+SERV --> CTRL : resultList
+deactivate SERV
+
+CTRL --> ATCC : 200 OK (resultList)
+deactivate CTRL
+
+deactivate ATCC
+@enduml

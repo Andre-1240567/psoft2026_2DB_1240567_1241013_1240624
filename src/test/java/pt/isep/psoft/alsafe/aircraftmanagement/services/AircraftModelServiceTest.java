@@ -26,6 +26,9 @@ class AircraftModelServiceTest {
     @Mock
     private AircraftModelRepository repository;
 
+    @Mock
+    private pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftRepository aircraftRepository;
+
     @InjectMocks
     private AircraftModelService service;
 
@@ -80,5 +83,37 @@ class AircraftModelServiceTest {
         });
         
         verify(repository, never()).save(any(AircraftModel.class));
+    }
+
+    @Test
+    void ensureCreateAircraftModelWorks() {
+        CreateAircraftModelDTO dto = new CreateAircraftModelDTO();
+        dto.setManufacturer(Manufacturer.BOEING);
+        dto.setModelName("737 MAX");
+        dto.setSeatingCapacity(180);
+        dto.setFuelCapacity(26000.0);
+        dto.setMaxRange(6500.0);
+        dto.setCruisingSpeed(840.0);
+        dto.setImage(new byte[]{1, 2, 3});
+
+        when(repository.save(any(AircraftModel.class))).thenAnswer(i -> i.getArgument(0));
+
+        AircraftModel created = service.createAircraftModel(dto);
+        assertNotNull(created);
+        assertEquals("737 MAX", created.getModelName());
+        assertArrayEquals(new byte[]{1, 2, 3}, created.getImage());
+    }
+
+    @Test
+    void ensureGetTop5MostUtilizedModelsWorks() {
+        Object[] result1 = new Object[]{mockModel, 1000.0};
+        when(aircraftRepository.findTopMostUtilizedAircraftModelsByFlightHours(any(org.springframework.data.domain.Pageable.class)))
+            .thenReturn(java.util.Collections.singletonList(result1));
+
+        java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO> topModels = service.getTop5MostUtilizedModels("hours");
+
+        assertEquals(1, topModels.size());
+        assertEquals("737 MAX", topModels.get(0).getAircraftModel().getModelName());
+        assertEquals(1000.0, topModels.get(0).getUtilizationValue());
     }
 }
