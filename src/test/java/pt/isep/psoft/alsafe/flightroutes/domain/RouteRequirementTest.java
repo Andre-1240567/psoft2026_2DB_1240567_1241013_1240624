@@ -41,7 +41,6 @@ class RouteRequirementTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 new RouteRequirement(1500.0, -10));
 
-        // FIX: Matched the exact string output
         assertEquals("Minimum capacity required must be a positive value.", ex.getMessage());
     }
 
@@ -49,5 +48,21 @@ class RouteRequirementTest {
     void ensureBothZeroRangeAndNegativeCapacityAreRejected() {
         assertThrows(IllegalArgumentException.class, () ->
                 new RouteRequirement(0.0, -10));
+    }
+
+    @Test
+    void ensureNullRangeIsRejected() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(null, 100));
+
+        assertEquals("Minimum range required must be a positive value.", ex.getMessage());
+    }
+
+    @Test
+    void ensureNullCapacityIsRejected() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new RouteRequirement(1500.0, null));
+
+        assertEquals("Minimum capacity required must be a positive value.", ex.getMessage());
     }
 }

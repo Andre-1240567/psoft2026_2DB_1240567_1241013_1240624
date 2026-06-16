@@ -23,6 +23,7 @@ import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
 import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
+import pt.isep.psoft.alsafe.flightroutes.services.routing.AlternativeRoutingStrategy;
 import pt.isep.psoft.alsafe.flightroutes.services.strategy.*;
 
 import java.util.List;
@@ -38,6 +39,8 @@ class AirportFlightRouteServiceTest {
     @Mock private FlightRouteModelAssembler assembler;
     @Mock private SecurityContext securityContext;
     @Mock private Authentication authentication;
+    @Mock private pt.isep.psoft.alsafe.flightroutes.repositories.ScheduledFlightRepository scheduledFlightRepository;
+
 
     private FlightRouteService flightRouteService;
 
@@ -58,9 +61,11 @@ class AirportFlightRouteServiceTest {
                 new SearchAllStrategy(routeRepository)
         );
 
+        List<AlternativeRoutingStrategy> routingStrategies = List.of();
+
         flightRouteService = new FlightRouteService(
-                routeRepository, airportService, assembler, strategies);
-    }
+        routeRepository, scheduledFlightRepository, airportService, assembler, strategies, routingStrategies);
+}
 
     @AfterEach
     void clearSecurityContext() {

@@ -19,7 +19,6 @@ class FlightRouteTest {
     void ensureValidFlightRouteIsCreatedSuccessfully() {
         Airport origin      = createFakeAirport("OPO");
         Airport destination = createFakeAirport("LIS");
-        // minRangeRequired (1500) >= distance (280.5) — valid
         RouteRequirement req = new RouteRequirement(1500.0, 100);
 
         FlightRoute route = assertDoesNotThrow(() ->
@@ -74,15 +73,11 @@ class FlightRouteTest {
                 new FlightRoute("route-004", origin, destination, 280.5, 0, req, "atcc_jose"));
     }
 
-    /**
-     * NEW — was missing before. Guards that a route cannot be born with an impossible
-     * requirement: minRangeRequired < distance means no aircraft could ever fly it.
-     */
+
     @Test
     void ensureConstructorRejectsMinRangeLessThanDistance() {
         Airport origin      = createFakeAirport("OPO");
         Airport destination = createFakeAirport("LIS");
-        // distance = 1000, minRange = 500 → impossible requirement
         RouteRequirement req = new RouteRequirement(500.0, 100);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
@@ -143,5 +138,178 @@ class FlightRouteTest {
         route.deactivate("atcc_jose");
 
         assertThrows(IllegalStateException.class, () -> route.deactivate("atcc_jose"));
+    }
+
+
+    @Test
+    void ensureNullRouteIdIsRejected() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new FlightRoute(null, origin, destination, 280.5, 45, req, "atcc_jose"));
+
+        assertEquals("Route ID cannot be blank.", ex.getMessage());
+    }
+
+    @Test
+    void ensureBlankRouteIdIsRejected() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new FlightRoute("   ", origin, destination, 280.5, 45, req, "atcc_jose"));
+
+        assertEquals("Route ID cannot be blank.", ex.getMessage());
+    }
+
+    @Test
+    void ensureNullOriginIsRejected() {
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new FlightRoute("route-001", null, destination, 280.5, 45, req, "atcc_jose"));
+
+        assertEquals("Origin airport cannot be null.", ex.getMessage());
+    }
+
+    @Test
+    void ensureNullDestinationIsRejected() {
+        Airport origin = createFakeAirport("OPO");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new FlightRoute("route-001", origin, null, 280.5, 45, req, "atcc_jose"));
+
+        assertEquals("Destination airport cannot be null.", ex.getMessage());
+    }
+
+    @Test
+    void ensureNullRouteRequirementIsRejected() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new FlightRoute("route-001", origin, destination, 280.5, 45, null, "atcc_jose"));
+
+        assertEquals("Route requirement cannot be null.", ex.getMessage());
+    }
+
+    @Test
+    void ensureNegativeEstimatedFlightTimeIsRejected() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new FlightRoute("route-001", origin, destination, 280.5, -1, req, "atcc_jose"));
+
+        assertEquals("Estimated flight time must be a positive value.", ex.getMessage());
+    }
+
+
+    @Test
+    void ensureUpdateRejectsNullDistance() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+        FlightRoute route    = new FlightRoute("route-001", origin, destination, 280.5, 45, req, "atcc_jose");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                route.updateDetails(null, 45, req, "atcc_jose"));
+
+        assertEquals("Distance must be a positive value.", ex.getMessage());
+    }
+
+    @Test
+    void ensureUpdateRejectsZeroDistance() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+        FlightRoute route    = new FlightRoute("route-001", origin, destination, 280.5, 45, req, "atcc_jose");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                route.updateDetails(0.0, 45, req, "atcc_jose"));
+
+        assertEquals("Distance must be a positive value.", ex.getMessage());
+    }
+
+    @Test
+    void ensureUpdateRejectsNullEstimatedFlightTime() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+        FlightRoute route    = new FlightRoute("route-001", origin, destination, 280.5, 45, req, "atcc_jose");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                route.updateDetails(280.5, null, req, "atcc_jose"));
+
+        assertEquals("Estimated flight time must be a positive value.", ex.getMessage());
+    }
+
+    @Test
+    void ensureUpdateRejectsZeroEstimatedFlightTime() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+        FlightRoute route    = new FlightRoute("route-001", origin, destination, 280.5, 45, req, "atcc_jose");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                route.updateDetails(280.5, 0, req, "atcc_jose"));
+
+        assertEquals("Estimated flight time must be a positive value.", ex.getMessage());
+    }
+
+    @Test
+    void ensureUpdateRejectsNullRouteRequirement() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+        FlightRoute route    = new FlightRoute("route-001", origin, destination, 280.5, 45, req, "atcc_jose");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                route.updateDetails(280.5, 45, null, "atcc_jose"));
+
+        assertEquals("Route requirement cannot be null.", ex.getMessage());
+    }
+
+    @Test
+    void ensureUpdateRejectsMinRangeLessThanDistance() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req    = new RouteRequirement(1500.0, 100);
+        RouteRequirement newReq = new RouteRequirement(200.0, 100);
+        FlightRoute route       = new FlightRoute("route-001", origin, destination, 280.5, 45, req, "atcc_jose");
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                route.updateDetails(500.0, 45, newReq, "atcc_jose"));
+
+        assertEquals("Minimum range required cannot be less than the route distance.", ex.getMessage());
+    }
+    @Test
+    void ensureNullDistanceIsRejected() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new FlightRoute("route-001", origin, destination, null, 45, req, "atcc_jose"));
+
+        assertEquals("Distance must be a positive value.", ex.getMessage());
+    }
+
+    @Test
+    void ensureNullEstimatedFlightTimeIsRejected() {
+        Airport origin      = createFakeAirport("OPO");
+        Airport destination = createFakeAirport("LIS");
+        RouteRequirement req = new RouteRequirement(1500.0, 100);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new FlightRoute("route-001", origin, destination, 280.5, null, req, "atcc_jose"));
+
+        assertEquals("Estimated flight time must be a positive value.", ex.getMessage());
     }
 }

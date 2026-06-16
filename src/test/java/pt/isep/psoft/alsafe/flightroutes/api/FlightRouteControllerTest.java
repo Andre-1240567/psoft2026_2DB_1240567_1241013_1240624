@@ -17,7 +17,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
+import pt.isep.psoft.alsafe.flightroutes.domain.RouteHistory;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
+import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;
 import pt.isep.psoft.alsafe.security.jwt.AuthTokenFilter;
@@ -62,14 +64,9 @@ class FlightRouteControllerTest {
                 new Location("Madrid", "Espanha", "Madrid", new GPSCoordinates(40.4, -3.7)),
                 new Timezone("UTC+02:00"));
 
-        // minRange (500) >= distance (300) — valid
-        RouteRequirement req = new RouteRequirement(500.0, 150);
+                RouteRequirement req = new RouteRequirement(500.0, 150);
         validRoute = new FlightRoute("teste-id-123", origin, destination, 300.0, 60, req, "Tester");
     }
-
-    // -----------------------------------------------------------------------
-    // POST /api/flight-routes
-    // -----------------------------------------------------------------------
 
     @Test
     void ensureCreateRouteReturns201Created() throws Exception {
@@ -134,7 +131,6 @@ class FlightRouteControllerTest {
     @Test
     void ensureCreateRouteWithMissingOriginIataReturns400() throws Exception {
         CreateFlightRouteDTO invalidDto = new CreateFlightRouteDTO();
-        // originIata intentionally omitted
         invalidDto.setDestinationIata("MAD");
         invalidDto.setDistance(300.0);
         invalidDto.setEstimatedFlightTime(60);
@@ -150,7 +146,7 @@ class FlightRouteControllerTest {
     @Test
     void ensureCreateRouteWithInvalidIataFormat_tooLong_returns400() throws Exception {
         CreateFlightRouteDTO invalidDto = new CreateFlightRouteDTO();
-        invalidDto.setOriginIata("OPO1");   // 4 chars — fails [A-Z]{3}
+        invalidDto.setOriginIata("OPO1");
         invalidDto.setDestinationIata("MAD");
         invalidDto.setDistance(300.0);
         invalidDto.setEstimatedFlightTime(60);
@@ -166,7 +162,7 @@ class FlightRouteControllerTest {
     @Test
     void ensureCreateRouteWithLowercaseIataReturns400() throws Exception {
         CreateFlightRouteDTO invalidDto = new CreateFlightRouteDTO();
-        invalidDto.setOriginIata("opo");    // lowercase — now correctly rejected by [A-Z]{3}
+        invalidDto.setOriginIata("opo");
         invalidDto.setDestinationIata("MAD");
         invalidDto.setDistance(300.0);
         invalidDto.setEstimatedFlightTime(60);
@@ -198,10 +194,6 @@ class FlightRouteControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-    // -----------------------------------------------------------------------
-    // GET /api/flight-routes/{id}
-    // -----------------------------------------------------------------------
-
     @Test
     void ensureGetRouteByIdReturns200OK() throws Exception {
         FlightRouteResponseDTO mockedResponse = new FlightRouteResponseDTO(validRoute);
@@ -224,10 +216,6 @@ class FlightRouteControllerTest {
         mockMvc.perform(get("/api/flight-routes/nonexistent"))
                 .andExpect(status().isNotFound());
     }
-
-    // -----------------------------------------------------------------------
-    // GET /api/flight-routes
-    // -----------------------------------------------------------------------
 
     @Test
     void ensureGetAllRoutesReturns200WithPaginatedContent() throws Exception {
@@ -271,9 +259,6 @@ class FlightRouteControllerTest {
                 .andExpect(status().isOk());
     }
 
-    // -----------------------------------------------------------------------
-    // PUT /api/flight-routes/{id}
-    // -----------------------------------------------------------------------
 
     @Test
     void ensureUpdateRouteReturns200OK() throws Exception {
@@ -353,10 +338,6 @@ class FlightRouteControllerTest {
                 .andExpect(status().isConflict());
     }
 
-    // -----------------------------------------------------------------------
-    // PATCH /api/flight-routes/{id}/deactivate
-    // -----------------------------------------------------------------------
-
     @Test
     void ensureDeactivateRouteReturns200OK() throws Exception {
         FlightRouteResponseDTO mockedResponse = new FlightRouteResponseDTO(validRoute);
@@ -388,4 +369,159 @@ class FlightRouteControllerTest {
         mockMvc.perform(patch("/api/flight-routes/teste-id-123/deactivate"))
                 .andExpect(status().isConflict());
     }
+
+    @Test
+    void ensureGetActiveRoutesSortedByPopularityReturns200() throws Exception {
+        Page<FlightRouteResponseDTO> page = new PageImpl<>(List.of(new FlightRouteResponseDTO(validRoute)));
+
+        when(flightRouteService.getActiveRoutesSorted(any(), eq("popularity"), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/flight-routes")
+                        .param("sortBy", "popularity")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void ensureGetTotalNetworkDistanceReturns200AndValidJson() throws Exception {
+        when(flightRouteService.getTotalNetworkDistance()).thenReturn(15000.5);
+
+        mockMvc.perform(get("/api/flight-routes/network/total-distance"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalDistance").value(15000.5));
+    }
+
+    @Test
+    void ensureGetAlternativeRoutesReturns200() throws Exception {
+        AlternativeRouteResponseDTO altDTO = new AlternativeRouteResponseDTO(List.of(), 500.0, 60);
+        
+        when(flightRouteService.findAlternativeRoutes("OPO", "MAD", "fewest-stops"))
+                .thenReturn(List.of(altDTO));
+
+        mockMvc.perform(get("/api/flight-routes/alternatives")
+                        .param("originIata", "OPO")
+                        .param("destinationIata", "MAD")
+                        .param("algorithm", "fewest-stops"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].totalDistance").value(500.0));
+    }
+
+    @Test
+    void ensureGetAlternativeRoutesWithSameOriginAndDestinationReturns400() throws Exception {
+        mockMvc.perform(get("/api/flight-routes/alternatives")
+                        .param("originIata", "OPO")
+                        .param("destinationIata", "OPO") 
+                        .param("algorithm", "fewest-stops"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void ensureGetRouteHistoryReturns200OK() throws Exception {
+        FlightRouteResponseDTO.RouteHistoryDTO historyDTO = new FlightRouteResponseDTO.RouteHistoryDTO(
+                new RouteHistory("Route created", "admin")
+        );
+
+        when(flightRouteService.getRouteHistory("teste-id-123")).thenReturn(List.of(historyDTO));
+
+        mockMvc.perform(get("/api/flight-routes/teste-id-123/history"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].description").value("Route created"));
+    }
+
+    @Test
+    void ensureSearchRoutesWithoutSortReturns200() throws Exception {
+        Page<FlightRouteResponseDTO> page = new PageImpl<>(List.of(new FlightRouteResponseDTO(validRoute)));
+
+        when(flightRouteService.searchRoutes(eq("OPO"), isNull(), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/flight-routes")
+                        .param("originIata", "OPO")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void ensureGetActiveRoutesSortedWithExplicitStatusReturns200() throws Exception {
+        Page<FlightRouteResponseDTO> page = new PageImpl<>(List.of(new FlightRouteResponseDTO(validRoute)));
+
+        when(flightRouteService.getActiveRoutesSorted(eq(RouteStatus.ACTIVE), eq("distance"), any(Pageable.class)))
+                .thenReturn(page);
+
+        mockMvc.perform(get("/api/flight-routes")
+                        .param("sortBy", "distance")
+                        .param("status", "ACTIVE")
+                        .param("page", "0")
+                        .param("size", "5"))
+                .andExpect(status().isOk());
+     }
+
+        @Test
+        void ensureGetRouteUtilizationReportReturns200() throws Exception {
+        RouteUtilizationDTO dto = new RouteUtilizationDTO("route-1", "OPO", "LIS", 5L);
+
+        when(flightRouteService.getRouteUtilizationReport()).thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/api/flight-routes/reports/utilization"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].routeId").value("route-1"))
+                .andExpect(jsonPath("$[0].originIata").value("OPO"))
+                .andExpect(jsonPath("$[0].destinationIata").value("LIS"))
+                .andExpect(jsonPath("$[0].totalFlights").value(5));
+        }
+
+        @Test
+        void ensureGetRouteUtilizationReportReturnsEmptyList() throws Exception {
+        when(flightRouteService.getRouteUtilizationReport()).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/flight-routes/reports/utilization"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
+        }
+
+
+        @Test
+        void ensureExportGeoJsonReturns200WithCorrectContentType() throws Exception {
+        when(flightRouteService.exportGeoJson())
+                .thenReturn("{\"type\":\"FeatureCollection\",\"features\":[]}");
+
+        mockMvc.perform(get("/api/flight-routes/export")
+                        .param("format", "geojson"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("application/geo+json"))
+                .andExpect(content().string("{\"type\":\"FeatureCollection\",\"features\":[]}"));
+        }
+
+        @Test
+        void ensureExportKmlReturns200WithCorrectContentType() throws Exception {
+        when(flightRouteService.exportKml())
+                .thenReturn("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml></kml>");
+
+        mockMvc.perform(get("/api/flight-routes/export")
+                        .param("format", "kml"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("application/vnd.google-earth.kml+xml"))
+                .andExpect(content().string("<?xml version=\"1.0\" encoding=\"UTF-8\"?><kml></kml>"));
+        }
+
+        @Test
+        void ensureExportWithInvalidFormatReturns400() throws Exception {
+        mockMvc.perform(get("/api/flight-routes/export")
+                        .param("format", "csv"))
+                .andExpect(status().isBadRequest());
+        }
+
+        @Test
+        void ensureMalformedJsonReturns400() throws Exception {
+        mockMvc.perform(post("/api/flight-routes")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{ this is not valid json }"))
+                .andExpect(status().isBadRequest());
+        }
+
+
 }
