@@ -1,0 +1,17 @@
+@startuml US206-SSD
+autonumber
+title System Sequence Diagram (SSD) - US206: Calculate Total Operational Hours
+
+actor "ATCC" as ATCC
+
+participant ":System" as SYS
+
+activate ATCC
+
+ATCC -> SYS : Requests to calculate the total operational hours for each aircraft
+activate SYS
+SYS --> ATCC : Returns list of all aircrafts with their total operational hours, sorted descending
+deactivate SYS
+
+deactivate ATCC
+@enduml

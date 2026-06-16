@@ -1,0 +1,13 @@
+@startuml US204-SSD
+autonumber
+title System Sequence Diagram (SSD) - US204: Top 5 Most Utilized Aircraft Models
+
+actor "Backoffice Operator" as BO
+
+System -> BO: Authentication successful
+BO -> System: Requests the Top 5 most utilized aircraft models (by flight hours or assignments)
+activate System
+System --> BO: Returns the Top 5 most utilized aircraft models
+deactivate System
+
+@enduml

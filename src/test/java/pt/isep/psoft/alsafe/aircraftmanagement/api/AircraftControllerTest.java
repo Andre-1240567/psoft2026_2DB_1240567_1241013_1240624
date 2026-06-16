@@ -79,4 +79,52 @@ class AircraftControllerTest {
                 .andExpect(jsonPath("$.modelName").value("A320neo"))
                 .andExpect(jsonPath("$._links.self.href").exists());
     }
+
+    @Test
+    @org.springframework.security.test.context.support.WithMockUser(roles = "ATCC")
+    void ensureGetCompatibleRoutesReturns200OK() throws Exception {
+        when(aircraftService.getAircraftDetails("CS-TPA")).thenReturn(mockAircraft);
+        
+        pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO routeDto = 
+            org.mockito.Mockito.mock(pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO.class);
+        when(routeDto.getOriginIataCode()).thenReturn("LIS");
+        when(routeDto.getDestinationIataCode()).thenReturn("OPO");
+
+        when(flightRouteService.getCompatibleRoutesForAircraft(any(Double.class), any(Integer.class)))
+            .thenReturn(java.util.List.of(routeDto));
+
+        mockMvc.perform(get("/api/aircrafts/CS-TPA/compatible-routes")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].originIataCode").value("LIS"))
+                .andExpect(jsonPath("$[0].destinationIataCode").value("OPO"));
+    }
+
+    @Test
+    @org.springframework.security.test.context.support.WithMockUser(roles = "ATCC")
+    void ensureGetStatusOverviewReturns200OK() throws Exception {
+        AircraftStatusOverviewDTO overview = new AircraftStatusOverviewDTO();
+        overview.addAircraftToStatus("AVAILABLE", new AircraftResponseDTO(mockAircraft));
+
+        when(aircraftService.getAircraftStatusOverview()).thenReturn(overview);
+
+        mockMvc.perform(get("/api/aircrafts/status-overview")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalAvailable").value(1))
+                .andExpect(jsonPath("$.aircraftsByStatus.AVAILABLE[0].registrationNumber").value("CS-TPA"));
+    }
+
+    @Test
+    @org.springframework.security.test.context.support.WithMockUser(roles = "ATCC")
+    void ensureGetOperationalHoursReturns200OK() throws Exception {
+        AircraftOperationalHoursDTO dto = new AircraftOperationalHoursDTO(mockAircraft);
+
+        when(aircraftService.getAircraftsOperationalHours()).thenReturn(java.util.List.of(dto));
+
+        mockMvc.perform(get("/api/aircrafts/operational-hours")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].registrationNumber").value("CS-TPA"));
+    }
 }

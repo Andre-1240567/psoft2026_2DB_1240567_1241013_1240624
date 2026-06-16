@@ -103,4 +103,30 @@ public class AircraftService {
 
         return aircraftRepository.save(aircraft);
     }
+
+    @Transactional(readOnly = true)
+    public pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftStatusOverviewDTO getAircraftStatusOverview() {
+        java.util.List<Aircraft> allAircrafts = aircraftRepository.findAll();
+        pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftStatusOverviewDTO overview = new pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftStatusOverviewDTO();
+
+        for (Aircraft aircraft : allAircrafts) {
+            overview.addAircraftToStatus(aircraft.getStatus().name(), new pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftResponseDTO(aircraft));
+        }
+
+        return overview;
+    }
+
+    @Transactional(readOnly = true)
+    public java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftOperationalHoursDTO> getAircraftsOperationalHours() {
+        java.util.List<Aircraft> allAircrafts = aircraftRepository.findAll();
+        
+        allAircrafts.sort((a1, a2) -> Double.compare(a2.getTotalFlightHours(), a1.getTotalFlightHours()));
+
+        java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftOperationalHoursDTO> result = new java.util.ArrayList<>();
+        for (Aircraft aircraft : allAircrafts) {
+            result.add(new pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftOperationalHoursDTO(aircraft));
+        }
+
+        return result;
+    }
 }
