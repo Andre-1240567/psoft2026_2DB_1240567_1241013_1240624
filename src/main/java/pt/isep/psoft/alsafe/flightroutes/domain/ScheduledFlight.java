@@ -29,6 +29,10 @@ public class ScheduledFlight {
     @Column(nullable = false)
     private LocalDateTime scheduledArrival;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private FlightStatus status;
+
     @Version
     private Long version;
 
@@ -36,23 +40,27 @@ public class ScheduledFlight {
     }
 
     public ScheduledFlight(FlightRoute route, Aircraft aircraft, LocalDateTime scheduledDeparture, LocalDateTime scheduledArrival) {
-        if (route == null) {
-            throw new IllegalArgumentException("Flight route cannot be null.");
-        }
-        if (aircraft == null) {
-            throw new IllegalArgumentException("Aircraft cannot be null.");
-        }
-        if (scheduledDeparture == null || scheduledArrival == null) {
-            throw new IllegalArgumentException("Departure and arrival times must be provided.");
-        }
-        if (scheduledArrival.isBefore(scheduledDeparture) || scheduledArrival.isEqual(scheduledDeparture)) {
-            throw new IllegalArgumentException("Arrival time must be after departure time.");
-        }
+        if (route == null) throw new IllegalArgumentException("Flight route cannot be null.");
+        if (aircraft == null) throw new IllegalArgumentException("Aircraft cannot be null.");
+        if (scheduledDeparture == null || scheduledArrival == null) throw new IllegalArgumentException("Departure and arrival times must be provided.");
+        if (scheduledArrival.isBefore(scheduledDeparture) || scheduledArrival.isEqual(scheduledDeparture)) throw new IllegalArgumentException("Arrival time must be after departure time.");
 
         this.flightNumber = UUID.randomUUID().toString();
         this.route = route;
         this.aircraft = aircraft;
         this.scheduledDeparture = scheduledDeparture;
         this.scheduledArrival = scheduledArrival;
+        
+        this.status = FlightStatus.SCHEDULED; 
+    }
+
+    public void cancel() {
+        if (this.status == FlightStatus.CANCELED) {
+            throw new IllegalStateException("This flight is already canceled.");
+        }
+        if (this.status == FlightStatus.COMPLETED) {
+            throw new IllegalStateException("Cannot cancel a completed flight.");
+        }
+        this.status = FlightStatus.CANCELED;
     }
 }

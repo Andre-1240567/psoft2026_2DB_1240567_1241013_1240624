@@ -7,12 +7,6 @@ import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-/**
- * Assembler responsible for converting ScheduledFlight domain entities into
- * ScheduledFlightResponseDTO representations with HATEOAS links.
- *
- * @author José Alves
- */
 @Component
 public class ScheduledFlightModelAssembler
         extends RepresentationModelAssemblerSupport<ScheduledFlight, ScheduledFlightResponseDTO> {
@@ -28,7 +22,8 @@ public class ScheduledFlightModelAssembler
                 flight.getRoute().getRouteIdValue(),
                 flight.getAircraft().getRegistrationNumber(),
                 flight.getScheduledDeparture(),
-                flight.getScheduledArrival()
+                flight.getScheduledArrival(),
+                flight.getStatus().name()
         );
 
         ScheduledFlightController ctrl = methodOn(ScheduledFlightController.class);

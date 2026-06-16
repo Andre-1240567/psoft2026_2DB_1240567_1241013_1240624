@@ -15,13 +15,15 @@ public class ScheduledFlightResponseDTO extends RepresentationModel<ScheduledFli
     private String aircraftRegistration;
     private LocalDateTime scheduledDeparture;
     private LocalDateTime scheduledArrival;
+    private String status;
 
     public ScheduledFlightResponseDTO(String flightNumber, String routeId, String aircraftRegistration,
-                                      LocalDateTime scheduledDeparture, LocalDateTime scheduledArrival) {
+                                      LocalDateTime scheduledDeparture, LocalDateTime scheduledArrival, String status) {
         this.flightNumber = flightNumber;
         this.routeId = routeId;
         this.aircraftRegistration = aircraftRegistration;
         this.scheduledDeparture = scheduledDeparture;
         this.scheduledArrival = scheduledArrival;
+        this.status = status;
     }
 }

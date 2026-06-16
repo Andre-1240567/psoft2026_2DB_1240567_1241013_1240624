@@ -9,6 +9,7 @@ import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftStatus;
 import pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftRepository;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Status;
+import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
@@ -26,7 +27,7 @@ public class ScheduledFlightService {
     private final FlightRouteRepository flightRouteRepository;
     private final AircraftRepository aircraftRepository;
     private final ScheduledFlightRepository scheduledFlightRepository;
-
+    private final AirportRepository airportRepository;
     private static final int TURNAROUND_BUFFER_MINUTES = 30;
 
     @Transactional
@@ -110,5 +111,31 @@ public class ScheduledFlightService {
     public ScheduledFlight getFlightById(String flightNumber) {
         return scheduledFlightRepository.findById(flightNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("Scheduled flight not found with number: " + flightNumber));
+    }
+
+    @Transactional
+    public ScheduledFlight cancelFlight(String flightNumber) {
+        ScheduledFlight flight = scheduledFlightRepository.findById(flightNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Scheduled flight not found with number: " + flightNumber));
+        flight.cancel(); 
+
+        return scheduledFlightRepository.save(flight);
+    }
+
+    public List<ScheduledFlight> getUpcomingDepartures(String originIata, int hoursWindow) {
+        if (hoursWindow <= 0) {
+            throw new IllegalArgumentException("The time window must be greater than zero hours.");
+        }
+
+        String iataCode = originIata.toUpperCase();
+
+        if (airportRepository.findByIataCode_Code(iataCode).isEmpty()) {
+            throw new ResourceNotFoundException("Airport not found with IATA code: " + iataCode);
+        }
+        
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime endWindow = now.plusHours(hoursWindow);
+
+        return scheduledFlightRepository.findUpcomingDepartures(iataCode, now, endWindow);
     }
 }

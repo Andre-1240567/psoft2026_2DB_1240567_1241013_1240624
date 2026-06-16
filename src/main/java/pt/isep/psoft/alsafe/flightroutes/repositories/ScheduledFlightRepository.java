@@ -19,10 +19,23 @@ public interface ScheduledFlightRepository extends JpaRepository<ScheduledFlight
     List<ScheduledFlight> findByAircraft_RegistrationNumber(String registrationNumber);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT sf FROM ScheduledFlight sf WHERE sf.aircraft = :aircraft AND " +
-           "(sf.scheduledDeparture <= :bufferArrival AND sf.scheduledArrival >= :bufferDeparture)")
+    @Query("SELECT sf FROM ScheduledFlight sf WHERE sf.aircraft = :aircraft " +
+           "AND sf.status = 'SCHEDULED' " +
+           "AND (sf.scheduledDeparture <= :bufferArrival AND sf.scheduledArrival >= :bufferDeparture)")
     List<ScheduledFlight> findOverlappingFlightsWithLock(
             @Param("aircraft") Aircraft aircraft, 
             @Param("bufferDeparture") LocalDateTime bufferDeparture, 
             @Param("bufferArrival") LocalDateTime bufferArrival);
+
+    @Query("SELECT sf FROM ScheduledFlight sf " +
+           "WHERE sf.route.origin.iataCode.code = :originIata " +
+           "AND sf.status != 'CANCELED' " + 
+           "AND sf.scheduledDeparture >= :now " +
+           "AND sf.scheduledDeparture <= :endWindow " +
+           "ORDER BY sf.scheduledDeparture ASC")
+    List<ScheduledFlight> findUpcomingDepartures(
+            @Param("originIata") String originIata,
+            @Param("now") LocalDateTime now,
+            @Param("endWindow") LocalDateTime endWindow
+    );
 }
