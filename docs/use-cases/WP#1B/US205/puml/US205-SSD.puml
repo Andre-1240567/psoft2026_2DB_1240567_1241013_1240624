@@ -1,0 +1,15 @@
+@startuml
+autonumber
+actor "ATCC" as ATCC
+
+participant ":System" as SYS
+
+activate ATCC
+
+ATCC -> SYS : Requests to view real-time aircraft availability status
+activate SYS
+SYS --> ATCC : Returns an overview grouping aircrafts by their status
+deactivate SYS
+
+deactivate ATCC
+@enduml

@@ -171,14 +171,17 @@ public class Bootstrapper implements CommandLineRunner {
             Aircraft a5 = new Aircraft("CS-TPE", a350, LocalDate.of(2021, 3, 10), "Business");
             a5.addFlightHours(6000.0);
             for(int i=0; i<8; i++) a5.addAssignment();
+            a5.updateStatus(pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftStatus.IN_FLIGHT);
 
             Aircraft a6 = new Aircraft("CS-TPF", e195, LocalDate.of(2019, 8, 20), "Economy");
             a6.addFlightHours(9000.0);
             for(int i=0; i<20; i++) a6.addAssignment();
+            a6.updateStatus(pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftStatus.UNDER_MAINTENANCE);
 
             Aircraft a7 = new Aircraft("CS-TPG", atr72, LocalDate.of(2018, 12, 1), "Economy");
             a7.addFlightHours(12000.0);
             for(int i=0; i<30; i++) a7.addAssignment();
+            a7.updateStatus(pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftStatus.INACTIVE);
 
             aircraftRepository.save(a1);
             aircraftRepository.save(a2);

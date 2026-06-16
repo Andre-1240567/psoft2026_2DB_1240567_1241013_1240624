@@ -1,0 +1,43 @@
+@startuml
+autonumber
+
+actor "ATCC" as ATCC
+participant ":AircraftController" as CTRL
+participant ":AircraftService" as SERV
+participant ":AircraftRepository" as REPO
+participant "overview:AircraftStatusOverviewDTO" as DTO
+
+activate ATCC
+
+ATCC -> CTRL : GET /api/aircrafts/status-overview
+activate CTRL
+
+CTRL -> SERV : getAircraftStatusOverview()
+activate SERV
+
+SERV -> REPO : findAll()
+activate REPO
+REPO --> SERV : listAircrafts
+deactivate REPO
+
+SERV -> DTO** : create()
+activate DTO
+DTO --> SERV : overview
+deactivate DTO
+
+loop for each aircraft in listAircrafts
+    SERV -> SERV : determine aircraft status
+    SERV -> DTO : addAircraftToStatus(aircraft)
+    activate DTO
+    DTO --> SERV
+    deactivate DTO
+end
+
+SERV --> CTRL : overview
+deactivate SERV
+
+CTRL --> ATCC : 200 OK (overview)
+deactivate CTRL
+
+deactivate ATCC
+@enduml

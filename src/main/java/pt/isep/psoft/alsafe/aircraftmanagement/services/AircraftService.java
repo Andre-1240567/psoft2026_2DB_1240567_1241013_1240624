@@ -103,4 +103,16 @@ public class AircraftService {
 
         return aircraftRepository.save(aircraft);
     }
+
+    @Transactional(readOnly = true)
+    public pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftStatusOverviewDTO getAircraftStatusOverview() {
+        java.util.List<Aircraft> allAircrafts = aircraftRepository.findAll();
+        pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftStatusOverviewDTO overview = new pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftStatusOverviewDTO();
+
+        for (Aircraft aircraft : allAircrafts) {
+            overview.addAircraftToStatus(aircraft.getStatus().name(), new pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftResponseDTO(aircraft));
+        }
+
+        return overview;
+    }
 }

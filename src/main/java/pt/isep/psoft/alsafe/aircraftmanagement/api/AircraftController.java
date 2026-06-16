@@ -100,4 +100,16 @@ public class AircraftController {
         
         return ResponseEntity.ok(compatibleRoutes);
     }
+
+    @PreAuthorize("hasRole('ATCC')") //US205
+    @GetMapping("/status-overview")
+    @Operation(summary = "View real-time aircraft availability status (US205)")
+    public ResponseEntity<AircraftStatusOverviewDTO> getAircraftStatusOverview() {
+        AircraftStatusOverviewDTO overview = aircraftService.getAircraftStatusOverview();
+        
+        // Add self link to the DTO
+        overview.add(linkTo(methodOn(AircraftController.class).getAircraftStatusOverview()).withSelfRel());
+        
+        return ResponseEntity.ok(overview);
+    }
 }
