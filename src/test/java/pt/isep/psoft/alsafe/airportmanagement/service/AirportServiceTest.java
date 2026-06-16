@@ -194,4 +194,86 @@ class AirportServiceTest {
     void ensureGetAirportsGroupedByFailsForInvalidCriteria() {
         assertThrows(IllegalArgumentException.class, () -> airportService.getAirportsGroupedBy("invalid"));
     }
+
+    @Test
+    void ensureGetAirportDetailsSuccess() {
+        String iata = "LAX";
+        when(airportRepository.findByIataCode_Code(iata)).thenReturn(Optional.of(dummyAirport));
+
+        Airport result = airportService.getAirportDetails(iata);
+
+        assertNotNull(result);
+        assertEquals(dummyAirport, result);
+        verify(airportRepository, times(1)).findByIataCode_Code(iata);
+    }
+
+    @Test
+    void ensureGetAirportDetailsFailsIfNotFound() {
+        String iata = "UNKNOWN";
+        when(airportRepository.findByIataCode_Code(iata)).thenReturn(Optional.empty());
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> airportService.getAirportDetails(iata));
+
+        assertTrue(exception.getMessage().contains("not found"));
+        verify(airportRepository, times(1)).findByIataCode_Code(iata);
+    }
+
+    @Test
+    void ensureSearchAirportsByCitySuccess() {
+        String city = "Los Angeles";
+        List<Airport> expectedAirports = new ArrayList<>();
+        expectedAirports.add(dummyAirport);
+
+        when(airportRepository.findByLocation_City(city)).thenReturn(expectedAirports);
+
+        List<Airport> result = airportService.searchAirportsByCity(city);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(dummyAirport, result.get(0));
+        verify(airportRepository, times(1)).findByLocation_City(city);
+    }
+
+    @Test
+    void ensureSearchAirportsByCityReturnsEmptyList() {
+        String city = "Nowhere";
+
+        when(airportRepository.findByLocation_City(city)).thenReturn(new ArrayList<>());
+
+        List<Airport> result = airportService.searchAirportsByCity(city);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+        verify(airportRepository, times(1)).findByLocation_City(city);
+    }
+
+    @Test
+    void ensureUpdateAirportDetailsSuccess() {
+        String iata = "LAX";
+        UpdateAirportDetailsRequestDTO dto = mock(UpdateAirportDetailsRequestDTO.class);
+        
+        OperationalHoursDTO opHoursDTO = mock(OperationalHoursDTO.class);
+        when(opHoursDTO.getOpeningTime()).thenReturn("08:00");
+        when(opHoursDTO.getClosingTime()).thenReturn("22:00");
+        when(dto.getOperationalHours()).thenReturn(opHoursDTO);
+        
+        ContactDTO contactDTO = mock(ContactDTO.class);
+        when(contactDTO.getValue()).thenReturn("123456789");
+        when(contactDTO.getDepartment()).thenReturn("Administration");
+        when(contactDTO.getType()).thenReturn(ContactType.PHONE);
+        
+        List<ContactDTO> contactsDTO = new ArrayList<>();
+        contactsDTO.add(contactDTO);
+        when(dto.getContacts()).thenReturn(contactsDTO);
+        
+        when(airportRepository.findByIataCode_Code(iata)).thenReturn(Optional.of(dummyAirport));
+        when(airportRepository.save(any(Airport.class))).thenReturn(dummyAirport);
+        
+        Airport result = airportService.updateAirportDetails(iata, dto);
+        
+        assertNotNull(result);
+        verify(airportRepository, times(1)).findByIataCode_Code(iata);
+        verify(airportRepository, times(1)).save(dummyAirport);
+    }
 }

@@ -1,21 +1,38 @@
 # US211 - View Airports Grouped by Region or Country
 
-## 1. Requirements
+## User Story
+> As an ATCC, I want to view airports grouped by region or country to visualize geographical distribution.
 
-**US211:** As an ATCC, I want to view airports grouped by region or country.
-
-**Acceptance Criteria:**
+## Acceptance Criteria
 - The system must provide a list of airports grouped by the specified criteria (region or country).
-- Only users with the 'ATCC' role can access this information.
 - The response must be a Map where the keys are the regions/countries and the values are lists of airports.
+- The response must support HATEOAS representation models.
 
-## 2. Analysis
-This use case requires fetching all airports from the `AirportRepository` and then using Java's `Collectors.groupingBy` to create a map based on the requested property (`region` or `country`) found within the `Location` value object.
+## Pre-conditions
+- The actor is authenticated as an ATCC.
 
-## 3. Design
-The `AirportController` exposes the `GET /api/airports/grouped?groupBy=region` (or `country`) endpoint.
-It delegates the grouping logic to `AirportService.getAirportsGroupedBy(groupBy)`.
-The service uses the `findAll()` method of the repository and performs in-memory grouping for simplicity and flexibility.
+## Post-conditions
+- None (Read-only operation).
 
-## 4. Tests
-The endpoint is tested via Postman API requests (included in the WP#2B Postman collection), validating that the grouping correctly identifies the unique regions/countries and associated airports.
+## Main Success Scenario
+1. The actor sends a `GET /api/airports/grouped?groupBy={criteria}` request.
+2. The system verifies that the actor has the required role.
+3. The system fetches all registered airports from the database.
+4. The system groups the airports by the requested criteria using Java Streams.
+5. The system transforms the raw entities into `AirportViewDTO` models and injects HATEOAS links via the `AirportModelAssembler`.
+6. The system returns HTTP 200 OK with the grouped map.
+
+## Alternative / Exception Flows
+| Step | Condition | System Response |
+|------|-----------|-----------------|
+| 4 | The `groupBy` parameter is invalid or missing | HTTP 400 Bad Request |
+| 2 | The actor is not an ATCC | HTTP 403 Forbidden |
+
+## Design Justification
+- **In-Memory Grouping:** Given the relatively static and manageable size of the airport dataset, using Java's `Collectors.groupingBy` provides a clean, highly readable, and easily extensible way to group by embedded `Location` attributes without resorting to complex native SQL mapping.
+
+### System Sequence Diagram
+![System Sequence Diagram](puml/US211-SSD.puml)
+
+### Sequence Diagram
+![Sequence Diagram](puml/US211-SD.puml)
