@@ -11,9 +11,11 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 public class AircraftModelService {
 
     private final AircraftModelRepository repository;
+    private final pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftRepository aircraftRepository;
 
-    public AircraftModelService(AircraftModelRepository repository) {
+    public AircraftModelService(AircraftModelRepository repository, pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftRepository aircraftRepository) {
         this.repository = repository;
+        this.aircraftRepository = aircraftRepository;
     }
 
     public AircraftModel createAircraftModel(CreateAircraftModelDTO dto) {
@@ -46,5 +48,24 @@ public class AircraftModelService {
         );
 
         return repository.save(model);
+    }
+
+    public java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO> getTop5MostUtilizedModels(String criteria) {
+        org.springframework.data.domain.Pageable topFive = org.springframework.data.domain.PageRequest.of(0, 5);
+        java.util.List<Object[]> results;
+        
+        if ("hours".equalsIgnoreCase(criteria)) {
+            results = aircraftRepository.findTopMostUtilizedAircraftModelsByFlightHours(topFive);
+        } else if ("assignments".equalsIgnoreCase(criteria)) {
+            results = aircraftRepository.findTopMostUtilizedAircraftModelsByAssignments(topFive);
+        } else {
+            throw new IllegalArgumentException("Invalid criteria. Must be 'hours' or 'assignments'.");
+        }
+
+        return results.stream().map(result -> {
+            AircraftModel model = (AircraftModel) result[0];
+            Double value = result[1] != null ? ((Number) result[1]).doubleValue() : 0.0;
+            return new pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO(model, value);
+        }).collect(java.util.stream.Collectors.toList());
     }
 }

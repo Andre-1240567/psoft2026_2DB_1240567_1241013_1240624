@@ -114,6 +114,9 @@ public class Bootstrapper implements CommandLineRunner {
             aircraftModelRepository.save(new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0));
             aircraftModelRepository.save(new AircraftModel(Manufacturer.AIRBUS, "A320neo", 160, 24000.0, 6300.0, 828.0));
             aircraftModelRepository.save(new AircraftModel(Manufacturer.BOEING, "777X", 400, 35000.0, 8000.0, 900.0));
+            aircraftModelRepository.save(new AircraftModel(Manufacturer.AIRBUS, "A350", 350, 140000.0, 15000.0, 903.0));
+            aircraftModelRepository.save(new AircraftModel(Manufacturer.EMBRAER, "E195-E2", 120, 14000.0, 4800.0, 870.0));
+            aircraftModelRepository.save(new AircraftModel(Manufacturer.ATR, "ATR 72-600", 72, 5000.0, 1500.0, 510.0));
             System.out.println(" -> Aircraft Models loaded.");
         }
     }
@@ -144,14 +147,46 @@ public class Bootstrapper implements CommandLineRunner {
         if (aircraftRepository.count() == 0) {
             AircraftModel b737 = aircraftModelRepository.findByModelName("737 MAX").orElseThrow();
             AircraftModel a320 = aircraftModelRepository.findByModelName("A320neo").orElseThrow();
+            AircraftModel b777 = aircraftModelRepository.findByModelName("777X").orElseThrow();
+            AircraftModel a350 = aircraftModelRepository.findByModelName("A350").orElseThrow();
+            AircraftModel e195 = aircraftModelRepository.findByModelName("E195-E2").orElseThrow();
+            AircraftModel atr72 = aircraftModelRepository.findByModelName("ATR 72-600").orElseThrow();
 
             Aircraft a1 = new Aircraft("CS-TPA", a320, LocalDate.of(2024, 1, 15), "Economy");
+            a1.addFlightHours(1500.0);
+            a1.addAssignment(); a1.addAssignment();
+
             Aircraft a2 = new Aircraft("CS-TPB", b737, LocalDate.of(2023, 6, 20), "Business");
+            a2.addFlightHours(3000.0);
+            for(int i=0; i<5; i++) a2.addAssignment();
+
             Aircraft a3 = new Aircraft("CS-TPC", a320, LocalDate.of(2020, 11, 5), "Economy");
+            a3.addFlightHours(5000.0);
+            for(int i=0; i<10; i++) a3.addAssignment();
+
+            Aircraft a4 = new Aircraft("CS-TPD", b777, LocalDate.of(2022, 5, 10), "First Class");
+            a4.addFlightHours(8000.0);
+            for(int i=0; i<15; i++) a4.addAssignment();
+
+            Aircraft a5 = new Aircraft("CS-TPE", a350, LocalDate.of(2021, 3, 10), "Business");
+            a5.addFlightHours(6000.0);
+            for(int i=0; i<8; i++) a5.addAssignment();
+
+            Aircraft a6 = new Aircraft("CS-TPF", e195, LocalDate.of(2019, 8, 20), "Economy");
+            a6.addFlightHours(9000.0);
+            for(int i=0; i<20; i++) a6.addAssignment();
+
+            Aircraft a7 = new Aircraft("CS-TPG", atr72, LocalDate.of(2018, 12, 1), "Economy");
+            a7.addFlightHours(12000.0);
+            for(int i=0; i<30; i++) a7.addAssignment();
 
             aircraftRepository.save(a1);
             aircraftRepository.save(a2);
             aircraftRepository.save(a3);
+            aircraftRepository.save(a4);
+            aircraftRepository.save(a5);
+            aircraftRepository.save(a6);
+            aircraftRepository.save(a7);
 
             System.out.println(" -> Aircrafts loaded.");
         }

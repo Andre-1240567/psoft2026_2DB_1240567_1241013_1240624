@@ -35,4 +35,11 @@ public class AircraftModelController {
     public AircraftModel update(@PathVariable Long id, @Valid @RequestBody UpdateAircraftModelDTO dto) {
         return service.updateAircraftModel(id, dto);
     }
+
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
+    @GetMapping("/top-utilized")
+    @Operation(summary = "Get top 5 most utilized aircraft models (US204)")
+    public java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO> getTopUtilizedModels(@RequestParam(defaultValue = "hours") String criteria) {
+        return service.getTop5MostUtilizedModels(criteria);
+    }
 }
