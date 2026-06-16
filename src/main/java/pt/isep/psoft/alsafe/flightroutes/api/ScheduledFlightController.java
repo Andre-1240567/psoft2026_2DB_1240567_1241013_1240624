@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 import pt.isep.psoft.alsafe.flightroutes.services.ScheduledFlightService;
@@ -38,7 +39,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "404", description = "Flight route or aircraft not found"),
         @ApiResponse(responseCode = "409", description = "Concurrency conflict: Aircraft already scheduled for another flight during this timeframe")
     })
-    @RolesAllowed("ATCC")
+    @PreAuthorize("ATCC")
     @PostMapping
     public ResponseEntity<ScheduledFlightResponseDTO> scheduleFlight(
             @Valid @RequestBody CreateScheduledFlightDTO dto) {
@@ -61,7 +62,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required"),
         @ApiResponse(responseCode = "404", description = "Aircraft not found")
     })
-    @RolesAllowed("ATCC")
+    @PreAuthorize("ATCC")
     @GetMapping("/aircraft/{registration}")
     public ResponseEntity<CollectionModel<ScheduledFlightResponseDTO>> getFlightsByAircraft(
             @PathVariable String registration) {
@@ -83,7 +84,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "403", description = "Insufficient role — ATCC required"),
         @ApiResponse(responseCode = "404", description = "Scheduled flight not found")
     })
-    @RolesAllowed("ATCC")
+    @PreAuthorize("ATCC")
     @GetMapping("/{flightNumber}")
     public ResponseEntity<ScheduledFlightResponseDTO> getFlightById(
             @PathVariable String flightNumber) {
@@ -92,7 +93,7 @@ public class ScheduledFlightController {
         return ResponseEntity.ok(assembler.toModel(flight));
     }
 
-    @Operation(summary = "US217: Cancel a scheduled flight",
+    @Operation(summary = "Bonus: Cancel a scheduled flight",
                description = "Cancels a scheduled flight, freeing up the aircraft for other assignments. Requires ATCC role.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Flight canceled successfully"),
@@ -101,7 +102,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "404", description = "Scheduled flight not found"),
         @ApiResponse(responseCode = "409", description = "Flight is already canceled or completed")
     })
-    @RolesAllowed("ATCC")
+    @PreAuthorize("ATCC")
     @PatchMapping("/{flightNumber}/cancel")
     public ResponseEntity<ScheduledFlightResponseDTO> cancelFlight(@PathVariable String flightNumber) {
         
@@ -111,7 +112,7 @@ public class ScheduledFlightController {
     }
 
 
-    @Operation(summary = "US218: Get upcoming departures (Departures Board)",
+    @Operation(summary = "Bonus: Get upcoming departures (Departures Board)",
                description = "Retrieves a list of upcoming flights departing from a specific airport within the next N hours. Requires BACKOFFICE_OPERATOR role.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "List of departures returned successfully"),
@@ -119,7 +120,7 @@ public class ScheduledFlightController {
         @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
         @ApiResponse(responseCode = "403", description = "Insufficient role — BACKOFFICE_OPERATOR required")
     })
-    @RolesAllowed({"BACKOFFICE_OPERATOR", "ATCC"})
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR') or hasRole('ATCC')")
     @GetMapping("/departures/{iata}")
     public ResponseEntity<List<DeparturesBoardResponseDTO>> getUpcomingDepartures(
             @PathVariable String iata,

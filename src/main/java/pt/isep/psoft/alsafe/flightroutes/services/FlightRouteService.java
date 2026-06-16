@@ -16,44 +16,47 @@ import pt.isep.psoft.alsafe.flightroutes.api.AlternativeRouteResponseDTO;
 import pt.isep.psoft.alsafe.flightroutes.api.CreateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteModelAssembler;
 import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.RouteUtilizationDTO;
 import pt.isep.psoft.alsafe.flightroutes.api.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
+import pt.isep.psoft.alsafe.flightroutes.repositories.ScheduledFlightRepository;
 import pt.isep.psoft.alsafe.flightroutes.services.routing.AlternativeRoutingStrategy;
 import pt.isep.psoft.alsafe.flightroutes.services.strategy.RouteSearchStrategy;
 import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class FlightRouteService {
 
     private final FlightRouteRepository routeRepository;
+    private final ScheduledFlightRepository scheduledFlightRepository;
     private final AirportService airportService;
     private final FlightRouteModelAssembler assembler;
-    
     private final List<RouteSearchStrategy> searchStrategies;
-    
     private final List<AlternativeRoutingStrategy> routingStrategies;
 
     public FlightRouteService(FlightRouteRepository routeRepository,
+                              ScheduledFlightRepository scheduledFlightRepository,
                               AirportService airportService,
                               FlightRouteModelAssembler assembler,
                               List<RouteSearchStrategy> searchStrategies,
                               List<AlternativeRoutingStrategy> routingStrategies) {
-        this.routeRepository   = routeRepository;
-        this.airportService    = airportService;
-        this.assembler         = assembler;
-        this.searchStrategies  = searchStrategies;
-        this.routingStrategies = routingStrategies;
+        this.routeRepository           = routeRepository;
+        this.scheduledFlightRepository = scheduledFlightRepository;
+        this.airportService            = airportService;
+        this.assembler                 = assembler;
+        this.searchStrategies          = searchStrategies;
+        this.routingStrategies         = routingStrategies;
     }
 
     @Transactional
     public FlightRouteResponseDTO createFlightRoute(CreateFlightRouteDTO dto) {
-
         String originIata      = dto.getOriginIata().toUpperCase();
         String destinationIata = dto.getDestinationIata().toUpperCase();
 
@@ -126,32 +129,27 @@ public class FlightRouteService {
     @Transactional(readOnly = true)
     public Page<FlightRouteResponseDTO> searchRoutes(String originIata, String destinationIata, Pageable pageable) {
         final String origin = originIata != null ? originIata.toUpperCase() : null;
-        final String dest = destinationIata != null ? destinationIata.toUpperCase() : null;
+        final String dest   = destinationIata != null ? destinationIata.toUpperCase() : null;
 
         RouteSearchStrategy activeStrategy = searchStrategies.stream()
                 .filter(strategy -> strategy.supports(origin, dest))
                 .findFirst()
                 .orElseThrow(() -> new IllegalStateException("No valid search strategy found for the provided filters."));
 
-        Page<FlightRoute> resultPage = activeStrategy.execute(origin, dest, pageable);
-
-        return resultPage.map(assembler::toModel);
+        return activeStrategy.execute(origin, dest, pageable).map(assembler::toModel);
     }
 
     @Transactional(readOnly = true)
     public Page<FlightRouteResponseDTO> getActiveRoutesSorted(RouteStatus status, String sortBy, Pageable pageable) {
-        String validSortBy = "distance";
         if ("popularity".equalsIgnoreCase(sortBy)) {
-            validSortBy = "popularity";
+            sortBy = "popularity";
         } else if ("distance".equalsIgnoreCase(sortBy)) {
-            validSortBy = "distance";
+            sortBy = "distance";
         } else {
-             throw new IllegalArgumentException("Invalid sort parameter. Use 'popularity' or 'distance'.");
+            throw new IllegalArgumentException("Invalid sort parameter. Use 'popularity' or 'distance'.");
         }
 
-        Page<FlightRoute> resultPage = routeRepository.findActiveRoutesSorted(status, validSortBy, pageable);
-
-        return resultPage.map(assembler::toModel);
+        return routeRepository.findActiveRoutesSorted(status, sortBy, pageable).map(assembler::toModel);
     }
 
     @Transactional(readOnly = true)
@@ -162,7 +160,7 @@ public class FlightRouteService {
     @Transactional(readOnly = true)
     public List<AlternativeRouteResponseDTO> findAlternativeRoutes(
             String originIata, String destinationIata, String algorithm) {
-        
+
         resolveAirport(originIata.toUpperCase());
         resolveAirport(destinationIata.toUpperCase());
 
@@ -171,13 +169,13 @@ public class FlightRouteService {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Routing algorithm not supported: " + algorithm));
 
-        List<List<FlightRoute>> paths = strategyToUse.findAlternatives(originIata.toUpperCase(), destinationIata.toUpperCase());
+        List<List<FlightRoute>> paths = strategyToUse.findAlternatives(
+                originIata.toUpperCase(), destinationIata.toUpperCase());
 
         return paths.stream().map(path -> {
             List<FlightRouteResponseDTO> legs = path.stream().map(assembler::toModel).toList();
             Double totalDistance = path.stream().mapToDouble(FlightRoute::getDistance).sum();
-            Integer totalTime = path.stream().mapToInt(FlightRoute::getEstimatedFlightTime).sum();
-            
+            Integer totalTime    = path.stream().mapToInt(FlightRoute::getEstimatedFlightTime).sum();
             return new AlternativeRouteResponseDTO(legs, totalDistance, totalTime);
         }).toList();
     }
@@ -186,22 +184,38 @@ public class FlightRouteService {
     public Page<FlightRouteResponseDTO> getRoutesByAirport(String airportIata, Pageable pageable) {
         String iata = airportIata.toUpperCase();
         resolveAirport(iata);
-        Page<FlightRoute> resultPage = routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code(iata, iata, pageable);
-        return resultPage.map(assembler::toModel);
+        return routeRepository
+                .findByOrigin_IataCode_CodeOrDestination_IataCode_Code(iata, iata, pageable)
+                .map(assembler::toModel);
     }
 
     @Transactional(readOnly = true)
     public List<FlightRouteResponseDTO> getCompatibleRoutesForAircraft(Double maxRange, Integer capacity) {
-        List<FlightRoute> compatibleRoutes = routeRepository.findCompatibleRoutes(maxRange, capacity);
-        return compatibleRoutes.stream().map(assembler::toModel).toList();
+        return routeRepository.findCompatibleRoutes(maxRange, capacity)
+                .stream().map(assembler::toModel).toList();
     }
 
     @Transactional(readOnly = true)
     public List<BusiestAirportDTO> getBusiestAirports() {
-        List<Object[]> results = routeRepository.findBusiestAirportsStatistics();
-        return results.stream()
+        return routeRepository.findBusiestAirportsStatistics().stream()
                 .map(row -> new BusiestAirportDTO((String) row[0], ((Number) row[1]).longValue()))
                 .toList();
+    }
+
+    // -----------------------------------------------------------------------
+    // Bonus US229 — Flight utilization report
+    // -----------------------------------------------------------------------
+
+    @Transactional(readOnly = true)
+    public List<RouteUtilizationDTO> getRouteUtilizationReport() {
+        return scheduledFlightRepository.findRouteUtilizationReport().stream()
+                .map(row -> new RouteUtilizationDTO(
+                        (String) row[0],
+                        (String) row[1],
+                        (String) row[2],
+                        ((Number) row[3]).longValue()
+                ))
+                .collect(Collectors.toList());
     }
 
     // ---------------------------------------------------------------------------

@@ -82,5 +82,8 @@ public interface FlightRouteRepository extends JpaRepository<FlightRoute, RouteI
                    "GROUP BY a.iata_code " +
                    "ORDER BY routeCount DESC",
             nativeQuery = true)
-    List<Object[]> findBusiestAirportsStatistics();
+        List<Object[]> findBusiestAirportsStatistics();
+
+    @Query("SELECT r FROM FlightRoute r WHERE r.routeStatus = 'ACTIVE' AND r.origin.iataCode.code = :originIata")
+        List<FlightRoute> findActiveRoutesByOrigin(@Param("originIata") String originIata);
 }

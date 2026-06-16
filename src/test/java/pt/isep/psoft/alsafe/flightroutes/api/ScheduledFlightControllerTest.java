@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -174,5 +175,51 @@ class ScheduledFlightControllerTest {
 
         mockMvc.perform(get("/api/scheduled-flights/123-456"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void ensureCancelFlightReturns200OK() throws Exception {
+        String flightNum = validFlight.getFlightNumber();
+        
+        validFlight.cancel();
+
+        when(scheduledFlightService.cancelFlight(eq(flightNum))).thenReturn(validFlight);
+
+        mockMvc.perform(patch("/api/scheduled-flights/" + flightNum + "/cancel"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.flightNumber").value(flightNum))
+                .andExpect(jsonPath("$.status").value("CANCELED"));
+    }
+
+    @Test
+    void ensureCancelFlightReturns409WhenAlreadyCanceled() throws Exception {
+        when(scheduledFlightService.cancelFlight("123-456"))
+                .thenThrow(new IllegalStateException("This flight is already canceled."));
+
+        mockMvc.perform(patch("/api/scheduled-flights/123-456/cancel"))
+                .andExpect(status().isConflict());
+    }
+
+    @Test
+    void ensureCancelFlightReturns404WhenNotFound() throws Exception {
+        when(scheduledFlightService.cancelFlight("nonexistent"))
+                .thenThrow(new ResourceNotFoundException("Scheduled flight not found."));
+
+        mockMvc.perform(patch("/api/scheduled-flights/nonexistent/cancel"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void ensureGetUpcomingDeparturesReturns200OK() throws Exception {
+        when(scheduledFlightService.getUpcomingDepartures(eq("OPO"), eq(24)))
+                .thenReturn(List.of(validFlight));
+
+        mockMvc.perform(get("/api/scheduled-flights/departures/OPO")
+                        .param("hours", "24"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].flightNumber").value(validFlight.getFlightNumber()))
+                .andExpect(jsonPath("$[0].destinationIata").value("MAD"))
+                .andExpect(jsonPath("$[0].aircraftModel").value("737"))
+                .andExpect(jsonPath("$[0].status").value("SCHEDULED"));
     }
 }

@@ -38,4 +38,14 @@ public interface ScheduledFlightRepository extends JpaRepository<ScheduledFlight
             @Param("now") LocalDateTime now,
             @Param("endWindow") LocalDateTime endWindow
     );
+
+    @Query("SELECT sf.route.routeId.id AS routeId, " +
+       "sf.route.origin.iataCode.code AS originIata, " +
+       "sf.route.destination.iataCode.code AS destinationIata, " +
+       "COUNT(sf) AS totalFlights " +
+       "FROM ScheduledFlight sf " +
+       "WHERE sf.status != 'CANCELED' " +
+       "GROUP BY sf.route.routeId.id, sf.route.origin.iataCode.code, sf.route.destination.iataCode.code " +
+       "ORDER BY COUNT(sf) DESC") 
+       List<Object[]> findRouteUtilizationReport();
 }

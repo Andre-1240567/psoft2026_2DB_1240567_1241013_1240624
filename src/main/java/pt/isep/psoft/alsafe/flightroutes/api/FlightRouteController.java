@@ -189,4 +189,23 @@ public class FlightRouteController {
 
         return ResponseEntity.ok(alternatives);
     }
+
+    @Operation(summary = "Bonus US229: Flight utilization report",
+            description = "Returns all routes ranked by number of scheduled (non-cancelled) flights. Requires BACKOFFICE_OPERATOR role.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Utilization report returned successfully"),
+        @ApiResponse(responseCode = "401", description = "Missing or invalid JWT token"),
+        @ApiResponse(responseCode = "403", description = "Insufficient role — BACKOFFICE_OPERATOR required")
+    })
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
+    @GetMapping("/reports/utilization")
+    public ResponseEntity<List<RouteUtilizationDTO>> getRouteUtilizationReport() {
+        List<RouteUtilizationDTO> report = flightRouteService.getRouteUtilizationReport();
+        report.forEach(dto -> dto.add(
+            linkTo(methodOn(FlightRouteController.class).getRouteById(dto.getRouteId())).withRel("route")
+        ));
+        return ResponseEntity.ok(report);
+    }
+
+    
 }
