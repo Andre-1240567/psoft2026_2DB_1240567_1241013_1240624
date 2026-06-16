@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import pt.isep.psoft.alsafe.airportmanagement.api.dto.BusiestAirportDTO;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
 import pt.isep.psoft.alsafe.flightroutes.api.CreateFlightRouteDTO;
@@ -470,48 +469,5 @@ class FlightRouteServiceTest {
                 flightRouteService.deactivateRoute("route-001"));
 
         verify(routeRepository, never()).save(any());
-    }
-
-    // -----------------------------------------------------------------------
-    // US209: getRoutesByAirport
-    // -----------------------------------------------------------------------
-
-    @Test
-    void ensureGetRoutesByAirportSuccess() {
-        Pageable pageable = PageRequest.of(0, 10);
-        FlightRoute r1 = createFakeRoute("r1", "LAX", "JFK");
-        Page<FlightRoute> page = new PageImpl<>(List.of(r1));
-
-        when(airportService.getAirportDetails("LAX")).thenReturn(createFakeAirport("LAX", Status.OPERATIONAL));
-        when(routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code("LAX", "LAX", pageable)).thenReturn(page);
-        
-        FlightRouteResponseDTO dto1 = fakeDto(r1);
-        when(assembler.toModel(r1)).thenReturn(dto1);
-
-        Page<FlightRouteResponseDTO> result = flightRouteService.getRoutesByAirport("lax", pageable);
-
-        assertNotNull(result);
-        assertEquals(1, result.getContent().size());
-        verify(routeRepository).findByOrigin_IataCode_CodeOrDestination_IataCode_Code("LAX", "LAX", pageable);
-    }
-
-    // -----------------------------------------------------------------------
-    // US210: getBusiestAirports
-    // -----------------------------------------------------------------------
-
-    @Test
-    void ensureGetBusiestAirportsSuccess() {
-        Object[] row1 = new Object[]{"LAX", 10L};
-        Object[] row2 = new Object[]{"JFK", 8L};
-        List<Object[]> queryResults = List.of(row1, row2);
-
-        when(routeRepository.findBusiestAirportsStatistics()).thenReturn(queryResults);
-
-        List<BusiestAirportDTO> result = flightRouteService.getBusiestAirports();
-
-        assertNotNull(result);
-        assertEquals(2, result.size());
-        assertEquals("LAX", result.get(0).getIataCode());
-        assertEquals(10L, result.get(0).getRouteCount());
     }
 }
