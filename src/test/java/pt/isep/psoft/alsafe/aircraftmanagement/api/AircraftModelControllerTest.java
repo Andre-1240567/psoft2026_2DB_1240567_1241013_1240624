@@ -77,4 +77,41 @@ class AircraftModelControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isConflict());
     }
+
+    @Test
+    @WithMockUser(roles = "BACKOFFICE_OPERATOR")
+    void ensureCreateAircraftModelReturns201Created() throws Exception {
+        CreateAircraftModelDTO dto = new CreateAircraftModelDTO();
+        dto.setManufacturer(Manufacturer.BOEING);
+        dto.setModelName("737 MAX");
+        dto.setSeatingCapacity(180);
+        dto.setFuelCapacity(26000.0);
+        dto.setMaxRange(6500.0);
+        dto.setCruisingSpeed(840.0);
+        dto.setImage(new byte[]{1, 2, 3});
+
+        when(aircraftModelService.createAircraftModel(any(CreateAircraftModelDTO.class))).thenReturn(mockModel);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post("/api/aircraft-models")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(1L));
+    }
+
+    @Test
+    @WithMockUser(roles = "BACKOFFICE_OPERATOR")
+    void ensureGetTopUtilizedModelsReturns200OK() throws Exception {
+        pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO topDto = 
+            new pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO(mockModel, 1000.0);
+
+        when(aircraftModelService.getTop5MostUtilizedModels("hours")).thenReturn(java.util.List.of(topDto));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/aircraft-models/top-utilized")
+                        .param("criteria", "hours")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].aircraftModel.modelName").value("737 MAX"))
+                .andExpect(jsonPath("$[0].utilizationValue").value(1000.0));
+    }
 }

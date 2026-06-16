@@ -411,6 +411,58 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "US206 - Calculate Total Operational Hours",
+      "item": [
+        {
+          "name": "Get Operational Hours",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response is an array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.be.an(\"array\");",
+                  "});",
+                  "pm.test(\"Array is sorted descending by hours\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    if(jsonData.length > 1) {",
+                  "        for(let i=0; i<jsonData.length-1; i++) {",
+                  "            pm.expect(jsonData[i].totalOperationalHours).to.be.at.least(jsonData[i+1].totalOperationalHours);",
+                  "        }",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/aircrafts/operational-hours",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "aircrafts",
+                "operational-hours"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "auth": {

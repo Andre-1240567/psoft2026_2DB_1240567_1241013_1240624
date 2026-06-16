@@ -1,5 +1,7 @@
-@startuml
+@startuml US205-SSD
 autonumber
+title System Sequence Diagram (SSD) - US205: Real-time Aircraft Availability Status
+
 actor "ATCC" as ATCC
 
 participant ":System" as SYS

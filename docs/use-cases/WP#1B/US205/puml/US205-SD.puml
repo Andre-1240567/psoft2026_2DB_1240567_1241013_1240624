@@ -1,5 +1,7 @@
-@startuml
+@startuml US205-SD
 autonumber
+title Sequence Diagram (SD) - US205: Real-time Aircraft Availability Status
+
 
 actor "ATCC" as ATCC
 participant ":AircraftController" as CTRL

@@ -79,4 +79,32 @@ class AircraftServiceTest {
             aircraftService.updateAircraftStatus("CS-TPA", "UNDER_MAINTENANCE", 99L);
         });
     }
+
+    @Test
+    void ensureGetAircraftStatusOverviewWorks() {
+        when(aircraftRepository.findAll()).thenReturn(java.util.List.of(mockAircraft));
+        
+        pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftStatusOverviewDTO overview = aircraftService.getAircraftStatusOverview();
+        
+        assertNotNull(overview);
+        assertEquals(1, overview.getTotalAvailable());
+        assertEquals(1, overview.getAircraftsByStatus().get("AVAILABLE").size());
+        assertEquals("CS-TPA", overview.getAircraftsByStatus().get("AVAILABLE").get(0).getRegistrationNumber());
+    }
+
+    @Test
+    void ensureGetAircraftsOperationalHoursWorksAndIsSorted() {
+        Aircraft a1 = new Aircraft("CS-TPA", mockModel, LocalDate.now(), "Economy");
+        a1.addFlightHours(100.0);
+        Aircraft a2 = new Aircraft("CS-TPB", mockModel, LocalDate.now(), "Economy");
+        a2.addFlightHours(200.0);
+        
+        when(aircraftRepository.findAll()).thenReturn(java.util.Arrays.asList(a1, a2));
+        
+        java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftOperationalHoursDTO> result = aircraftService.getAircraftsOperationalHours();
+        
+        assertEquals(2, result.size());
+        assertEquals("CS-TPB", result.get(0).getRegistrationNumber()); // 200.0 is greater
+        assertEquals("CS-TPA", result.get(1).getRegistrationNumber());
+    }
 }
