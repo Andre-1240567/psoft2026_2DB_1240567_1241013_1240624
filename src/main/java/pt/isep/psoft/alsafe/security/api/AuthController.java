@@ -1,6 +1,8 @@
 package pt.isep.psoft.alsafe.security.api;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +21,8 @@ public class AuthController {
 
     private final JwtUtils jwtUtils;
     private final SystemUserRepository userRepository;
-    private final PasswordEncoder passwordEncoder; // Use the interface
+    private final PasswordEncoder passwordEncoder;
 
-    // Inject PasswordEncoder here instead of using 'new'
     public AuthController(JwtUtils jwtUtils, SystemUserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.jwtUtils        = jwtUtils;
         this.userRepository  = userRepository;
@@ -29,15 +30,18 @@ public class AuthController {
     }
 
     @Operation(summary = "Login", description = "Authenticates a user and returns a JWT token.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Successfully authenticated. Returns the JWT token."),
+        @ApiResponse(responseCode = "400", description = "Invalid request body (e.g., missing username or password)."),
+        @ApiResponse(responseCode = "401", description = "Invalid credentials (incorrect username or password).")
+    })
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody AuthRequestDTO loginRequest) {
 
         Optional<SystemUser> userOpt = userRepository.findByUsername(loginRequest.getUsername());
 
-        // #5 — user must exist AND password must match the stored BCrypt hash
         if (userOpt.isEmpty() || !passwordEncoder.matches(loginRequest.getPassword(), userOpt.get().getPasswordHash())) {
-            // Optional tip: You could return a structured Error DTO here instead of a raw String if your frontend expects JSON
-            return ResponseEntity.status(401).body("Invalid credentials.");
+            throw new org.springframework.security.authentication.BadCredentialsException("Invalid credentials.");
         }
 
         SystemUser user = userOpt.get();

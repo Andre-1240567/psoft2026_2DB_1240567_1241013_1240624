@@ -54,8 +54,8 @@ class ScheduledFlightControllerTest {
 
     @BeforeEach
     void setUp() {
-        Airport origin = new Airport(new IATACode("OPO"), "OPO", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC"));
-        Airport dest = new Airport(new IATACode("MAD"), "MAD", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC"));
+        Airport origin = new Airport(new IATACode("OPO"), "OPO", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
+        Airport dest = new Airport(new IATACode("MAD"), "MAD", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
         FlightRoute route = new FlightRoute("route123", origin, dest, 500.0, 60, new RouteRequirement(1000.0, 100), "atcc");
 
         AircraftModel model = new AircraftModel(Manufacturer.BOEING, "737", 150, 10000.0, 5000.0, 800.0);

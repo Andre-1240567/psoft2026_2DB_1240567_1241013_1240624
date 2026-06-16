@@ -13,7 +13,6 @@ import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
 @Repository
 public interface ScheduledFlightRepository extends JpaRepository<ScheduledFlight, String> {
 
@@ -21,14 +20,9 @@ public interface ScheduledFlightRepository extends JpaRepository<ScheduledFlight
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT sf FROM ScheduledFlight sf WHERE sf.aircraft = :aircraft AND " +
-           "(sf.departureTime <= :bufferArrival AND sf.arrivalTime >= :bufferDeparture)")
+           "(sf.scheduledDeparture <= :bufferArrival AND sf.scheduledArrival >= :bufferDeparture)")
     List<ScheduledFlight> findOverlappingFlightsWithLock(
-            @Param("aircraft") pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft aircraft, 
-            @Param("bufferDeparture") java.time.LocalDateTime bufferDeparture, 
-            @Param("bufferArrival") java.time.LocalDateTime bufferArrival);
-    boolean existsByAircraftAndTimeRangeWithLock(
-            @Param("aircraft") Aircraft aircraft,
-            @Param("newDeparture") LocalDateTime newDeparture,
-            @Param("newArrival") LocalDateTime newArrival
-    );
+            @Param("aircraft") Aircraft aircraft, 
+            @Param("bufferDeparture") LocalDateTime bufferDeparture, 
+            @Param("bufferArrival") LocalDateTime bufferArrival);
 }

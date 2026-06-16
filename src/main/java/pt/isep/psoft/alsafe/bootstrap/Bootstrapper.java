@@ -3,6 +3,7 @@ package pt.isep.psoft.alsafe.bootstrap;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
@@ -58,6 +59,7 @@ public class Bootstrapper implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) throws Exception {
         System.out.println("Launching Bootstrapper...");
         bootstrapUsers();
@@ -141,7 +143,6 @@ public class Bootstrapper implements CommandLineRunner {
             System.out.println(" -> Flight Routes loaded.");
         }
     }
-
     private void bootstrapAircrafts() {
         if (aircraftRepository.count() == 0) {
             AircraftModel b737 = aircraftModelRepository.findByModelName("737 MAX").orElseThrow();

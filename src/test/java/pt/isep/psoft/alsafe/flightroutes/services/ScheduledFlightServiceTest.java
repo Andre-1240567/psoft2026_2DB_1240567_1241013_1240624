@@ -22,6 +22,8 @@ import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -49,11 +51,11 @@ class ScheduledFlightServiceTest {
 
     @BeforeEach
     void setUp() {
-        origin = new Airport(new IATACode("OPO"), "OPO", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC"));
+        origin = new Airport(new IATACode("OPO"), "OPO", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
         origin.changeStatus(Status.OPERATIONAL);
         origin.addCertification("Boeing 737");
 
-        dest = new Airport(new IATACode("MAD"), "MAD", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC"));
+        dest = new Airport(new IATACode("MAD"), "MAD", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
         dest.changeStatus(Status.OPERATIONAL);
         dest.addCertification("Boeing 737");
 
@@ -71,7 +73,10 @@ class ScheduledFlightServiceTest {
 
         when(flightRouteRepository.findById("route123")).thenReturn(Optional.of(activeRoute));
         when(aircraftRepository.findById("CS-TPA")).thenReturn(Optional.of(availableAircraft));
-        when(scheduledFlightRepository.existsByAircraftAndTimeRangeWithLock(any(), any(), any())).thenReturn(false);
+        
+        // CORREÇÃO: Fazer mock do novo método devolvendo uma lista vazia (sem colisão)
+        when(scheduledFlightRepository.findOverlappingFlightsWithLock(any(), any(), any())).thenReturn(Collections.emptyList());
+        
         when(scheduledFlightRepository.save(any(ScheduledFlight.class))).thenAnswer(i -> i.getArguments()[0]);
 
         ScheduledFlight flight = scheduledFlightService.scheduleFlight("route123", "CS-TPA", departure, arrival);
@@ -131,12 +136,14 @@ class ScheduledFlightServiceTest {
         when(flightRouteRepository.findById("route123")).thenReturn(Optional.of(activeRoute));
         when(aircraftRepository.findById("CS-TPA")).thenReturn(Optional.of(availableAircraft));
         
-        when(scheduledFlightRepository.existsByAircraftAndTimeRangeWithLock(any(), any(), any())).thenReturn(true);
+        // CORREÇÃO: Fazer mock do novo método simulando uma colisão (devolve uma lista com 1 elemento)
+        ScheduledFlight dummyConflict = new ScheduledFlight(activeRoute, availableAircraft, departure.minusMinutes(10), arrival.minusMinutes(10));
+        when(scheduledFlightRepository.findOverlappingFlightsWithLock(any(), any(), any())).thenReturn(List.of(dummyConflict));
 
         IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
                 scheduledFlightService.scheduleFlight("route123", "CS-TPA", departure, arrival));
 
-        assertTrue(ex.getMessage().contains("already scheduled for another flight"));
+        assertTrue(ex.getMessage().contains("already scheduled"));
     }
 
     @Test

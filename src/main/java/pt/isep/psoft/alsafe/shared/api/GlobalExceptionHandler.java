@@ -67,4 +67,12 @@ public class GlobalExceptionHandler {
         errorResponse.put("error", "Malformed JSON request or invalid data type/enum value provided.");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
+    
+    // 401 — Authentication Failures
+    @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentialsException(org.springframework.security.authentication.BadCredentialsException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("error", "Invalid credentials.");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
 }
