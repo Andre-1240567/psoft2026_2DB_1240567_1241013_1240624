@@ -20,8 +20,8 @@ ACTIVE --> DEACTIVATED : US112: Deactivate Route\n[action requested]
 DEACTIVATED --> [*] : End of mutating lifecycle
 
 note right of ACTIVE
-  Every state transition implicitly
-  triggers US111 (Track Route History)
+  Every state transition implicitly triggers
+  the RouteHistory log (US111)
 end note
 
 @enduml

@@ -1,9 +1,9 @@
-@startuml
+@startuml US110-CD
 skinparam classAttributeIconSize 0
 
-package "pt.isep.psoft.alsafe.flightroutes.api" {
+package "api" {
     class FlightRouteController {
-        + createRoute(dto: CreateFlightRouteDTO): ResponseEntity
+        + createRoute(dto: CreateFlightRouteDTO): ResponseEntity<FlightRouteResponseDTO>
     }
     class CreateFlightRouteDTO {
         - originIata: String
@@ -13,54 +13,52 @@ package "pt.isep.psoft.alsafe.flightroutes.api" {
         - minRangeRequired: Double
         - minCapacityRequired: Integer
     }
+    class FlightRouteResponseDTO
 }
 
-package "pt.isep.psoft.alsafe.flightroutes.services" {
+package "services" {
     class FlightRouteService {
-        + createFlightRoute(dto: CreateFlightRouteDTO): FlightRouteResponseDTO
+        + createFlightRoute(dto: CreateFlightRouteDTO): FlightRoute
     }
 }
 
-package "pt.isep.psoft.alsafe.airportmanagement.services" {
+package "airportmanagement.services" {
     class AirportService {
         + getAirportDetails(iata: String): Airport
     }
 }
 
-package "pt.isep.psoft.alsafe.flightroutes.repositories" {
+package "repositories" {
     interface FlightRouteRepository {
         + save(route: FlightRoute): FlightRoute
     }
 }
 
-package "pt.isep.psoft.alsafe.flightroutes.domain" {
-    class FlightRoute {
-        - routeId: RouteId
-        - version: Long
+package "domain" {
+    class FlightRoute <<Aggregate Root>> <<Entity>> {
         - distance: Double
         - estimatedFlightTime: Integer
-        - routeStatus: RouteStatus
+        - version: Long
         + FlightRoute(id: String, origin: Airport, dest: Airport, distance: Double, time: Integer, req: RouteRequirement, author: String)
     }
-    
-    class RouteId <<Value Object>> {
-        - id: String
-        + RouteId(id: String)
-    }
-    
-    class RouteRequirement <<Value Object>> {
-        - minRangeRequired: Double
-        - minCapacityRequired: Integer
-        + RouteRequirement(range: Double, capacity: Integer)
+    class RouteId <<Value Object>>
+    class RouteRequirement <<Value Object>>
+    class RouteHistory <<Value Object>>
+    enum RouteStatus <<Enum>> {
+        ACTIVE
+        DEACTIVATED
     }
 }
 
-FlightRouteController .right.> CreateFlightRouteDTO
-FlightRouteController --> FlightRouteService : uses
+FlightRouteController ..> CreateFlightRouteDTO
+FlightRouteController ..> FlightRouteResponseDTO
+FlightRouteController --> FlightRouteService : delegates to
 FlightRouteService --> AirportService : uses
 FlightRouteService --> FlightRouteRepository : uses
 FlightRouteService ..> FlightRoute : creates
 FlightRoute "1" *-- "1" RouteId : identified by >
-FlightRoute "1" *-- "1" RouteRequirement : contains >
+FlightRoute "1" *-- "1" RouteRequirement : defined by >
+FlightRoute "1" *-- "0..*" RouteHistory : tracked by >
+FlightRoute "1" *-- "1" RouteStatus : current status >
 
 @enduml

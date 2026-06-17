@@ -1,13 +1,13 @@
-@startuml
+@startuml US111-SD
 autonumber
 actor "ATCC" as ATCC
-participant ":FlightRouteController" as Ctrl
-participant ":FlightRouteService" as Service
-participant "routeRepository\n:FlightRouteRepository" as Repo
+participant "FlightRouteController" as Ctrl
+participant "FlightRouteService" as Service
+participant "FlightRouteRepository" as Repo
 participant "route\n:FlightRoute" as Route
 
 activate ATCC
-ATCC -> Ctrl: GET /api/flight-routes/{id}/history
+ATCC -> Ctrl: GET /api/flight-routes/{routeId}/history
 activate Ctrl
 
 Ctrl -> Service: getRouteHistory(routeId)
@@ -19,17 +19,27 @@ note right of Repo: LEFT JOIN FETCH r.history\navoids LazyInitializationExceptio
 Repo --> Service: Optional<FlightRoute>
 deactivate Repo
 
-note right of Service: throws ResourceNotFoundException (404)\nif route not found
+alt route not found
+    Service --> Ctrl: throws ResourceNotFoundException
+    Ctrl --> ATCC: 404 Not Found
+else route exists
+    Service -> Route: getHistory()
+    activate Route
+    Route --> Service: List<RouteHistory>
+    deactivate Route
 
-Service -> Route: getHistory()
-activate Route
-Route --> Service: List<RouteHistory>
-deactivate Route
+    Service --> Ctrl: List<RouteHistory>
+    deactivate Service
 
-Service --> Ctrl: List<RouteHistoryDTO>
-deactivate Service
+    loop for each RouteHistory
+        Ctrl -> Ctrl: map to RouteHistoryDTO
+    end
+    
+    Ctrl -> Ctrl: add HATEOAS links to response
 
-Ctrl --> ATCC: 200 OK (List<RouteHistoryDTO>)
+    Ctrl --> ATCC: 200 OK (List<RouteHistoryDTO>)
+end
+
 deactivate Ctrl
 deactivate ATCC
 

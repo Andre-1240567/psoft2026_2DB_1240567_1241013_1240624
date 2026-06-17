@@ -1,54 +1,52 @@
-@startuml
+@startuml US114-SD
 autonumber
-actor "ATCC" as Actor
-participant ":FlightRouteController" as Ctrl
-participant ":FlightRouteService" as Service
-participant "routeRepository\n:FlightRouteRepository" as Repo
+actor "ATCC / BO" as Actor
+participant "FlightRouteController" as Ctrl
+participant "FlightRouteService" as Service
+participant "FlightRouteRepository" as Repo
+participant "PagedResourcesAssembler" as PagedAssembler
 
 activate Actor
-
-group Get route by ID
-Actor -> Ctrl: GET /api/flight-routes/{id}
+Actor -> Ctrl: GET /api/flight-routes?originIata={O}&destinationIata={D}&page=0&size=10
 activate Ctrl
 
-Ctrl -> Service: getRouteById(id)
+Ctrl -> Service: searchRoutes(originIata, destinationIata, pageable)
 activate Service
 
-Service -> Repo: findByIdWithHistory(routeId)
-activate Repo
-note right of Repo: LEFT JOIN FETCH r.history\nloads history in one query
-Repo --> Service: Optional<FlightRoute>
-deactivate Repo
+note right of Service: IATA codes are sanitized\n(uppercased) before querying
 
-note right of Service: throws ResourceNotFoundException (404)\nif not found
-
-Service --> Ctrl: FlightRouteResponseDTO
-deactivate Service
-
-Ctrl --> Actor: 200 OK (FlightRouteResponseDTO)
-deactivate Ctrl
+alt originIata != null && destinationIata != null
+    Service -> Repo: findByOrigin_IataCode_CodeAndDestination_IataCode_Code(origin, dest, pageable)
+    activate Repo
+    Repo --> Service: Page<FlightRoute>
+    deactivate Repo
+else originIata != null
+    Service -> Repo: findByOrigin_IataCode_Code(origin, pageable)
+    activate Repo
+    Repo --> Service: Page<FlightRoute>
+    deactivate Repo
+else destinationIata != null
+    Service -> Repo: findByDestination_IataCode_Code(dest, pageable)
+    activate Repo
+    Repo --> Service: Page<FlightRoute>
+    deactivate Repo
+else neither provided
+    Service -> Repo: findAll(pageable)
+    activate Repo
+    Repo --> Service: Page<FlightRoute>
+    deactivate Repo
 end
 
-group Search routes from a specific airport
-Actor -> Ctrl: GET /api/flight-routes?originIata=XXX&page=0&size=10
-activate Ctrl
-
-Ctrl -> Service: searchRoutes(originIata, null, pageable)
-activate Service
-
-Service -> Repo: findByOrigin_IataCode_Code(originIata, pageable)
-activate Repo
-Repo --> Service: Page<FlightRoute>
-deactivate Repo
-
-note right of Service: each FlightRoute mapped to\nFlightRouteResponseDTO inside\nthe open @Transactional boundary
-
-Service --> Ctrl: Page<FlightRouteResponseDTO>
+Service --> Ctrl: Page<FlightRoute>
 deactivate Service
 
-Ctrl --> Actor: 200 OK (PagedModel<EntityModel<FlightRouteResponseDTO>>)
-deactivate Ctrl
-end
+Ctrl -> PagedAssembler: toModel(page, flightRouteModelAssembler)
+activate PagedAssembler
+note right of PagedAssembler: Maps entities to DTOs using your Assembler,\nand appends HATEOAS pagination links\n(self, next, prev, first, last)
+PagedAssembler --> Ctrl: PagedModel<EntityModel<FlightRouteResponseDTO>>
+deactivate PagedAssembler
 
+Ctrl --> Actor: 200 OK (PagedModel)
+deactivate Ctrl
 deactivate Actor
 @enduml

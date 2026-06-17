@@ -1,18 +1,19 @@
-@startuml
+@startuml US114-SD
 autonumber
-actor "ATCC" as Actor
-participant ":FlightRouteController" as Ctrl
-participant ":FlightRouteService" as Service
-participant "routeRepository\n:FlightRouteRepository" as Repo
+actor "ATCC / BO" as Actor
+participant "FlightRouteController" as Ctrl
+participant "FlightRouteService" as Service
+participant "FlightRouteRepository" as Repo
+participant "PagedResourcesAssembler" as PagedAssembler
 
 activate Actor
-Actor -> Ctrl: GET /api/flight-routes?originIata={iata}&destinationIata={iata}
+Actor -> Ctrl: GET /api/flight-routes?originIata={O}&destinationIata={D}&page=0&size=10
 activate Ctrl
 
 Ctrl -> Service: searchRoutes(originIata, destinationIata, pageable)
 activate Service
 
-note right of Service: IATA codes uppercased\nbefore querying
+note right of Service: IATA codes are sanitized\n(uppercased) before querying
 
 alt originIata != null && destinationIata != null
     Service -> Repo: findByOrigin_IataCode_CodeAndDestination_IataCode_Code(origin, dest, pageable)
@@ -36,12 +37,16 @@ else neither provided
     deactivate Repo
 end
 
-note right of Service: resultPage.map(FlightRouteResponseDTO::new)\nexecuted inside @Transactional boundary
-
-Service --> Ctrl: Page<FlightRouteResponseDTO>
+Service --> Ctrl: Page<FlightRoute>
 deactivate Service
 
-Ctrl --> Actor: 200 OK (PagedModel<EntityModel<FlightRouteResponseDTO>>)
+Ctrl -> PagedAssembler: toModel(page, flightRouteModelAssembler)
+activate PagedAssembler
+note right of PagedAssembler: Maps entities to DTOs using your Assembler,\nand appends HATEOAS pagination links\n(self, next, prev, first, last)
+PagedAssembler --> Ctrl: PagedModel<EntityModel<FlightRouteResponseDTO>>
+deactivate PagedAssembler
+
+Ctrl --> Actor: 200 OK (PagedModel)
 deactivate Ctrl
 deactivate Actor
 @enduml

@@ -1,17 +1,20 @@
-@startuml
+@startuml US110-SSD
 autonumber
 actor "ATCC" as ATCC
-participant ":System" as System
+participant "AISafe System" as System
 
 activate ATCC
-ATCC -> System: initiates the creation of a new flight route
+ATCC -> System: POST /api/flight-routes (origin, destination, distance, time, requirements)
 activate System
-System --> ATCC: requests necessary data (origin IATA, destination IATA, distance, flight time, min. range, min. capacity)
-deactivate System
 
-ATCC -> System: inputs the requested data
-activate System
-System --> ATCC: confirms flight route creation and returns the route details (201 Created)
+alt Airports are valid and OPERATIONAL
+    System --> ATCC: 201 Created (Flight Route Details + HATEOAS links)
+else Airports do not exist
+    System --> ATCC: 404 Not Found
+else Airports not OPERATIONAL / Invalid Payload
+    System --> ATCC: 400 Bad Request
+end
+
 deactivate System
 deactivate ATCC
 @enduml

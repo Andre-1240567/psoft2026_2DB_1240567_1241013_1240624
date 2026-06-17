@@ -5,8 +5,10 @@ participant "AISafe System" as System
 
 ATCC -> System : GET /api/flight-routes/network/total-distance
 
-alt Missing or invalid JWT / Insufficient Role
-    System --> ATCC : 401 Unauthorized / 403 Forbidden
+alt missing or invalid JWT
+    System --> ATCC : 401 Unauthorized
+else insufficient role (not ATCC)
+    System --> ATCC : 403 Forbidden
 else valid request
     System --> ATCC : 200 OK\n{ "totalDistance": 12500.5 }
 end
