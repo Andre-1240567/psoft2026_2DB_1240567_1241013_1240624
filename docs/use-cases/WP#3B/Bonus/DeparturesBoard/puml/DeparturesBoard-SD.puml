@@ -1,0 +1,39 @@
+@startuml DeparturesBoard-SD
+
+participant "ScheduledFlightController" as Controller
+participant "ScheduledFlightService" as Service
+participant "AirportRepository" as AirportRepo
+participant "ScheduledFlightRepository" as FlightRepo
+
+Controller -> Service : getUpcomingDepartures(iata, hours)
+
+Service -> Service : validate hours > 0
+Service -> AirportRepo : findByIataCode_Code(iata.toUpperCase())
+AirportRepo --> Service : Optional<Airport>
+
+alt airport not found
+    Service --> Controller : throws ResourceNotFoundException
+    Controller --> "ATCC / BO" : 404 Not Found
+else airport exists
+    Service -> Service : calculate 'now' and 'endWindow'
+    
+    Service -> FlightRepo : findUpcomingDepartures(iata, now, endWindow)
+    note right of FlightRepo
+        JPQL: SELECT sf FROM ScheduledFlight sf 
+        WHERE sf.route.origin.iataCode.code = :iata 
+        AND sf.status != 'CANCELED' 
+        AND sf.scheduledDeparture BETWEEN :now AND :endWindow 
+        ORDER BY sf.scheduledDeparture ASC
+    end note
+    FlightRepo --> Service : List<ScheduledFlight>
+    
+    Service --> Controller : List<ScheduledFlight>
+    
+    loop for each flight
+        Controller -> Controller : map to new DeparturesBoardResponseDTO(...)
+    end
+    
+    Controller --> "ATCC / BO" : 200 OK\nList<DeparturesBoardResponseDTO>
+end
+
+@enduml

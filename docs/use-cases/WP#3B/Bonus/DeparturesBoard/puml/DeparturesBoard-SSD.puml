@@ -1,0 +1,16 @@
+@startuml DeparturesBoard-SSD
+
+actor "User\n(ATCC / BO)" as User
+participant "AISafe System" as System
+
+User -> System : GET /api/scheduled-flights/departures/{iata}?hours={hours}
+
+alt hours <= 0
+    System --> User : 400 Bad Request\n"The time window must be greater than zero hours."
+else airport not found
+    System --> User : 404 Not Found\n"Airport not found with IATA code"
+else valid request
+    System --> User : 200 OK\nList<DeparturesBoardResponseDTO>\n(Ordered by departure time)
+end
+
+@enduml

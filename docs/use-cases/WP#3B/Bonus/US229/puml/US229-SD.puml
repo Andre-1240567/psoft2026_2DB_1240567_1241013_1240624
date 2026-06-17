@@ -1,0 +1,31 @@
+@startuml US229-SD
+
+participant "FlightRouteController" as Controller
+participant "FlightRouteService" as Service
+participant "ScheduledFlightRepository" as Repo
+
+Controller -> Service : getRouteUtilizationReport()
+
+Service -> Repo : findRouteUtilizationReport()
+note right of Repo
+    JPQL: SELECT ... COUNT(sf)
+    FROM ScheduledFlight sf 
+    WHERE sf.status != 'CANCELED' 
+    GROUP BY route
+    ORDER BY COUNT(sf) DESC
+end note
+Repo --> Service : List<Object[]> (raw projection data)
+
+loop for each Object[] row
+    Service -> Service : map to new RouteUtilizationDTO(...)
+end
+
+Service --> Controller : List<RouteUtilizationDTO>
+
+loop for each RouteUtilizationDTO
+    Controller -> Controller : add HATEOAS link (rel="route")
+end
+
+Controller --> "Backoffice Operator" : 200 OK\nList<RouteUtilizationDTO>
+
+@enduml

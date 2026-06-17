@@ -1,0 +1,51 @@
+@startuml US216-CD
+
+package "api" {
+    class FlightRouteController {
+        + getAlternativeRoutes(originIata, destinationIata, algorithm): ResponseEntity
+    }
+    class AlternativeRouteResponseDTO {
+        - routeLegs: List<FlightRouteResponseDTO>
+        - totalDistance: Double
+        - totalEstimatedFlightTime: Integer
+        - numberOfStops: Integer
+    }
+}
+
+package "services" {
+    class FlightRouteService {
+        + findAlternativeRoutes(origin, dest, algorithm): List<AlternativeRouteResponseDTO>
+    }
+    class AirportService {
+        + getAirportDetails(iata): Airport
+    }
+    package "routing" {
+        interface AlternativeRoutingStrategy {
+            + findAlternatives(origin, dest): List<List<FlightRoute>>
+            + getAlgorithmName(): String
+        }
+        class FewestStopsRoutingStrategy {
+            + findAlternatives(origin, dest): List<List<FlightRoute>>
+        }
+        class EcoFriendlyRoutingStrategy {
+            + findAlternatives(origin, dest): List<List<FlightRoute>>
+        }
+    }
+}
+
+package "repositories" {
+    interface FlightRouteRepository {
+        + findAll(): List<FlightRoute>
+    }
+}
+
+FlightRouteController ..> FlightRouteService : delegates to
+FlightRouteService "1" *-- "0..*" AlternativeRoutingStrategy : injects List
+FlightRouteService ..> AirportService : uses
+AlternativeRoutingStrategy <|.. FewestStopsRoutingStrategy : implements
+AlternativeRoutingStrategy <|.. EcoFriendlyRoutingStrategy : implements
+FewestStopsRoutingStrategy ..> FlightRouteRepository : uses
+EcoFriendlyRoutingStrategy ..> FlightRouteRepository : uses
+FlightRouteController ..> AlternativeRouteResponseDTO : produces
+
+@enduml

@@ -1,0 +1,21 @@
+@startuml US215-SD
+
+participant "FlightRouteController" as Controller
+participant "FlightRouteService" as Service
+participant "FlightRouteRepository" as Repo
+
+Controller -> Service : getTotalNetworkDistance()
+
+Service -> Repo : calculateTotalNetworkDistance(RouteStatus.ACTIVE)
+note right of Repo
+    JPQL: SELECT COALESCE(SUM(r.distance), 0.0) 
+    FROM FlightRoute r WHERE r.routeStatus = :status
+end note
+Repo --> Service : Double (totalDistance)
+
+Service --> Controller : totalDistance
+
+Controller -> Controller : Map.of("totalDistance", totalDistance)
+Controller --> "ATCC" : 200 OK\nMap<String, Double>
+
+@enduml

@@ -1,0 +1,16 @@
+@startuml CancelFlight-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+ATCC -> System : PATCH /api/scheduled-flights/{flightNumber}/cancel
+
+alt flight not found
+    System --> ATCC : 404 Not Found\n"Scheduled flight not found"
+else flight is already canceled or completed
+    System --> ATCC : 409 Conflict\n"Cannot cancel a completed/canceled flight"
+else successful cancellation
+    System --> ATCC : 200 OK\nScheduledFlightResponseDTO\n(status changed to 'CANCELED')
+end
+
+@enduml

@@ -1,0 +1,39 @@
+@startuml CancelFlight-SD
+
+participant "ScheduledFlightController" as Controller
+participant "ScheduledFlightService" as Service
+participant "ScheduledFlightRepository" as Repo
+participant "flight: ScheduledFlight" as Domain
+participant "ScheduledFlightModelAssembler" as Assembler
+
+Controller -> Service : cancelFlight(flightNumber)
+
+Service -> Repo : findById(flightNumber)
+Repo --> Service : Optional<ScheduledFlight>
+
+alt flight not found
+    Service --> Controller : throws ResourceNotFoundException
+    Controller --> "ATCC" : 404 Not Found
+else flight exists
+    Service -> Domain : cancel()
+    
+    alt status == CANCELED || status == COMPLETED
+        Domain --> Service : throws IllegalStateException
+        Service --> Controller : catches exception
+        Controller --> "ATCC" : 409 Conflict
+    else valid state transition
+        Domain -> Domain : this.status = FlightStatus.CANCELED
+        
+        Service -> Repo : save(flight)
+        Repo --> Service : ScheduledFlight (updated)
+        
+        Service --> Controller : ScheduledFlight
+        
+        Controller -> Assembler : toModel(flight)
+        Assembler --> Controller : ScheduledFlightResponseDTO\n(with HATEOAS links)
+        
+        Controller --> "ATCC" : 200 OK\nScheduledFlightResponseDTO
+    end
+end
+
+@enduml
