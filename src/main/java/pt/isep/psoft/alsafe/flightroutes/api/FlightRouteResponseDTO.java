@@ -9,10 +9,6 @@ import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import java.time.LocalDateTime;
 import java.util.List;
 
-/**
- * Pure data-carrier DTO. HATEOAS links are added by FlightRouteModelAssembler,
- * following the Single Responsibility Principle.
- */
 @Getter
 public class FlightRouteResponseDTO extends RepresentationModel<FlightRouteResponseDTO> {
 

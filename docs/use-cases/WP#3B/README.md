@@ -30,11 +30,18 @@ It builds upon the foundation established in WP#3A.
 These features were implemented beyond the assignment scope to demonstrate
 extended domain coverage and architectural depth.
 
-* **[Bonus - Cancel Scheduled Flight](./Bonus/CancelFlight.md):** Allows an ATCC to cancel
+* **[US228 - Export Route Network Data](./Bonus/US228/README.md):** Allows a BACKOFFICE_OPERATOR 
+  to export all active routes in standard aviation geographical formats (GeoJSON or KML).
+
+* **[US229 - Flight Utilization Report](./Bonus/US229/README.md):** Generates a report ranking 
+  all routes by the number of scheduled (non-cancelled) flights, assisting the BACKOFFICE_OPERATOR 
+  in analyzing network popularity.
+
+* **[Bonus - Cancel Scheduled Flight](./Bonus/CancelFlight/README.md):** Allows an ATCC to cancel
   a scheduled flight, freeing the aircraft for reassignment. Cancelled flights are excluded
   from overlap detection queries (Pessimistic Lock query updated accordingly).
 
-* **[Bonus - Departures Board](./Bonus/DeparturesBoard.md):** Returns upcoming departures
+* **[Bonus - Departures Board](./Bonus/DeparturesBoard/README.md):** Returns upcoming departures
   from a specific airport within a configurable time window (default: 24h).
 
 ## 4. Non-Functional Requirements
@@ -58,3 +65,16 @@ extended domain coverage and architectural depth.
 ### State Machine Diagram — ScheduledFlight
 Details the lifecycle of a `ScheduledFlight`: `SCHEDULED` → `CANCELED` or `COMPLETED`.
 ![WP3B State Machine Diagram](svg/WP%233B-SMD.svg)
+
+## 6. Test Coverage
+
+Unit tests were written for all service, domain, and routing strategy classes.
+Full coverage report available in [quality-assurance/](./quality-assurance/README.md).
+
+| Package | Instruction Coverage | Branch Coverage |
+|---|---|---|
+| flightroutes.services | 100% | 100% |
+| flightroutes.domain | 100% | 100% |
+| flightroutes.api | 100% | 100% |
+| flightroutes.services.routing | 100% | 100% |
+| flightroutes.services.strategy | 100% | 100% |

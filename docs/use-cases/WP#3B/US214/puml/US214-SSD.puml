@@ -1,0 +1,14 @@
+@startuml US214-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+ATCC -> System : GET /api/flight-routes?sortBy={popularity|distance}\n&status={ACTIVE}&page={p}&size={s}
+
+alt sortBy is invalid (not popularity or distance)
+    System --> ATCC : 400 Bad Request\n"Invalid sort parameter. Use 'popularity' or 'distance'."
+else valid request
+    System --> ATCC : 200 OK\nPagedModel<FlightRouteResponseDTO>\n(with pagination + HATEOAS links)
+end
+
+@enduml

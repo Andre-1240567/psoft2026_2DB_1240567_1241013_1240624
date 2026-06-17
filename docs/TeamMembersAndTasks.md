@@ -4,11 +4,11 @@
 
 The team consists of the students listed in the table below.
 
-| Student Number	 | Name            |
+| Student Number  | Name            |
 |-----------------|-----------------|
 | **1240567**     | André Moreira   |
 | **1241013**     | Afonso Sobreiro |
-| **1240624**      | José Alves      |
+| **1240624**     | José Alves      |
 
 
 # 2. Task Distribution ###
@@ -32,4 +32,11 @@ The team consists of the students listed in the table below.
 | US111: Keep track of route history                                | 1240624 |         |
 | US112: Update or deactivate a route                               | 1240624 |         |
 | US113: View routes from a specific airport & route details        | 1240624 |         |
-| US114: Search for routes by origin, destination, or both          | 1240624 |         |
+| US212: Assign an aircraft to a route                              | 1240624 |         |
+| US213: View all scheduled flights for a specific aircraft         | 1240624 |         |
+| US214: List all active routes sorted by popularity or distance    | 1240624 |         |
+| US215: Calculate the total distance covered by all routes         | 1240624 |         |
+| US216: Search for alternative routes between two airports         | 1240624 |         |
+| US228: Export route network data in standard aviation formats     | 1240624 |         |
+| US229: Generate flight utilization reports                        | 1240624 |         |
+| USxxx:                                                            | 12xxxxx |         |

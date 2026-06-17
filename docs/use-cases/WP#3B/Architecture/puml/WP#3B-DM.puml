@@ -1,0 +1,76 @@
+@startuml WP#3B-DM
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "flightroutes.domain" {
+
+    class FlightRoute <<Entity>> {
+        - routeId : RouteId <<EmbeddedId>>
+        - distance : Double
+        - estimatedFlightTime : Integer
+        - routeStatus : RouteStatus
+        - version : Long
+        --
+        + createRoute(...)
+        + deactivate(author)
+        + updateDetails(...)
+    }
+
+    class ScheduledFlight <<Entity>> {
+        - flightNumber : String <<Id, UUID>>
+        - scheduledDeparture : LocalDateTime
+        - scheduledArrival : LocalDateTime
+        - status : FlightStatus
+        - version : Long
+        --
+        + cancel()
+    }
+
+    class RouteRequirement <<ValueObject>> {
+        - minRangeRequired : Double
+        - minCapacityRequired : Integer
+    }
+
+    class RouteHistory <<ValueObject>> {
+        - description : String
+        - author : String
+        - timestamp : LocalDateTime
+    }
+
+    class RouteId <<ValueObject>> {
+        - id : String
+    }
+
+    enum RouteStatus <<Enumeration>> {
+        ACTIVE
+        DEACTIVATED
+    }
+
+    enum FlightStatus <<Enumeration>> {
+        SCHEDULED
+        CANCELED
+        COMPLETED
+    }
+}
+
+package "airportmanagement.domain" {
+    class Airport <<Entity>>
+}
+
+package "aircraftmanagement.domain" {
+    class Aircraft <<Entity>>
+}
+
+FlightRoute "1" *-- "1" RouteRequirement : has
+FlightRoute "1" *-- "1..*" RouteHistory : history
+FlightRoute "1" *-- "1" RouteId : identified by
+FlightRoute --> RouteStatus : has status
+
+FlightRoute "1" --> "2" Airport : origin / destination
+FlightRoute "1" <-- "0..*" ScheduledFlight : scheduled on
+
+ScheduledFlight "0..*" --> "1" Aircraft : assigned to
+ScheduledFlight --> FlightStatus : has status
+
+@enduml

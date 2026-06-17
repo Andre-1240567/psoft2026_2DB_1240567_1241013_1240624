@@ -1,0 +1,29 @@
+@startuml US213-SD
+
+participant "ScheduledFlightController" as Controller
+participant "ScheduledFlightService" as Service
+participant "AircraftRepository" as AircraftRepo
+participant "ScheduledFlightRepository" as FlightRepo
+participant "ScheduledFlightModelAssembler" as Assembler
+
+Controller -> Service : getScheduledFlightsByAircraft(registration)
+
+Service -> AircraftRepo : existsById(registration)
+AircraftRepo --> Service : boolean
+
+alt aircraft not found
+    Service --> Controller : throws ResourceNotFoundException
+    Controller --> "ATCC" : 404 Not Found
+else aircraft exists
+    Service -> FlightRepo : findByAircraft_RegistrationNumber(registration)
+    FlightRepo --> Service : List<ScheduledFlight>
+
+    Service --> Controller : List<ScheduledFlight>
+
+    Controller -> Assembler : toCollectionModel(flights)
+    Assembler --> Controller : CollectionModel<ScheduledFlightResponseDTO>\n(with self + all-aircraft-flights links)
+
+    Controller --> "ATCC" : 200 OK\nCollectionModel<ScheduledFlightResponseDTO>
+end
+
+@enduml

@@ -1,0 +1,22 @@
+@startuml WP#3B-SMD
+
+skinparam state {
+    BackgroundColor LightGray
+    BorderColor DarkGray
+    FontStyle bold
+}
+
+title ScheduledFlight — State Machine Diagram
+
+[*] --> SCHEDULED : new ScheduledFlight()\n[departure < arrival,\n no overlap, route ACTIVE,\n aircraft AVAILABLE]
+
+SCHEDULED --> CANCELED : cancel()\n[status != COMPLETED]
+SCHEDULED --> COMPLETED : system marks\nflight as completed
+
+CANCELED --> [*]
+COMPLETED --> [*]
+
+CANCELED : cancel() throws\nIllegalStateException
+COMPLETED : cancel() throws\nIllegalStateException
+
+@enduml

@@ -1,0 +1,32 @@
+@startuml US212-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+ATCC -> System : POST /api/scheduled-flights\n{routeId, aircraftRegistration,\ndepartureTime, arrivalTime}
+
+alt arrival <= departure
+    System --> ATCC : 400 Bad Request\n"Arrival time must be after departure time."
+else route not found
+    System --> ATCC : 404 Not Found\n"Flight Route not found"
+else aircraft not found
+    System --> ATCC : 404 Not Found\n"Aircraft not found"
+else route is DEACTIVATED
+    System --> ATCC : 409 Conflict\n"Cannot schedule on a deactivated route"
+else airports not operational
+    System --> ATCC : 409 Conflict\n"Airports must be operational"
+else airport not certified for aircraft model
+    System --> ATCC : 409 Conflict\n"Airport not certified for aircraft model"
+else aircraft range insufficient
+    System --> ATCC : 400 Bad Request\n"Aircraft maximum range is insufficient"
+else aircraft capacity insufficient
+    System --> ATCC : 400 Bad Request\n"Aircraft active capacity is insufficient"
+else aircraft not AVAILABLE
+    System --> ATCC : 409 Conflict\n"Aircraft not available for scheduling"
+else time overlap detected
+    System --> ATCC : 409 Conflict\n"Aircraft already scheduled"
+else all validations pass
+    System --> ATCC : 201 Created\n{flightNumber, routeId,\naircraftRegistration,\nscheduledDeparture,\nscheduledArrival, status, _links}
+end
+
+@enduml

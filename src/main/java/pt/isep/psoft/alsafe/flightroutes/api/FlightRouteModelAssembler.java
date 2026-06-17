@@ -8,13 +8,6 @@ import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-/**
- * Assembler responsible for converting FlightRoute domain entities into
- * FlightRouteResponseDTO representations with HATEOAS links.
- *
- * Separating link-building from the DTO itself follows the Single Responsibility
- * Principle and keeps the DTO as a pure data carrier.
- */
 @Component
 public class FlightRouteModelAssembler
         extends RepresentationModelAssemblerSupport<FlightRoute, FlightRouteResponseDTO> {

@@ -1,0 +1,14 @@
+@startuml US213-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+ATCC -> System : GET /api/scheduled-flights/aircraft/{registration}
+
+alt aircraft not found
+    System --> ATCC : 404 Not Found\n"Aircraft not found"
+else success
+    System --> ATCC : 200 OK\nCollectionModel<ScheduledFlightResponseDTO>\n(with HATEOAS links)
+end
+
+@enduml
