@@ -1,0 +1,16 @@
+@startuml US228-SSD
+
+actor "Backoffice Operator" as BO
+participant "AISafe System" as System
+
+BO -> System : GET /api/flight-routes/export?format={format}
+
+alt format is not "geojson" or "kml"
+    System --> BO : 400 Bad Request\n"Invalid format. Use 'geojson' or 'kml'."
+else successful geojson export
+    System --> BO : 200 OK\n(Content-Type: application/geo+json)\nPayload: FeatureCollection JSON
+else successful kml export
+    System --> BO : 200 OK\n(Content-Type: application/vnd.google-earth.kml+xml)\nPayload: KML XML Document
+end
+
+@enduml

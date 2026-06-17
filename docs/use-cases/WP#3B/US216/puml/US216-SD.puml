@@ -1,0 +1,44 @@
+@startuml US216-SD
+
+participant "FlightRouteController" as Controller
+participant "FlightRouteService" as Service
+participant "AirportService" as AirportService
+participant "AlternativeRoutingStrategy\n(e.g., FewestStops)" as Strategy
+participant "FlightRouteRepository" as Repo
+participant "FlightRouteModelAssembler" as Assembler
+
+Controller -> Service : findAlternativeRoutes(originIata, destinationIata, algorithm)
+
+Service -> AirportService : resolveAirport(originIata)
+AirportService --> Service : Airport
+Service -> AirportService : resolveAirport(destinationIata)
+AirportService --> Service : Airport
+
+Service -> Service : filter routingStrategies by algorithmName
+note right of Service
+    Iterates the injected list to find
+    the matching strategy component
+    (e.g., "fewest-stops" or "eco-friendly")
+end note
+
+Service -> Strategy : findAlternatives(originIata, destinationIata)
+
+Strategy -> Repo : findAll()
+Repo --> Strategy : List<FlightRoute>
+
+Strategy -> Strategy : calculate validPaths (BFS/DFS)
+Strategy --> Service : List<List<FlightRoute>> (paths)
+
+loop for each path
+    Service -> Assembler : map each route to FlightRouteResponseDTO
+    Assembler --> Service : List<FlightRouteResponseDTO>
+    Service -> Service : calculate totalDistance, totalTime
+    Service -> Service : new AlternativeRouteResponseDTO(...)
+end
+
+Service --> Controller : List<AlternativeRouteResponseDTO>
+
+Controller -> Controller : add self HATEOAS links
+Controller --> "ATCC" : 200 OK\nList<AlternativeRouteResponseDTO>
+
+@enduml

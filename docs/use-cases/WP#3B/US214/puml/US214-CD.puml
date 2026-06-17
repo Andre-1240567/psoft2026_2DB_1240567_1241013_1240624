@@ -1,0 +1,50 @@
+@startuml US214-CD
+
+package "api" {
+    class FlightRouteController {
+        + searchRoutes(originIata, destinationIata,\nstatus, sortBy, page, size,\npagedAssembler): ResponseEntity
+    }
+    class FlightRouteResponseDTO {
+        - routeId: String
+        - originIataCode: String
+        - destinationIataCode: String
+        - distance: Double
+        - estimatedFlightTime: Integer
+        - routeStatus: RouteStatus
+    }
+    class FlightRouteModelAssembler {
+        + toModel(route: FlightRoute): FlightRouteResponseDTO
+    }
+}
+
+package "services" {
+    class FlightRouteService {
+        + getActiveRoutesSorted(status: RouteStatus,\nsortBy: String,\npageable: Pageable): Page<FlightRouteResponseDTO>
+    }
+}
+
+package "domain" {
+    class FlightRoute <<Entity>> {
+        - distance: Double
+        - routeStatus: RouteStatus
+    }
+    enum RouteStatus {
+        ACTIVE
+        DEACTIVATED
+    }
+}
+
+package "repositories" {
+    interface FlightRouteRepository {
+        + findActiveRoutesByPopularity(\nstatus: RouteStatus,\npageable: Pageable): Page<FlightRoute>
+        + findByRouteStatus(\nstatus: RouteStatus,\npageable: Pageable): Page<FlightRoute>
+    }
+}
+
+FlightRouteController ..> FlightRouteService : delegates to
+FlightRouteController ..> FlightRouteModelAssembler : uses
+FlightRouteModelAssembler ..> FlightRouteResponseDTO : produces
+FlightRouteService ..> FlightRouteRepository : uses
+FlightRoute --> RouteStatus : has status
+
+@enduml

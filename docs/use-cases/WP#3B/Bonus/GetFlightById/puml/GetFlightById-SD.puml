@@ -1,0 +1,25 @@
+@startuml GetFlightById-SD
+
+participant "ScheduledFlightController" as Controller
+participant "ScheduledFlightService" as Service
+participant "ScheduledFlightRepository" as Repo
+participant "ScheduledFlightModelAssembler" as Assembler
+
+Controller -> Service : getFlightById(flightNumber)
+
+Service -> Repo : findById(flightNumber)
+Repo --> Service : Optional<ScheduledFlight>
+
+alt flight not found
+    Service --> Controller : throws ResourceNotFoundException
+    Controller --> "ATCC" : 404 Not Found
+else flight exists
+    Service --> Controller : ScheduledFlight
+    
+    Controller -> Assembler : toModel(flight)
+    Assembler --> Controller : ScheduledFlightResponseDTO\n(with self & all-aircraft-flights links)
+    
+    Controller --> "ATCC" : 200 OK\nScheduledFlightResponseDTO
+end
+
+@enduml

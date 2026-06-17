@@ -1,0 +1,49 @@
+@startuml US228-CD
+
+package "api" {
+    class FlightRouteController {
+        + exportRouteNetwork(format: String): ResponseEntity<String>
+    }
+}
+
+package "services" {
+    class FlightRouteService {
+        + exportGeoJson(): String
+        + exportKml(): String
+    }
+}
+
+package "domain" {
+    class FlightRoute <<Entity>> {
+        - routeStatus: RouteStatus
+        - distance: Double
+    }
+    enum RouteStatus {
+        ACTIVE
+        DEACTIVATED
+    }
+}
+
+package "airportmanagement.domain" {
+    class Airport <<Entity>>
+    class Location <<ValueObject>>
+    class GPSCoordinates <<ValueObject>> {
+        - latitude: Double
+        - longitude: Double
+    }
+}
+
+package "repositories" {
+    interface FlightRouteRepository {
+        + findAll(): List<FlightRoute>
+    }
+}
+
+FlightRouteController ..> FlightRouteService : delegates to
+FlightRouteService ..> FlightRouteRepository : uses
+FlightRoute --> RouteStatus : has status
+FlightRoute --> Airport : origin/destination
+Airport --> Location : has
+Location --> GPSCoordinates : coordinates
+
+@enduml

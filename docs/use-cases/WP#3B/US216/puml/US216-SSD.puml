@@ -1,0 +1,18 @@
+@startuml US216-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+ATCC -> System : GET /api/flight-routes/alternatives?originIata={O}&destinationIata={D}&algorithm={algo}
+
+alt origin == destination
+    System --> ATCC : 400 Bad Request\n"Origin and destination must be different."
+else airport not found
+    System --> ATCC : 404 Not Found\n"Airport with IATA code '{iata}' not found."
+else algorithm not supported
+    System --> ATCC : 400 Bad Request\n"Routing algorithm not supported: {algo}"
+else success
+    System --> ATCC : 200 OK\nList<AlternativeRouteResponseDTO>\n(with HATEOAS links)
+end
+
+@enduml

@@ -1,0 +1,31 @@
+@startuml US228-SD
+
+participant "FlightRouteController" as Controller
+participant "FlightRouteService" as Service
+participant "FlightRouteRepository" as Repo
+
+Controller -> Controller : validate format parameter\n(to lowercase)
+
+alt format == "geojson"
+    Controller -> Service : exportGeoJson()
+    Service -> Repo : findAll()
+    Repo --> Service : List<FlightRoute>
+    Service -> Service : filter (ACTIVE && valid coordinates)
+    Service -> Service : build GeoJSON string (StringBuilder)
+    Service --> Controller : String (geojson)
+    Controller --> "Backoffice Operator" : 200 OK\n(Content-Type: application/geo+json)
+
+else format == "kml"
+    Controller -> Service : exportKml()
+    Service -> Repo : findAll()
+    Repo --> Service : List<FlightRoute>
+    Service -> Service : filter (ACTIVE && valid coordinates)
+    Service -> Service : build KML string (StringBuilder)
+    Service --> Controller : String (kml)
+    Controller --> "Backoffice Operator" : 200 OK\n(Content-Type: application/vnd.google-earth.kml+xml)
+
+else format is invalid
+    Controller --> "Backoffice Operator" : 400 Bad Request\n"Invalid format. Use 'geojson' or 'kml'."
+end
+
+@enduml

@@ -1,5 +1,5 @@
 @startuml DM
-title Domain Model - AISafe (Phase 0 - Refined WP1, WP2, WP3)
+title Domain Model - AISafe (WP1, WP2, WP3)
 
 skinparam classAttributeIconSize 0
 hide circle
@@ -26,28 +26,28 @@ package "User Aggregate" {
 ' --- AGGREGATE: AIRCRAFT MODEL ---
 package "Aircraft Model Aggregate" {
     enum Manufacturer <<Enum>> {
-    BOEING
-    AIRBUS
-    EMBRAER
-    COMAC
-    ATR
-    TEXTRON_AVIATION
-    GULFSTREAM_AEROSPACE
-    PILATUS_AIRCRAFT
-    CIRRUS_AIRCRAFT
-    DIAMOND_AIRCRAFT
-}
+        BOEING
+        AIRBUS
+        EMBRAER
+        COMAC
+        ATR
+        TEXTRON_AVIATION
+        GULFSTREAM_AEROSPACE
+        PILATUS_AIRCRAFT
+        CIRRUS_AIRCRAFT
+        DIAMOND_AIRCRAFT
+    }
     class AircraftModel <<Aggregate Root>> <<Entity>> {
         - modelName : String
         - fuelCapacity : Double
         - maxRange : Double
         - cruisingSpeed : Double
-        - seatingCapacity : Int
+        - seatingCapacity : Integer
         - technicalImage : String
     }
     class SeatConfiguration <<Value Object>> {
         - configurationName : String
-        - capacity : Int
+        - capacity : Integer
     }
     class AircraftFeature <<Value Object>> {
         - featureDescription : String
@@ -69,7 +69,7 @@ package "Aircraft Aggregate" {
         - registrationNumber : String
         - manufacturingDate : Date
         - activeConfigurationName : String
-        - activeCapacity : Int
+        - activeCapacity : Integer
         - version : Long
     }
     Aircraft "1" *-- "1" AircraftStatus : current status >
@@ -159,44 +159,50 @@ package "Airport Aggregate" {
     Airport "1" *-- "1" Timezone : regulates in >
 }
 
-' --- AGGREGATE: FLIGHT OPERATIONS ---
-package "Flight Operations Aggregate" {
+' --- AGGREGATE: FLIGHT ROUTES ---
+package "Flight Route Aggregate" {
     enum RouteStatus <<Enum>> {
         ACTIVE
         DEACTIVATED
     }
-    enum FlightStatus <<Enum>> {
-        SCHEDULED
-        DELAYED
-        IN_FLIGHT
-        COMPLETED
-        CANCELED
-    }
     class FlightRoute <<Aggregate Root>> <<Entity>> {
-        - routeId : String
         - distance : Double
-        - estimatedFlightTime : Duration
+        - estimatedFlightTime : Integer
+        - version : Long
     }
-    class ScheduledFlight <<Entity>> {
-        - flightNumber : String
-        - scheduledDeparture : DateTime
-        - scheduledArrival : DateTime
-        - actualDeparture : DateTime
-        - actualArrival : DateTime
+    class RouteId <<Value Object>> {
+        - id : String
     }
     class RouteRequirement <<Value Object>> {
         - minRangeRequired : Double
-        - minCapacityRequired : Int
+        - minCapacityRequired : Integer
     }
     class RouteHistory <<Value Object>> {
-        - changeDate : Date
+        - changeDate : LocalDateTime
         - description : String
+        - author : String
     }
 
-    FlightRoute "1" *-- "0..*" ScheduledFlight : has >
+    FlightRoute "1" *-- "1" RouteId : identified by >
     FlightRoute "1" *-- "1" RouteRequirement : defined by >
     FlightRoute "1" *-- "0..*" RouteHistory : tracked by >
     FlightRoute "1" *-- "1" RouteStatus : current status >
+}
+
+' --- AGGREGATE: SCHEDULED FLIGHT ---
+package "Scheduled Flight Aggregate" {
+    enum FlightStatus <<Enum>> {
+        SCHEDULED
+        COMPLETED
+        CANCELED
+    }
+    class ScheduledFlight <<Aggregate Root>> <<Entity>> {
+        - flightNumber : String
+        - scheduledDeparture : LocalDateTime
+        - scheduledArrival : LocalDateTime
+        - version : Long
+    }
+
     ScheduledFlight "1" *-- "1" FlightStatus : current status >
 }
 
@@ -205,6 +211,7 @@ Aircraft "0..*" --> "1" AircraftModel : is instance of >
 FlightRoute "0..*" --> "1" Airport : origin >
 FlightRoute "0..*" --> "1" Airport : destination >
 ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
+ScheduledFlight "0..*" --> "1" FlightRoute : scheduled on >
 AirplaneCertification "0..*" --> "1" AircraftModel : certifies >
 
 @enduml

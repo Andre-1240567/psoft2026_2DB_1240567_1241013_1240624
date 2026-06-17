@@ -1,0 +1,47 @@
+@startuml US229-CD
+
+package "api" {
+    class FlightRouteController {
+        + getRouteUtilizationReport(): ResponseEntity<List<RouteUtilizationDTO>>
+    }
+    class RouteUtilizationDTO {
+        - routeId: String
+        - originIata: String
+        - destinationIata: String
+        - totalFlights: Long
+    }
+}
+
+package "services" {
+    class FlightRouteService {
+        + getRouteUtilizationReport(): List<RouteUtilizationDTO>
+    }
+}
+
+package "repositories" {
+    interface ScheduledFlightRepository {
+        + findRouteUtilizationReport(): List<Object[]>
+    }
+}
+
+package "domain" {
+    class ScheduledFlight <<Entity>> {
+        - status: FlightStatus
+    }
+    class FlightRoute <<Entity>>
+    enum FlightStatus {
+        SCHEDULED
+        CANCELED
+        COMPLETED
+    }
+}
+
+FlightRouteController ..> FlightRouteService : delegates to
+FlightRouteController ..> RouteUtilizationDTO : produces
+FlightRouteService ..> ScheduledFlightRepository : uses
+FlightRouteService ..> RouteUtilizationDTO : maps to
+ScheduledFlightRepository ..> ScheduledFlight : queries
+ScheduledFlight --> FlightRoute : scheduled on
+ScheduledFlight --> FlightStatus : has status
+
+@enduml

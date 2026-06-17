@@ -8,7 +8,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
-import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
 

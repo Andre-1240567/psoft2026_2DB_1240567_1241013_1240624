@@ -1,0 +1,14 @@
+@startuml GetFlightById-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+ATCC -> System : GET /api/scheduled-flights/{flightNumber}
+
+alt flight not found
+    System --> ATCC : 404 Not Found\n"Scheduled flight not found with number: {flightNumber}"
+else successful retrieval
+    System --> ATCC : 200 OK\nScheduledFlightResponseDTO\n(with HATEOAS links)
+end
+
+@enduml

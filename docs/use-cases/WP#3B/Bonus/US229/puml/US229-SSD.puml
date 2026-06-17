@@ -1,0 +1,14 @@
+@startuml US229-SSD
+
+actor "Backoffice Operator" as BO
+participant "AISafe System" as System
+
+BO -> System : GET /api/flight-routes/reports/utilization
+
+alt Missing JWT or Insufficient Role
+    System --> BO : 401 Unauthorized / 403 Forbidden
+else valid request
+    System --> BO : 200 OK\nList<RouteUtilizationDTO>\n(sorted by popularity + HATEOAS links)
+end
+
+@enduml

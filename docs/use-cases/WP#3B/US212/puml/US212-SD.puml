@@ -1,0 +1,50 @@
+@startuml US212-SD
+
+participant "ScheduledFlightController" as Controller
+participant "ScheduledFlightService" as Service
+participant "FlightRouteRepository" as RouteRepo
+participant "AircraftRepository" as AircraftRepo
+participant "ScheduledFlightRepository" as FlightRepo
+participant "ScheduledFlightModelAssembler" as Assembler
+
+Controller -> Service : scheduleFlight(routeId, aircraftRegistration,\ndepartureTime, arrivalTime)
+
+Service -> Service : validate arrivalTime > departureTime
+
+Service -> RouteRepo : findById(routeId)
+RouteRepo --> Service : Optional<FlightRoute>
+
+Service -> AircraftRepo : findById(aircraftRegistration)
+AircraftRepo --> Service : Optional<Aircraft>
+
+Service -> Service : validate route.status == ACTIVE
+Service -> Service : validate origin.status == OPERATIONAL\n&& destination.status == OPERATIONAL
+Service -> Service : validate origin.certifications\ncontains aircraft.modelName
+Service -> Service : validate destination.certifications\ncontains aircraft.modelName
+Service -> Service : validate aircraft.maxRange >= route.distance
+Service -> Service : validate aircraft.activeCapacity\n>= route.minCapacityRequired
+Service -> Service : validate aircraft.status == AVAILABLE
+
+note over Service, FlightRepo
+  Pessimistic Lock (@Lock PESSIMISTIC_WRITE)
+  prevents concurrent double-booking
+end note
+
+Service -> FlightRepo : findOverlappingFlightsWithLock(\naircraft, bufferedDeparture, bufferedArrival)
+FlightRepo --> Service : List<ScheduledFlight>
+
+Service -> Service : validate overlaps.isEmpty()
+
+Service -> Service : new ScheduledFlight(route, aircraft,\ndepartureTime, arrivalTime)
+
+Service -> FlightRepo : save(scheduledFlight)
+FlightRepo --> Service : ScheduledFlight
+
+Service --> Controller : ScheduledFlight
+
+Controller -> Assembler : toModel(scheduledFlight)
+Assembler --> Controller : ScheduledFlightResponseDTO\n(with HATEOAS links)
+
+Controller --> "ATCC" : 201 Created\nScheduledFlightResponseDTO
+
+@enduml

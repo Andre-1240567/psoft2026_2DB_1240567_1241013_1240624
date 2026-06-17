@@ -1,0 +1,47 @@
+@startuml GetFlightById-CD
+
+package "api" {
+    class ScheduledFlightController {
+        + getFlightById(flightNumber: String): ResponseEntity<ScheduledFlightResponseDTO>
+    }
+    class ScheduledFlightResponseDTO {
+        - flightNumber: String
+        - routeId: String
+        - aircraftRegistration: String
+        - scheduledDeparture: LocalDateTime
+        - scheduledArrival: LocalDateTime
+        - status: String
+    }
+    class ScheduledFlightModelAssembler {
+        + toModel(flight: ScheduledFlight): ScheduledFlightResponseDTO
+    }
+}
+
+package "services" {
+    class ScheduledFlightService {
+        + getFlightById(flightNumber: String): ScheduledFlight
+    }
+}
+
+package "domain" {
+    class ScheduledFlight <<Entity>> {
+        - flightNumber: String
+        - scheduledDeparture: LocalDateTime
+        - scheduledArrival: LocalDateTime
+        - status: FlightStatus
+    }
+}
+
+package "repositories" {
+    interface ScheduledFlightRepository {
+        + findById(id: String): Optional<ScheduledFlight>
+    }
+}
+
+ScheduledFlightController ..> ScheduledFlightService : delegates to
+ScheduledFlightController ..> ScheduledFlightModelAssembler : uses
+ScheduledFlightModelAssembler ..> ScheduledFlightResponseDTO : produces
+ScheduledFlightService ..> ScheduledFlightRepository : uses
+ScheduledFlightService ..> ScheduledFlight : retrieves
+
+@enduml

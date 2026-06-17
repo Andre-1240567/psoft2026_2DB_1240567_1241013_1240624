@@ -1,0 +1,40 @@
+@startuml WP#3B-UCD
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "ATCC" as ATCC
+actor "Backoffice Operator" as BO
+
+rectangle "WP#3B — Enhanced Route Management & Flight Operations" {
+
+    package "Flight Operations (US212–US216)" {
+        usecase "US212 — Schedule a flight\n(assign aircraft to route)" as US212
+        usecase "US213 — View scheduled flights\n(by aircraft or flight number)" as US213
+        usecase "US214 — List active routes\n(sorted by popularity or distance)" as US214
+        usecase "US215 — Calculate total\nnetwork distance" as US215
+        usecase "US216 — Search alternative\nroutes between two airports" as US216
+    }
+
+    package "Bonus Features" {
+        usecase "Bonus — Cancel\na scheduled flight" as CANCEL
+        usecase "Bonus — View upcoming\ndepartures board" as DEPARTURES
+        usecase "Bonus US228 — Export route\nnetwork (GeoJSON / KML)" as US228
+        usecase "Bonus US229 — Flight\nutilization report" as US229
+    }
+}
+
+ATCC --> US212
+ATCC --> US213
+ATCC --> US214
+ATCC --> US215
+ATCC --> US216
+ATCC --> CANCEL
+ATCC --> DEPARTURES
+
+BO --> US228
+BO --> US229
+BO --> DEPARTURES
+
+@enduml

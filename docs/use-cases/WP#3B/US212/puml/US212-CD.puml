@@ -1,0 +1,73 @@
+@startuml US212-CD
+
+package "api" {
+    class ScheduledFlightController {
+        + scheduleFlight(dto: CreateScheduledFlightDTO): ResponseEntity
+    }
+    class CreateScheduledFlightDTO {
+        - routeId: String
+        - aircraftRegistration: String
+        - departureTime: LocalDateTime
+        - arrivalTime: LocalDateTime
+    }
+    class ScheduledFlightResponseDTO {
+        - flightNumber: String
+        - routeId: String
+        - aircraftRegistration: String
+        - scheduledDeparture: LocalDateTime
+        - scheduledArrival: LocalDateTime
+        - status: String
+    }
+    class ScheduledFlightModelAssembler {
+        + toModel(flight: ScheduledFlight): ScheduledFlightResponseDTO
+    }
+}
+
+package "services" {
+    class ScheduledFlightService {
+        + scheduleFlight(routeId, registration,\ndeparture, arrival): ScheduledFlight
+    }
+}
+
+package "domain" {
+    class ScheduledFlight <<Entity>> {
+        - flightNumber: String
+        - scheduledDeparture: LocalDateTime
+        - scheduledArrival: LocalDateTime
+        - status: FlightStatus
+        - version: Long
+        + cancel()
+    }
+    class FlightRoute <<Entity>>
+    class Aircraft <<Entity>>
+    enum FlightStatus {
+        SCHEDULED
+        CANCELED
+        COMPLETED
+    }
+}
+
+package "repositories" {
+    interface ScheduledFlightRepository {
+        + findOverlappingFlightsWithLock(\naircraft, bufferDep, bufferArr): List
+        + findByAircraft_RegistrationNumber(\nregistration): List
+    }
+    interface FlightRouteRepository
+    interface AircraftRepository
+}
+
+ScheduledFlightController ..> CreateScheduledFlightDTO : receives
+ScheduledFlightController ..> ScheduledFlightService : delegates to
+ScheduledFlightController ..> ScheduledFlightModelAssembler : uses
+ScheduledFlightModelAssembler ..> ScheduledFlightResponseDTO : produces
+
+ScheduledFlightService ..> ScheduledFlightRepository : uses
+ScheduledFlightService ..> FlightRouteRepository : uses
+ScheduledFlightService ..> AircraftRepository : uses
+ScheduledFlightService ..> ScheduledFlight : creates
+
+ScheduledFlight --> FlightRoute : scheduled on
+ScheduledFlight --> Aircraft : assigned to
+ScheduledFlight --> FlightStatus : has status
+
+@enduml

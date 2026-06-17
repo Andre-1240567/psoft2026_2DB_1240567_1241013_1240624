@@ -1,0 +1,51 @@
+@startuml US213-CD
+
+package "api" {
+    class ScheduledFlightController {
+        + getFlightsByAircraft(registration: String): ResponseEntity
+    }
+    class ScheduledFlightResponseDTO {
+        - flightNumber: String
+        - routeId: String
+        - aircraftRegistration: String
+        - scheduledDeparture: LocalDateTime
+        - scheduledArrival: LocalDateTime
+        - status: String
+    }
+    class ScheduledFlightModelAssembler {
+        + toModel(flight: ScheduledFlight): ScheduledFlightResponseDTO
+        + toCollectionModel(flights: List): CollectionModel
+    }
+}
+
+package "services" {
+    class ScheduledFlightService {
+        + getScheduledFlightsByAircraft(registration: String): List<ScheduledFlight>
+    }
+}
+
+package "domain" {
+    class ScheduledFlight <<Entity>> {
+        - flightNumber: String
+        - scheduledDeparture: LocalDateTime
+        - scheduledArrival: LocalDateTime
+        - status: FlightStatus
+    }
+}
+
+package "repositories" {
+    interface ScheduledFlightRepository {
+        + findByAircraft_RegistrationNumber(\nregistration: String): List<ScheduledFlight>
+    }
+    interface AircraftRepository {
+        + existsById(registration: String): boolean
+    }
+}
+
+ScheduledFlightController ..> ScheduledFlightService : delegates to
+ScheduledFlightController ..> ScheduledFlightModelAssembler : uses
+ScheduledFlightModelAssembler ..> ScheduledFlightResponseDTO : produces
+ScheduledFlightService ..> ScheduledFlightRepository : uses
+ScheduledFlightService ..> AircraftRepository : checks existence
+
+@enduml

@@ -1,0 +1,48 @@
+@startuml CancelFlight-CD
+
+package "api" {
+    class ScheduledFlightController {
+        + cancelFlight(flightNumber: String): ResponseEntity
+    }
+    class ScheduledFlightResponseDTO {
+        - flightNumber: String
+        - status: String
+    }
+    class ScheduledFlightModelAssembler {
+        + toModel(flight: ScheduledFlight): ScheduledFlightResponseDTO
+    }
+}
+
+package "services" {
+    class ScheduledFlightService {
+        + cancelFlight(flightNumber: String): ScheduledFlight
+    }
+}
+
+package "domain" {
+    class ScheduledFlight <<Entity>> {
+        - status: FlightStatus
+        + cancel()
+    }
+    enum FlightStatus {
+        SCHEDULED
+        CANCELED
+        COMPLETED
+    }
+}
+
+package "repositories" {
+    interface ScheduledFlightRepository {
+        + findById(flightNumber: String): Optional<ScheduledFlight>
+        + save(flight: ScheduledFlight): ScheduledFlight
+    }
+}
+
+ScheduledFlightController ..> ScheduledFlightService : delegates to
+ScheduledFlightController ..> ScheduledFlightModelAssembler : uses
+ScheduledFlightModelAssembler ..> ScheduledFlightResponseDTO : produces
+ScheduledFlightService ..> ScheduledFlightRepository : uses
+ScheduledFlightService ..> ScheduledFlight : updates
+ScheduledFlight --> FlightStatus : modifies
+
+@enduml

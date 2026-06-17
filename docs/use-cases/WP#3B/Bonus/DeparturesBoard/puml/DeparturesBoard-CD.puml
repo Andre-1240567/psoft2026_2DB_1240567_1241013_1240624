@@ -1,0 +1,55 @@
+@startuml DeparturesBoard-CD
+
+package "api" {
+    class ScheduledFlightController {
+        + getUpcomingDepartures(iata: String, hours: int): ResponseEntity<List<DeparturesBoardResponseDTO>>
+    }
+    class DeparturesBoardResponseDTO {
+        - flightNumber: String
+        - scheduledDeparture: LocalDateTime
+        - destinationIata: String
+        - aircraftModel: String
+        - status: String
+    }
+}
+
+package "services" {
+    class ScheduledFlightService {
+        + getUpcomingDepartures(originIata: String, hoursWindow: int): List<ScheduledFlight>
+    }
+}
+
+package "domain" {
+    class ScheduledFlight <<Entity>> {
+        - scheduledDeparture: LocalDateTime
+        - status: FlightStatus
+    }
+    class FlightRoute <<Entity>>
+    enum FlightStatus {
+        SCHEDULED
+        COMPLETED
+    }
+}
+
+package "airportmanagement.domain" {
+    class Airport <<Entity>>
+}
+
+package "repositories" {
+    interface ScheduledFlightRepository {
+        + findUpcomingDepartures(originIata: String, now: LocalDateTime, endWindow: LocalDateTime): List<ScheduledFlight>
+    }
+    interface AirportRepository {
+        + findByIataCode_Code(iataCode: String): Optional<Airport>
+    }
+}
+
+ScheduledFlightController ..> ScheduledFlightService : delegates to
+ScheduledFlightController ..> DeparturesBoardResponseDTO : maps to
+ScheduledFlightService ..> ScheduledFlightRepository : uses
+ScheduledFlightService ..> AirportRepository : validates existence
+ScheduledFlightRepository ..> ScheduledFlight : queries
+ScheduledFlight --> FlightRoute : has
+FlightRoute --> Airport : destination
+
+@enduml

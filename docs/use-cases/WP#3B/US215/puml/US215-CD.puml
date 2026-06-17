@@ -1,0 +1,36 @@
+@startuml US215-CD
+
+package "api" {
+    class FlightRouteController {
+        + getTotalNetworkDistance(): ResponseEntity<Map<String, Double>>
+    }
+}
+
+package "services" {
+    class FlightRouteService {
+        + getTotalNetworkDistance(): Double
+    }
+}
+
+package "domain" {
+    class FlightRoute <<Entity>> {
+        - distance: Double
+        - routeStatus: RouteStatus
+    }
+    enum RouteStatus {
+        ACTIVE
+        DEACTIVATED
+    }
+}
+
+package "repositories" {
+    interface FlightRouteRepository {
+        + calculateTotalNetworkDistance(status: RouteStatus): Double
+    }
+}
+
+FlightRouteController ..> FlightRouteService : delegates to
+FlightRouteService ..> FlightRouteRepository : uses
+FlightRoute --> RouteStatus : has status
+
+@enduml

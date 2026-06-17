@@ -1,0 +1,37 @@
+@startuml US214-SD
+
+participant "FlightRouteController" as Controller
+participant "FlightRouteService" as Service
+participant "FlightRouteRepository" as Repo
+participant "FlightRouteModelAssembler" as Assembler
+
+Controller -> Service : getActiveRoutesSorted(status, sortBy, pageable)
+
+alt sortBy == "popularity"
+    Service -> Repo : findActiveRoutesByPopularity(status, pageable)
+    note right of Repo
+        JPQL: LEFT JOIN ScheduledFlight
+        GROUP BY route
+        ORDER BY COUNT(sf) DESC
+    end note
+    Repo --> Service : Page<FlightRoute>
+
+else sortBy == "distance"
+    Service -> Service : build Pageable with\nSort.by("distance").ascending()
+    Service -> Repo : findByRouteStatus(status, sortedPageable)
+    Repo --> Service : Page<FlightRoute>
+
+else sortBy is invalid
+    Service --> Controller : throws IllegalArgumentException
+    Controller --> "ATCC" : 400 Bad Request
+end
+
+Service -> Assembler : map each FlightRoute\nvia assembler::toModel
+Assembler --> Service : Page<FlightRouteResponseDTO>\n(with HATEOAS links)
+
+Service --> Controller : Page<FlightRouteResponseDTO>
+
+Controller -> Controller : pagedAssembler.toModel(page)
+Controller --> "ATCC" : 200 OK\nPagedModel<FlightRouteResponseDTO>
+
+@enduml
