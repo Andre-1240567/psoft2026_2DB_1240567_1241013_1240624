@@ -23,13 +23,13 @@ public interface ScheduledFlightRepository extends JpaRepository<ScheduledFlight
            "AND sf.status = 'SCHEDULED' " +
            "AND (sf.scheduledDeparture <= :bufferArrival AND sf.scheduledArrival >= :bufferDeparture)")
     List<ScheduledFlight> findOverlappingFlightsWithLock(
-            @Param("aircraft") Aircraft aircraft, 
-            @Param("bufferDeparture") LocalDateTime bufferDeparture, 
+            @Param("aircraft") Aircraft aircraft,
+            @Param("bufferDeparture") LocalDateTime bufferDeparture,
             @Param("bufferArrival") LocalDateTime bufferArrival);
 
     @Query("SELECT sf FROM ScheduledFlight sf " +
            "WHERE sf.route.origin.iataCode.code = :originIata " +
-           "AND sf.status != 'CANCELED' " + 
+           "AND sf.status != 'CANCELED' " +
            "AND sf.scheduledDeparture >= :now " +
            "AND sf.scheduledDeparture <= :endWindow " +
            "ORDER BY sf.scheduledDeparture ASC")
@@ -46,6 +46,13 @@ public interface ScheduledFlightRepository extends JpaRepository<ScheduledFlight
        "FROM ScheduledFlight sf " +
        "WHERE sf.status != 'CANCELED' " +
        "GROUP BY sf.route.routeId.id, sf.route.origin.iataCode.code, sf.route.destination.iataCode.code " +
-       "ORDER BY COUNT(sf) DESC") 
-       List<Object[]> findRouteUtilizationReport();
+       "ORDER BY COUNT(sf) DESC")
+    List<Object[]> findRouteUtilizationReport();
+
+    @Query("SELECT sf FROM ScheduledFlight sf " +
+           "WHERE sf.status != 'CANCELED' " +
+           "AND (:registrationNumber IS NULL OR sf.aircraft.registrationNumber = :registrationNumber) " +
+           "ORDER BY sf.aircraft.registrationNumber ASC, sf.scheduledDeparture ASC")
+    List<ScheduledFlight> findNonCancelledFlightsForUtilization(
+            @Param("registrationNumber") String registrationNumber);
 }
