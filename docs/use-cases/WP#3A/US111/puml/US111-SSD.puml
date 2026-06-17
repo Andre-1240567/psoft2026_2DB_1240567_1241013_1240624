@@ -1,12 +1,18 @@
-@startuml
+@startuml US111-SSD
 autonumber
 actor "ATCC" as ATCC
-participant ":System" as System
+participant "AISafe System" as System
 
 activate ATCC
-ATCC -> System: requests the history of a specific flight route
+ATCC -> System: GET /api/flight-routes/{routeId}/history
 activate System
-System --> ATCC: returns the list of history entries (200 OK)\n(changeDate, description, author)
+
+alt Route exists
+    System --> ATCC: 200 OK (List of RouteHistory entries + HATEOAS links)
+else Route not found
+    System --> ATCC: 404 Not Found
+end
+
 deactivate System
 deactivate ATCC
 @enduml

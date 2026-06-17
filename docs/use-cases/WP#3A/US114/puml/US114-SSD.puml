@@ -1,12 +1,12 @@
-@startuml
+@startuml US114-SSD
 autonumber
-actor "ATCC" as Actor
-participant ":System" as System
+actor "ATCC / BO" as Actor
+participant "AISafe System" as System
 
 activate Actor
-Actor -> System: searches routes providing optional parameters (e.g., origin, destination)
+Actor -> System: GET /api/flight-routes?originIata={O}&destinationIata={D}&page={p}&size={s}
 activate System
-System --> Actor: returns a paginated and filtered list of routes (200 OK)
+System --> Actor: 200 OK (Paginated list of routes + HATEOAS links)
 deactivate System
 deactivate Actor
 @enduml

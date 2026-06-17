@@ -1,17 +1,30 @@
-@startuml
+@startuml US112-SSD
 autonumber
-actor "ATCC / Backoffice" as Actor
-participant ":System" as System
+actor "ATCC / BO" as Actor
+participant "AISafe System" as System
 
 activate Actor
-Actor -> System: requests to update a specific flight route
-activate System
-System --> Actor: displays current route data (including version)
-deactivate System
 
-Actor -> System: submits updated data (distance, requirements, version)
-activate System
-System --> Actor: confirms update and returns new route state (200 OK)
-deactivate System
+alt Update Flight Route
+    Actor -> System: PUT /api/flight-routes/{id} (distance, requirements, version)
+    activate System
+    alt version mismatch or route deactivated
+        System --> Actor: 409 Conflict
+    else success
+        System --> Actor: 200 OK (Updated Route + HATEOAS links)
+    end
+    deactivate System
+
+else Deactivate Flight Route
+    Actor -> System: PATCH /api/flight-routes/{id}/deactivate
+    activate System
+    alt route already deactivated
+        System --> Actor: 409 Conflict
+    else success
+        System --> Actor: 200 OK (Deactivated Route + HATEOAS links)
+    end
+    deactivate System
+end
+
 deactivate Actor
 @enduml

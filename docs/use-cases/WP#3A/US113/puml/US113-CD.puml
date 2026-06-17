@@ -1,44 +1,40 @@
-@startuml
+@startuml US113-CD
 skinparam classAttributeIconSize 0
 
-package "pt.isep.psoft.alsafe.flightroutes.api" {
+package "api" {
     class FlightRouteController {
-        + getRouteById(id: String): ResponseEntity
-        + searchRoutes(originIata, destinationIata, page, size, assembler): ResponseEntity<PagedModel>
+        + getRouteById(id: String): ResponseEntity<FlightRouteResponseDTO>
+        + searchRoutes(originIata: String, destinationIata: String, pageable: Pageable, assembler: PagedResourcesAssembler): ResponseEntity<PagedModel>
     }
-    class FlightRouteResponseDTO {
-        - routeId: String
-        - originIataCode: String
-        - destinationIataCode: String
-        - distance: Double
-        - estimatedFlightTime: Integer
-        - minRangeRequired: Double
-        - minCapacityRequired: Integer
-        - routeStatus: RouteStatus
-        - version: Long
-        - history: List<RouteHistoryDTO>
+    class FlightRouteResponseDTO
+    class FlightRouteModelAssembler {
+        + toModel(entity: FlightRoute): FlightRouteResponseDTO
     }
 }
 
-package "pt.isep.psoft.alsafe.flightroutes.services" {
+package "services" {
     class FlightRouteService {
-        + getRouteById(id: String): FlightRouteResponseDTO
-        + searchRoutes(originIata, destinationIata, pageable): Page<FlightRouteResponseDTO>
+        + getRouteById(id: String): FlightRoute
+        + searchRoutes(originIata: String, destinationIata: String, pageable: Pageable): Page<FlightRoute>
     }
 }
 
-package "pt.isep.psoft.alsafe.flightroutes.repositories" {
+package "repositories" {
     interface FlightRouteRepository {
         + findByIdWithHistory(routeId: String): Optional<FlightRoute>
-        + findByOrigin_IataCode_Code(origin, pageable): Page<FlightRoute>
-        + findByDestination_IataCode_Code(dest, pageable): Page<FlightRoute>
-        + findAll(pageable): Page<FlightRoute>
+        + findByOrigin_IataCode_Code(origin: String, pageable: Pageable): Page<FlightRoute>
     }
 }
 
-FlightRouteController --> FlightRouteService : uses
+package "domain" {
+    class FlightRoute <<Aggregate Root>> <<Entity>>
+}
+
+FlightRouteController ..> FlightRouteResponseDTO
+FlightRouteController --> FlightRouteService : delegates to
+FlightRouteController --> FlightRouteModelAssembler : uses
+FlightRouteModelAssembler ..> FlightRouteResponseDTO : produces
 FlightRouteService --> FlightRouteRepository : uses
-FlightRouteService ..> FlightRouteResponseDTO : creates
-FlightRouteController ..> FlightRouteResponseDTO : returns
+FlightRouteService ..> FlightRoute : retrieves
 
 @enduml

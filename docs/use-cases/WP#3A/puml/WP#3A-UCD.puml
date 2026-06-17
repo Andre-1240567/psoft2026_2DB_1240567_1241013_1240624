@@ -23,6 +23,8 @@ ATCC --> US114
 
 BO --> US112_Update
 BO --> US112_Deactivate
+BO --> US113
+BO --> US114
 
 US110 .> US111 : <<include>>
 US112_Update .> US111 : <<include>>

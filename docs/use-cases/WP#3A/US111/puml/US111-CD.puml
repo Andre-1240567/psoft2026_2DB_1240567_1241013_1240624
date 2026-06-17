@@ -1,31 +1,33 @@
-@startuml
+@startuml US111-CD
 skinparam classAttributeIconSize 0
 
-package "pt.isep.psoft.alsafe.flightroutes.api" {
+package "api" {
     class FlightRouteController {
-        + getRouteHistory(routeId: String): ResponseEntity
+        + getRouteHistory(routeId: String): ResponseEntity<List<RouteHistoryDTO>>
     }
-    class FlightRouteResponseDTO {
-        + static class RouteHistoryDTO
+    class RouteHistoryDTO {
+        - changeDate: LocalDateTime
+        - description: String
+        - author: String
     }
 }
 
-package "pt.isep.psoft.alsafe.flightroutes.services" {
+package "services" {
     class FlightRouteService {
-        + getRouteHistory(routeId: String): List<RouteHistoryDTO>
+        + getRouteHistory(routeId: String): List<RouteHistory>
     }
 }
 
-package "pt.isep.psoft.alsafe.flightroutes.repositories" {
+package "repositories" {
     interface FlightRouteRepository {
         + findByIdWithHistory(routeId: String): Optional<FlightRoute>
     }
 }
 
-package "pt.isep.psoft.alsafe.flightroutes.domain" {
-    class FlightRoute {
-        - routeId: RouteId
-        - history: List<RouteHistory>
+package "domain" {
+    class FlightRoute <<Aggregate Root>> <<Entity>> {
+        - version: Long
+        + getHistory(): List<RouteHistory>
         + addHistory(description: String, author: String)
     }
 
@@ -41,10 +43,11 @@ package "pt.isep.psoft.alsafe.flightroutes.domain" {
     }
 }
 
-FlightRouteController --> FlightRouteService : uses
+FlightRouteController ..> RouteHistoryDTO
+FlightRouteController --> FlightRouteService : delegates to
 FlightRouteService --> FlightRouteRepository : uses
-FlightRouteService ..> FlightRouteResponseDTO : maps to
+FlightRouteService ..> FlightRoute : retrieves
 FlightRoute "1" *-- "1" RouteId : identified by >
-FlightRoute "1" *-- "*" RouteHistory : tracks >
+FlightRoute "1" *-- "0..*" RouteHistory : tracks >
 
 @enduml

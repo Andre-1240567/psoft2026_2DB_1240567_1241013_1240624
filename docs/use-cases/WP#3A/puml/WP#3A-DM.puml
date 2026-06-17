@@ -11,11 +11,9 @@ package "Airport Subdomain (WP2)" {
 
 package "Flight Routes Subdomain (WP3A)" {
     class FlightRoute <<Aggregate Root>> <<Entity>> {
-        - routeId: RouteId
         - version: Long
         - distance: Double
         - estimatedFlightTime: Integer
-        - routeStatus: RouteStatus
     }
 
     class RouteId <<Value Object>> {
@@ -42,7 +40,8 @@ package "Flight Routes Subdomain (WP3A)" {
 FlightRoute "1" --> "1" Airport : origin >
 FlightRoute "1" --> "1" Airport : destination >
 FlightRoute "1" *-- "1" RouteId : identified by >
-FlightRoute "1" *-- "1" RouteRequirement : contains >
-FlightRoute "1" *-- "*" RouteHistory : tracks >
+FlightRoute "1" *-- "1" RouteRequirement : defined by >
+FlightRoute "1" *-- "0..*" RouteHistory : tracked by >
+FlightRoute "1" *-- "1" RouteStatus : current status >
 
 @enduml

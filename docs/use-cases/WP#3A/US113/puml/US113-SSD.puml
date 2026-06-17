@@ -1,17 +1,27 @@
-@startuml
+@startuml US113-SSD
 autonumber
-actor "ATCC" as Actor
-participant ":System" as System
+actor "ATCC / BO" as Actor
+participant "AISafe System" as System
 
 activate Actor
-Actor -> System: requests the details of a flight route by ID
-activate System
-System --> Actor: returns the route details (200 OK)
-deactivate System
 
-Actor -> System: requests all routes originating from a specific airport
-activate System
-System --> Actor: returns a paginated list of routes (200 OK)
-deactivate System
+group View Route by ID
+    Actor -> System: GET /api/flight-routes/{id}
+    activate System
+    alt route exists
+        System --> Actor: 200 OK (Route Details + HATEOAS links)
+    else route not found
+        System --> Actor: 404 Not Found
+    end
+    deactivate System
+end
+
+group View Routes by Origin Airport
+    Actor -> System: GET /api/flight-routes?originIata={iata}&page={p}&size={s}
+    activate System
+    System --> Actor: 200 OK (Paginated Route List + HATEOAS links)
+    deactivate System
+end
+
 deactivate Actor
 @enduml
