@@ -18,6 +18,8 @@ public class AirportViewDTO extends RepresentationModel<AirportViewDTO> {
     private final String status;
     private final List<String> photos;
     private final List<String> certifications;
+    private final OperationalHoursDTO operationalHours;
+    private final List<ContactDTO> contacts;
 
     public AirportViewDTO(Airport airport) {
         this.iataCode = airport.getIataCode().getCode();
@@ -30,5 +32,22 @@ public class AirportViewDTO extends RepresentationModel<AirportViewDTO> {
         this.certifications = airport.getCertifications().stream()
                 .map(c -> c.getModelName())
                 .collect(Collectors.toList());
+        this.operationalHours = airport.getOperationalHours() != null
+            ? new OperationalHoursDTO() {{
+                setOpeningTime(airport.getOperationalHours().getOpeningTime()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")));
+                setClosingTime(airport.getOperationalHours().getClosingTime()
+                    .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss")));
+            }}
+            : null;
+        this.contacts = airport.getContacts().stream()
+            .map(c -> {
+                ContactDTO dto = new ContactDTO();
+                dto.setValue(c.getValue());
+                dto.setDepartment(c.getDepartment());
+                dto.setType(c.getType());
+            return dto;
+            })
+            .collect(Collectors.toList());
     }
 }
