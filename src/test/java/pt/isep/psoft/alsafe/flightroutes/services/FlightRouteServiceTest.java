@@ -873,7 +873,6 @@ class FlightRouteServiceTest {
                 new IATACode("OPO"), "Fake",
                 new Location("Reg", "Country", "City", null),
                 new Timezone("UTC+00:00"));
-        originNoCoords.changeStatus(null);
 
         Airport destination = createFakeAirport("LIS", null);
 
@@ -896,8 +895,7 @@ class FlightRouteServiceTest {
                 new IATACode("OPO"), "Fake",
                 new Location("Reg", "Country", "City", null),
                 new Timezone("UTC+00:00"));
-        originNoCoords.changeStatus(Status.OPERATIONA);
-
+        
         Airport destination = createFakeAirport("LIS", null);
 
         RouteRequirement req = new RouteRequirement(600.0, 150);
@@ -922,7 +920,6 @@ class FlightRouteServiceTest {
                 new IATACode("LIS"), "Fake",
                 new Location("Reg", "Country", "City", null),
                 new Timezone("UTC+00:00"));
-        destNoCoords.changeStatus(null);
 
         RouteRequirement req = new RouteRequirement(600.0, 150);
         FlightRoute routeNoCoords = new FlightRoute("r-nocoords", origin, destNoCoords, 500.0, 60, req, "atcc_jose");
