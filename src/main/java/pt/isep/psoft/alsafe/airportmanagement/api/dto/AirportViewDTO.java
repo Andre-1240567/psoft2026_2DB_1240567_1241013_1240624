@@ -5,6 +5,7 @@ import org.springframework.hateoas.RepresentationModel;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 public class AirportViewDTO extends RepresentationModel<AirportViewDTO> {
@@ -16,6 +17,7 @@ public class AirportViewDTO extends RepresentationModel<AirportViewDTO> {
     private final String city;
     private final String status;
     private final List<String> photos;
+    private final List<String> certifications;
 
     public AirportViewDTO(Airport airport) {
         this.iataCode = airport.getIataCode().getCode();
@@ -25,5 +27,8 @@ public class AirportViewDTO extends RepresentationModel<AirportViewDTO> {
         this.city = airport.getLocation().getCity();
         this.status = airport.getStatus().name();
         this.photos = airport.getPhotos();
+        this.certifications = airport.getCertifications().stream()
+                .map(c -> c.getModelName())
+                .collect(Collectors.toList());
     }
 }

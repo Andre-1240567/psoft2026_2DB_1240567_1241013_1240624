@@ -16,8 +16,8 @@
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "var jsonData = pm.response.json();",
               "if(jsonData.token) {",
-              "    pm.environment.set(\"jwt_token\", jsonData.token);",
-              "    console.log(\"Token saved!\");",
+              "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+              "    console.log(\"Token saved to collection variables!\");",
               "}"
             ]
           }
@@ -93,7 +93,7 @@
               "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
               "pm.test(\"Response contains IATA code\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.iataCode.code).to.eql(\"JFK\");",
+              "    pm.expect(jsonData.iataCode).to.eql(\"JFK\");",
               "});"
             ]
           }
@@ -145,6 +145,49 @@
       ]
     },
     {
+      "name": "0. AUTH - Login as ATCC",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "var jsonData = pm.response.json();",
+              "if(jsonData.token) {",
+              "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+              "    console.log(\"Token saved to collection variables!\");",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"atcc\", \"password\": \"atcc123\"}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      }
+    },
+    {
       "name": "US108- Search Airport by City",
       "request": {
         "auth": {
@@ -186,8 +229,7 @@
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "pm.test(\"Returns a list\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an(\"array\");",
-              "    pm.expect(jsonData.length).to.be.above(0);",
+              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
               "});"
             ]
           }
@@ -236,8 +278,7 @@
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "pm.test(\"Returns a list\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an(\"array\");",
-              "    pm.expect(jsonData.length).to.be.above(0);",
+              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
               "});"
             ]
           }
@@ -286,8 +327,7 @@
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "pm.test(\"Returns a list\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an(\"array\");",
-              "    pm.expect(jsonData.length).to.be.above(0);",
+              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
               "});"
             ]
           }
@@ -392,12 +432,12 @@
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "pm.test(\"Certification added\", function () {",
               "    var jsonData = pm.response.json();",
               "    var certs = jsonData.certifications;",
               "    pm.expect(certs).to.be.an(\"array\");",
-              "    var found = certs.some(function(c) { return c.modelName === \"737 MAX\"; });",
+              "    var found = certs.some(function(c) { return c === \"737 MAX\"; });",
               "    pm.expect(found).to.be.true;",
               "});"
             ]

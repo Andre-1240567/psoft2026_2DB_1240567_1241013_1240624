@@ -18,12 +18,14 @@ public class AirportModelAssembler extends RepresentationModelAssemblerSupport<A
     @Override
     public AirportViewDTO toModel(Airport airport) {
         AirportViewDTO dto = new AirportViewDTO(airport);
-        
+
+        String iata = airport.getIataCode().getCode();
+
         // Add self link
-        dto.add(linkTo(methodOn(AirportController.class).getAirportDetails(airport.getIataCode().getCode())).withSelfRel());
-        
-        // Add routes link
-        dto.add(linkTo(methodOn(AirportController.class).getRoutesByAirport(airport.getIataCode().getCode(), 0, 10, null)).withRel("routes"));
+        dto.add(linkTo(methodOn(AirportController.class).getAirportDetails(iata)).withSelfRel());
+
+        // Add routes link (CORRIGIDO: Construção de URL segura para não colapsar com nulos)
+        dto.add(linkTo(AirportController.class).slash(iata).slash("routes").withRel("routes"));
 
         return dto;
     }

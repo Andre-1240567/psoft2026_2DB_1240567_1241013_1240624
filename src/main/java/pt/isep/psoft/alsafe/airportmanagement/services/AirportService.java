@@ -94,8 +94,8 @@ public class AirportService {
         return airportRepository.save(airport);
     }
 
-    public List<Airport> searchAirportsByCity(String city) {
-        return airportRepository.findByLocation_City(city);
+    public List<Airport> searchAirports(String city, String country, String name) {
+        return airportRepository.searchAirports(city, country, name);
     }
 
     @Transactional

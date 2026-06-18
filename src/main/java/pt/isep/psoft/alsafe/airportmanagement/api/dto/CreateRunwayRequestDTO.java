@@ -13,11 +13,11 @@ public class CreateRunwayRequestDTO {
     @NotBlank(message = "Runway name is mandatory.")
     private String name;
 
-    @NotBlank(message = "Runway length is mandatory.")
+    @NotNull(message = "Runway length is mandatory.")
     @Positive(message = "The length must be positive.")
     private Double length;
 
-    @NotBlank(message = "Runway orientation is mandatory.")
+    @NotNull(message = "Runway orientation is mandatory.")
     private Orientation orientation;
 
 
