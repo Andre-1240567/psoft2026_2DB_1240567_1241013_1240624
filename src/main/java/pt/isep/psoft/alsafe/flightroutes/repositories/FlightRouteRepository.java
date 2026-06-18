@@ -69,16 +69,16 @@ public interface FlightRouteRepository extends JpaRepository<FlightRoute, RouteI
     @Query("SELECT COALESCE(SUM(r.distance), 0.0) FROM FlightRoute r WHERE r.routeStatus = :status")
     Double calculateTotalNetworkDistance(@Param("status") RouteStatus status);
 
-    @Query(value = "SELECT a.iata_code as iata, COUNT(*) as routeCount " +
-                   "FROM airport a " +
-                   "JOIN ( " +
-                   "  SELECT origin_id AS airport_id FROM flight_route " +
-                   "  UNION ALL " +
-                   "  SELECT destination_id AS airport_id FROM flight_route " +
-                   ") r ON a.id = r.airport_id " +
-                   "GROUP BY a.iata_code " +
-                   "ORDER BY routeCount DESC",
-            nativeQuery = true)
+    @Query(value = "SELECT a.code as iata, COUNT(*) as routeCount " +
+                "FROM airport a " +
+                "JOIN ( " +
+                "  SELECT origin_id AS airport_id FROM flight_route " +
+                "  UNION ALL " +
+                "  SELECT destination_id AS airport_id FROM flight_route " +
+                ") r ON a.id = r.airport_id " +
+                "GROUP BY a.code " +
+                "ORDER BY routeCount DESC",
+                nativeQuery = true)
         List<Object[]> findBusiestAirportsStatistics();
 
     @Query("SELECT r FROM FlightRoute r WHERE r.routeStatus = 'ACTIVE' AND r.origin.iataCode.code = :originIata")
