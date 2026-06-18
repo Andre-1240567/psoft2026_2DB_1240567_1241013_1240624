@@ -607,13 +607,12 @@ class FlightRouteServiceTest {
         dto.setEstimatedFlightTime(60);
         dto.setMinRangeRequired(600.0);
         dto.setMinCapacityRequired(150);
-
-        Airport originNullStatus = createFakeAirport("OPO", null); 
-        when(airportService.getAirportDetails("OPO")).thenReturn(originNullStatus);
-
+    
+        when(airportService.getAirportDetails("OPO")).thenReturn(createFakeAirport("OPO", Status.CLOSED));
+    
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 flightRouteService.createFlightRoute(dto));
-
+    
         assertTrue(ex.getMessage().contains("is not operational"));
     }
 
@@ -657,16 +656,14 @@ class FlightRouteServiceTest {
         dto.setEstimatedFlightTime(60);
         dto.setMinRangeRequired(600.0);
         dto.setMinCapacityRequired(150);
-
+    
         Airport origin = createFakeAirport("OPO", null);
-        Airport destNullStatus = createFakeAirport("MAD", null); 
-        
         when(airportService.getAirportDetails("OPO")).thenReturn(origin);
-        when(airportService.getAirportDetails("MAD")).thenReturn(destNullStatus);
-
+        when(airportService.getAirportDetails("MAD")).thenReturn(createFakeAirport("MAD", Status.CLOSED));
+    
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 flightRouteService.createFlightRoute(dto));
-
+    
         assertTrue(ex.getMessage().contains("Destination airport"));
     }
 
@@ -942,7 +939,6 @@ class FlightRouteServiceTest {
                 new IATACode("LIS"), "Fake",
                 new Location("Reg", "Country", "City", null),
                 new Timezone("UTC+00:00"));
-        destNoCoords.changeStatus(null);
 
         RouteRequirement req = new RouteRequirement(600.0, 150);
         FlightRoute routeNoCoords = new FlightRoute("r-nocoords", origin, destNoCoords, 500.0, 60, req, "atcc_jose");
