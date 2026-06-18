@@ -85,8 +85,8 @@ class AirportFlightRouteServiceTest {
     }
 
     private FlightRoute createFakeRoute(String id, String originIata, String destIata) {
-        Airport origin      = createFakeAirport(originIata, Status.OPERATIONAL);
-        Airport destination = createFakeAirport(destIata,  Status.OPERATIONAL);
+        Airport origin      = createFakeAirport(originIata, null);
+        Airport destination = createFakeAirport(destIata,  null);
         RouteRequirement req = new RouteRequirement(600.0, 150);
         FlightRoute route = new FlightRoute(id, origin, destination, 500.0, 60, req, "atcc_jose");
 
@@ -110,7 +110,7 @@ class AirportFlightRouteServiceTest {
         FlightRoute r1 = createFakeRoute("r1", "LAX", "JFK");
         Page<FlightRoute> page = new PageImpl<>(List.of(r1));
 
-        when(airportService.getAirportDetails("LAX")).thenReturn(createFakeAirport("LAX", Status.OPERATIONAL));
+        when(airportService.getAirportDetails("LAX")).thenReturn(createFakeAirport("LAX", null));
         when(routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code("LAX", "LAX", pageable)).thenReturn(page);
         
         FlightRouteResponseDTO dto1 = fakeDto(r1);
