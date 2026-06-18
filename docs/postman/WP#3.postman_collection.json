@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "8a7c2b3d-1234-4d5e-9f0a-112233445566",
-    "name": "WP3-FlightRoutes",
-    "description": "Full E2E test suite for Work Packages 3A, 3B and Bonus US228/US229.",
+    "_postman_id": "wp3-complete-2026",
+    "name": "WP3-Complete (FlightRoutes + ScheduledFlights + US223 + US227)",
+    "description": "Full E2E test suite for WP3A, WP3B, Bonus US228/US229, Cancel Flight, Departures Board, US223 Aircraft Utilization, US227 Fuel Efficiency.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -1076,6 +1076,655 @@
           "host": ["{{base_url}}"],
           "path": ["api", "flight-routes", "export"],
           "query": [{ "key": "format", "value": "csv" }]
+        }
+      }
+    },
+    {
+      "name": "28. [Bonus] Get Scheduled Flight by ID - Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test(\"Response contains error message\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('error');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights/non-existent-flight-id",
+          "host": ["{{base_url}}"],
+          "path": ["api", "scheduled-flights", "non-existent-flight-id"]
+        }
+      }
+    },
+    {
+      "name": "29. [Bonus] Cancel a Scheduled Flight",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Flight status is CANCELED\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.status).to.eql(\"CANCELED\");",
+              "});",
+              "",
+              "pm.test(\"Response contains HATEOAS _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights/{{flightNumber}}/cancel",
+          "host": ["{{base_url}}"],
+          "path": ["api", "scheduled-flights", "{{flightNumber}}", "cancel"]
+        }
+      }
+    },
+    {
+      "name": "30. [Bonus] Cancel Flight Error - Already Canceled",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 409 Conflict\", function () {",
+              "    pm.response.to.have.status(409);",
+              "});",
+              "",
+              "pm.test(\"Response contains error message\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('error');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights/{{flightNumber}}/cancel",
+          "host": ["{{base_url}}"],
+          "path": ["api", "scheduled-flights", "{{flightNumber}}", "cancel"]
+        }
+      }
+    },
+    {
+      "name": "31. [Bonus] Cancel Flight Error - Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "PATCH",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights/non-existent-id/cancel",
+          "host": ["{{base_url}}"],
+          "path": ["api", "scheduled-flights", "non-existent-id", "cancel"]
+        }
+      }
+    },
+    {
+      "name": "32. [Bonus] Departures Board - OPO next 24h",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response is an array\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an('array');",
+              "});",
+              "",
+              "pm.test(\"Each entry has required fields\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    if (jsonData.length > 0) {",
+              "        pm.expect(jsonData[0]).to.have.property('flightNumber');",
+              "        pm.expect(jsonData[0]).to.have.property('scheduledDeparture');",
+              "        pm.expect(jsonData[0]).to.have.property('destinationIata');",
+              "        pm.expect(jsonData[0]).to.have.property('aircraftModel');",
+              "        pm.expect(jsonData[0]).to.have.property('status');",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights/departures/OPO?hours=24",
+          "host": ["{{base_url}}"],
+          "path": ["api", "scheduled-flights", "departures", "OPO"],
+          "query": [{ "key": "hours", "value": "24" }]
+        }
+      }
+    },
+    {
+      "name": "33. [Bonus] Departures Board - Custom Window (48h)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response is an array\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.be.an('array');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights/departures/OPO?hours=48",
+          "host": ["{{base_url}}"],
+          "path": ["api", "scheduled-flights", "departures", "OPO"],
+          "query": [{ "key": "hours", "value": "48" }]
+        }
+      }
+    },
+    {
+      "name": "34. [Bonus] Departures Board - 401 No Auth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/scheduled-flights/departures/OPO",
+          "host": ["{{base_url}}"],
+          "path": ["api", "scheduled-flights", "departures", "OPO"]
+        }
+      }
+    },
+    {
+      "name": "35. [US223] Get Utilization for All Aircraft",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response contains _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});",
+              "",
+              "pm.test(\"Each entry has registrationNumber and periods\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    var items = jsonData._embedded;",
+              "    if (items) {",
+              "        var key = Object.keys(items)[0];",
+              "        var first = items[key][0];",
+              "        pm.expect(first).to.have.property('registrationNumber');",
+              "        pm.expect(first).to.have.property('periods');",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/aircraft-utilization",
+          "host": ["{{base_url}}"],
+          "path": ["api", "aircraft-utilization"]
+        }
+      }
+    },
+    {
+      "name": "36. [US223] Get Utilization for Specific Aircraft",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has registrationNumber\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('registrationNumber');",
+              "});",
+              "",
+              "pm.test(\"Response has periods array\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('periods');",
+              "    pm.expect(jsonData.periods).to.be.an('array');",
+              "});",
+              "",
+              "pm.test(\"Response contains HATEOAS _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/aircraft-utilization/CS-TPA",
+          "host": ["{{base_url}}"],
+          "path": ["api", "aircraft-utilization", "CS-TPA"]
+        }
+      }
+    },
+    {
+      "name": "37. [US223] Get Utilization - Aircraft Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/aircraft-utilization/XX-INVALID",
+          "host": ["{{base_url}}"],
+          "path": ["api", "aircraft-utilization", "XX-INVALID"]
+        }
+      }
+    },
+    {
+      "name": "38. [US223] Get Utilization - 401 No Auth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/aircraft-utilization",
+          "host": ["{{base_url}}"],
+          "path": ["api", "aircraft-utilization"]
+        }
+      }
+    },
+    {
+      "name": "39. [US227] Get Fuel Efficiency for All Aircraft",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response contains _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});",
+              "",
+              "pm.test(\"Each entry has registrationNumber and efficiencyKmPerLiter\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    var items = jsonData._embedded;",
+              "    if (items) {",
+              "        var key = Object.keys(items)[0];",
+              "        var first = items[key][0];",
+              "        pm.expect(first).to.have.property('registrationNumber');",
+              "        pm.expect(first).to.have.property('efficiencyKmPerLiter');",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/fuel-efficiency/aircraft",
+          "host": ["{{base_url}}"],
+          "path": ["api", "fuel-efficiency", "aircraft"]
+        }
+      }
+    },
+    {
+      "name": "40. [US227] Get Fuel Efficiency for Specific Aircraft",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has registrationNumber\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('registrationNumber');",
+              "});",
+              "",
+              "pm.test(\"Response has efficiencyKmPerLiter\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('efficiencyKmPerLiter');",
+              "    pm.expect(jsonData.efficiencyKmPerLiter).to.be.a('number');",
+              "});",
+              "",
+              "pm.test(\"Response contains HATEOAS _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/fuel-efficiency/aircraft/CS-TPA",
+          "host": ["{{base_url}}"],
+          "path": ["api", "fuel-efficiency", "aircraft", "CS-TPA"]
+        }
+      }
+    },
+    {
+      "name": "41. [US227] Get Fuel Efficiency - Aircraft Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/fuel-efficiency/aircraft/XX-INVALID",
+          "host": ["{{base_url}}"],
+          "path": ["api", "fuel-efficiency", "aircraft", "XX-INVALID"]
+        }
+      }
+    },
+    {
+      "name": "42. [US227] Get Fuel Efficiency for All Routes",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response contains _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});",
+              "",
+              "pm.test(\"Each entry has routeId and efficiencyKmPerLiter\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    var items = jsonData._embedded;",
+              "    if (items) {",
+              "        var key = Object.keys(items)[0];",
+              "        var first = items[key][0];",
+              "        pm.expect(first).to.have.property('routeId');",
+              "        pm.expect(first).to.have.property('efficiencyKmPerLiter');",
+              "    }",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/fuel-efficiency/routes",
+          "host": ["{{base_url}}"],
+          "path": ["api", "fuel-efficiency", "routes"]
+        }
+      }
+    },
+    {
+      "name": "43. [US227] Get Fuel Efficiency for Specific Route",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test(\"Response has routeId\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('routeId');",
+              "});",
+              "",
+              "pm.test(\"Response has efficiencyKmPerLiter\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('efficiencyKmPerLiter');",
+              "    pm.expect(jsonData.efficiencyKmPerLiter).to.be.a('number');",
+              "});",
+              "",
+              "pm.test(\"Response contains HATEOAS _links\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData).to.have.property('_links');",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/fuel-efficiency/routes/{{routeId}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "fuel-efficiency", "routes", "{{routeId}}"]
+        }
+      }
+    },
+    {
+      "name": "44. [US227] Get Fuel Efficiency Route - Not Found",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 404 Not Found\", function () {",
+              "    pm.response.to.have.status(404);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/fuel-efficiency/routes/non-existent-route",
+          "host": ["{{base_url}}"],
+          "path": ["api", "fuel-efficiency", "routes", "non-existent-route"]
+        }
+      }
+    },
+    {
+      "name": "45. [US227] Fuel Efficiency - 401 No Auth",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 401 Unauthorized\", function () {",
+              "    pm.response.to.have.status(401);",
+              "});"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/fuel-efficiency/aircraft",
+          "host": ["{{base_url}}"],
+          "path": ["api", "fuel-efficiency", "aircraft"]
         }
       }
     }

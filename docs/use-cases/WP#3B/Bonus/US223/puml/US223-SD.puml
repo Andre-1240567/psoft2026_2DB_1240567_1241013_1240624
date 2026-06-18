@@ -1,0 +1,36 @@
+@startuml US223-SD
+
+participant "AircraftUtilizationController" as Controller
+participant "AircraftUtilizationService" as Service
+participant "ScheduledFlightRepository" as Repo
+participant "GlobalExceptionHandler" as ExceptionHandler
+
+Controller -> Controller : check authorization (ATCC)
+
+alt GET /api/aircraft-utilization (All Aircraft)
+    Controller -> Service : getUtilizationForAllAircraft()
+    Service -> Repo : findNonCancelledFlightsForUtilization(null)
+    Repo --> Service : List<ScheduledFlight>
+    Service -> Service : buildUtilizationList(flights)
+    Service --> Controller : List<AircraftUtilizationDTO>
+    Controller -> Controller : wrap in CollectionModel\nand add HATEOAS links
+    Controller --> "ATCC" : 200 OK
+
+else GET /api/aircraft-utilization/{registrationNumber}
+    Controller -> Service : getUtilizationForAircraft(registrationNumber)
+    Service -> Repo : findNonCancelledFlightsForUtilization(registrationNumber.toUpperCase())
+    Repo --> Service : List<ScheduledFlight>
+
+    alt flights list is empty
+        Service -> Service : throw ResourceNotFoundException
+        Service --> ExceptionHandler : Exception caught
+        ExceptionHandler --> "ATCC" : 404 Not Found
+    else flights found
+        Service -> Service : buildUtilizationList(flights)
+        Service --> Controller : AircraftUtilizationDTO
+        Controller -> Controller : add HATEOAS self/rel links
+        Controller --> "ATCC" : 200 OK
+    end
+end
+
+@enduml

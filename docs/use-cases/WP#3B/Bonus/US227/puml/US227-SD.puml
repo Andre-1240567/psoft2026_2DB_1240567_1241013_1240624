@@ -1,0 +1,38 @@
+@startuml US227-SD
+
+participant "FuelEfficiencyController" as Controller
+participant "FuelEfficiencyService" as Service
+participant "ScheduledFlightRepository" as Repo
+participant "GlobalExceptionHandler" as ExceptionHandler
+
+Controller -> Controller : check authorization (ATCC)
+
+alt GET /api/fuel-efficiency/aircraft/{registration}
+    Controller -> Service : getEfficiencyForAircraft(registration)
+    Service -> Repo : findNonCancelledFlightsForAircraft(registration)
+    Repo --> Service : List<ScheduledFlight>
+
+    alt flights list is empty
+        Service -> Service : throw ResourceNotFoundException
+        Service --> ExceptionHandler : Exception caught
+        ExceptionHandler --> "ATCC" : 404 Not Found
+    else flights found
+        Service -> Service : calculate fuel burn rate\n(fuelCapacity / maxRange)
+        Service -> Service : aggregate distance and fuel
+        Service --> Controller : AircraftFuelEfficiencyDTO
+        Controller -> Controller : add HATEOAS self/rel links
+        Controller --> "ATCC" : 200 OK
+    end
+
+else GET /api/fuel-efficiency/routes
+    Controller -> Service : getEfficiencyForAllRoutes()
+    Service -> Repo : findAllNonCancelledFlights()
+    Repo --> Service : List<ScheduledFlight>
+    Service -> Service : group flights by Route
+    Service -> Service : calculate average efficiency per route
+    Service --> Controller : List<RouteFuelEfficiencyDTO>
+    Controller -> Controller : wrap in CollectionModel\nand add HATEOAS links
+    Controller --> "ATCC" : 200 OK
+end
+
+@enduml
