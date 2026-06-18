@@ -1,0 +1,82 @@
+@startuml US227-CD
+
+package "flightroutes.api" {
+    class FuelEfficiencyController {
+        + getAllAircraftEfficiency(): ResponseEntity<CollectionModel<AircraftFuelEfficiencyDTO>>
+        + getAircraftEfficiency(registration: String): ResponseEntity<AircraftFuelEfficiencyDTO>
+        + getAllRouteEfficiency(): ResponseEntity<CollectionModel<RouteFuelEfficiencyDTO>>
+        + getRouteEfficiency(routeId: String): ResponseEntity<RouteFuelEfficiencyDTO>
+    }
+
+    class AircraftFuelEfficiencyDTO <<RepresentationModel>> {
+        - registrationNumber: String
+        - modelName: String
+        - fuelBurnRateLPerKm: double
+        - totalDistanceFlownKm: double
+        - totalEstimatedFuelL: double
+        - efficiencyKmPerL: double
+        - flightCount: int
+    }
+
+    class RouteFuelEfficiencyDTO <<RepresentationModel>> {
+        - routeId: String
+        - originIata: String
+        - destinationIata: String
+        - distanceKm: double
+        - estimatedFuelPerFlightL: double
+        - efficiencyKmPerL: double
+        - flightCount: int
+    }
+}
+
+package "flightroutes.services" {
+    class FuelEfficiencyService {
+        + getEfficiencyForAllAircraft(): List<AircraftFuelEfficiencyDTO>
+        + getEfficiencyForAircraft(registration: String): AircraftFuelEfficiencyDTO
+        + getEfficiencyForAllRoutes(): List<RouteFuelEfficiencyDTO>
+        + getEfficiencyForRoute(routeId: String): RouteFuelEfficiencyDTO
+    }
+}
+
+package "flightroutes.domain" {
+    class ScheduledFlight <<Entity>>
+    class FlightRoute <<Entity>> {
+        - distance: Double
+    }
+}
+
+package "aircraftmanagement.domain" {
+    class Aircraft <<Entity>> {
+        - registrationNumber: String
+    }
+    class AircraftModel <<Entity>> {
+        - modelName: String
+        - fuelCapacity: Integer
+        - maxRange: Double
+    }
+}
+
+package "flightroutes.repositories" {
+    interface ScheduledFlightRepository {
+        + findNonCancelledFlightsForAircraft(registration: String): List<ScheduledFlight>
+        + findNonCancelledFlightsForRoute(routeId: String): List<ScheduledFlight>
+    }
+}
+
+' Controller mapping
+FuelEfficiencyController ..> FuelEfficiencyService : delegates to
+FuelEfficiencyController ..> AircraftFuelEfficiencyDTO : returns
+FuelEfficiencyController ..> RouteFuelEfficiencyDTO : returns
+
+' Service dependencies
+FuelEfficiencyService ..> ScheduledFlightRepository : uses
+FuelEfficiencyService ..> AircraftFuelEfficiencyDTO : creates
+FuelEfficiencyService ..> RouteFuelEfficiencyDTO : creates
+
+' Domain relationships
+ScheduledFlightRepository ..> ScheduledFlight : returns
+ScheduledFlight --> Aircraft : operates
+ScheduledFlight --> FlightRoute : follows
+Aircraft --> AircraftModel : is of type
+
+@enduml

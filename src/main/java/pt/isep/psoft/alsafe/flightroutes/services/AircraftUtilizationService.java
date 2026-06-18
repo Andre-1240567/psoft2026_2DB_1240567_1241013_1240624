@@ -53,7 +53,7 @@ public class AircraftUtilizationService {
 
         if (flights.isEmpty()) {
 
-            return new AircraftUtilizationDTO(reg, null, List.of());
+            throw new pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException("Aircraft with registration " + reg + " not found or has no utilization.");
         }
 
         List<AircraftUtilizationDTO> result = buildUtilizationList(flights);

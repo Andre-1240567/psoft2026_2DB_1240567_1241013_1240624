@@ -1,0 +1,21 @@
+@startuml US223-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+opt Get Utilization for All Aircraft
+    ATCC -> System : GET /api/aircraft-utilization
+    System --> ATCC : 200 OK\n(CollectionModel with AircraftUtilizationDTOs)
+end
+
+opt Get Utilization for Specific Aircraft
+    ATCC -> System : GET /api/aircraft-utilization/{registrationNumber}
+    
+    alt Aircraft exists and has utilization
+        System --> ATCC : 200 OK\nPayload: AircraftUtilizationDTO
+    else Aircraft not found or no utilization
+        System --> ATCC : 404 Not Found\n(ResourceNotFoundException)
+    end
+end
+
+@enduml

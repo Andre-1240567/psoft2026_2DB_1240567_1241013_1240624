@@ -184,17 +184,13 @@ class AircraftUtilizationServiceTest {
     }
 
     @Test
-    void ensureGetUtilizationForAircraftReturnsEmptyDtoWhenNoFlightsExist() {
+    void ensureGetUtilizationForAircraftThrowsExceptionWhenNoFlightsExist() {
         when(scheduledFlightRepository.findNonCancelledFlightsForUtilization("CS-TUA"))
                 .thenReturn(List.of());
 
-        AircraftUtilizationDTO dto = service.getUtilizationForAircraft("CS-TUA");
-
-        assertEquals("CS-TUA", dto.getRegistrationNumber());
-        assertNull(dto.getModelName());
-        assertTrue(dto.getUtilizationByPeriod().isEmpty());
-        assertEquals(0, dto.getTotalFlights());
-        assertEquals(0.0, dto.getTotalFlightHours(), 0.001);
+        assertThrows(pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException.class, () -> {
+            service.getUtilizationForAircraft("CS-TUA");
+        });
     }
 
     @Test
@@ -243,7 +239,9 @@ class AircraftUtilizationServiceTest {
         when(scheduledFlightRepository.findNonCancelledFlightsForUtilization("CS-TUB"))
                 .thenReturn(List.of());
 
-        service.getUtilizationForAircraft("CS-TUB");
+        assertThrows(pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException.class, () -> {
+            service.getUtilizationForAircraft("CS-TUB");
+        });
 
         verify(scheduledFlightRepository, times(1))
                 .findNonCancelledFlightsForUtilization("CS-TUB");

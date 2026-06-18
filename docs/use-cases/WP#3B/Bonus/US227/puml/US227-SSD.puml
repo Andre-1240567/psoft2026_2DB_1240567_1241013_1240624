@@ -1,0 +1,21 @@
+@startuml US227-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+opt Get Efficiency for All Aircraft or Routes
+    ATCC -> System : GET /api/fuel-efficiency/aircraft\n(or /routes)
+    System --> ATCC : 200 OK\n(CollectionModel with Efficiency DTOs)
+end
+
+opt Get Efficiency for Specific Aircraft/Route
+    ATCC -> System : GET /api/fuel-efficiency/aircraft/{registration}\n(or /routes/{routeId})
+    
+    alt Resource exists and has flights
+        System --> ATCC : 200 OK\nPayload: Efficiency DTO
+    else Resource not found or no flights
+        System --> ATCC : 404 Not Found\n(ResourceNotFoundException)
+    end
+end
+
+@enduml

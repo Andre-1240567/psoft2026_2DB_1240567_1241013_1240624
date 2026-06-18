@@ -1,0 +1,75 @@
+@startuml US223-CD
+
+package "flightroutes.api" {
+    class AircraftUtilizationController {
+        + getAllAircraftUtilization(): ResponseEntity<CollectionModel<AircraftUtilizationDTO>>
+        + getAircraftUtilization(registrationNumber: String): ResponseEntity<AircraftUtilizationDTO>
+    }
+
+    class AircraftUtilizationDTO <<RepresentationModel>> {
+        - registrationNumber: String
+        - modelName: String
+        - periods: List<AircraftUtilizationPeriodDTO>
+        - totalFlightHours: double
+        - totalFlights: long
+    }
+
+    class AircraftUtilizationPeriodDTO {
+        - year: int
+        - month: int
+        - totalFlights: long
+        - totalFlightHours: double
+    }
+}
+
+package "flightroutes.services" {
+    class AircraftUtilizationService {
+        + getUtilizationForAllAircraft(): List<AircraftUtilizationDTO>
+        + getUtilizationForAircraft(registrationNumber: String): AircraftUtilizationDTO
+        - buildUtilizationList(flights: List<ScheduledFlight>): List<AircraftUtilizationDTO>
+        - computeFlightHours(sf: ScheduledFlight): double
+    }
+}
+
+package "flightroutes.domain" {
+    class ScheduledFlight <<Entity>> {
+        - scheduledDeparture: LocalDateTime
+        - scheduledArrival: LocalDateTime
+    }
+}
+
+package "aircraftmanagement.domain" {
+    class Aircraft <<Entity>> {
+        - registrationNumber: String
+    }
+    class AircraftModel <<Entity>> {
+        - modelName: String
+    }
+}
+
+package "flightroutes.repositories" {
+    interface ScheduledFlightRepository {
+        + findNonCancelledFlightsForUtilization(registrationNumber: String): List<ScheduledFlight>
+    }
+}
+
+package "shared.exceptions" {
+    class ResourceNotFoundException <<Exception>>
+}
+
+' Controller dependencies
+AircraftUtilizationController ..> AircraftUtilizationService : delegates to
+AircraftUtilizationController ..> AircraftUtilizationDTO : returns
+AircraftUtilizationDTO *-- AircraftUtilizationPeriodDTO : contains
+
+' Service dependencies
+AircraftUtilizationService ..> ScheduledFlightRepository : uses
+AircraftUtilizationService ..> AircraftUtilizationDTO : creates
+AircraftUtilizationService ..> ResourceNotFoundException : throws
+
+' Repository and Domain relationships
+ScheduledFlightRepository ..> ScheduledFlight : returns
+ScheduledFlight --> Aircraft : operates
+Aircraft --> AircraftModel : is of type
+
+@enduml
