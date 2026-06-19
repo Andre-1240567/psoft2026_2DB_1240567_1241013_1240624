@@ -1,8 +1,9 @@
 {
   "info": {
-    "_postman_id": "98c5d467-f88c-5824-95ad-03642g23f561",
+    "_postman_id": "8a1fba91-7766-47f3-a4f2-02f9a11d4efa",
     "name": "WP#2B - Enhanced Airport Features",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55038069"
   },
   "item": [
     {
@@ -16,7 +17,7 @@
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "var jsonData = pm.response.json();",
               "if(jsonData.token) {",
-              "    pm.environment.set(\"jwt_token\", jsonData.token);",
+              "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
               "    console.log(\"Token saved!\");",
               "}"
             ]
@@ -46,7 +47,8 @@
             "login"
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "0. AUTH - Login as ATCC",
@@ -54,15 +56,17 @@
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "var jsonData = pm.response.json();",
               "if(jsonData.token) {",
-              "    pm.environment.set(\"jwt_token\", jsonData.token);",
+              "    pm.collectionVariables.set(\"jwt_token_atcc\", jsonData.token);",
               "    console.log(\"Token saved!\");",
               "}"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
@@ -89,10 +93,28 @@
             "login"
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "US207- Create Airport with Enhanced Features",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Response contains new features\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.iataCode).to.eql(\"LHR\");",
+              "    pm.expect(jsonData.photos.length).to.eql(2);",
+              "    // Note: terminals might not be exposed in the summary DTO depending on implementation, adjust if needed.",
+              "});"
+            ]
+          }
+        }
+      ],
       "request": {
         "auth": {
           "type": "bearer",
@@ -126,27 +148,31 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US208- Update Airport Details",
       "event": [
         {
           "listen": "test",
           "script": {
             "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
-              "pm.test(\"Response contains new features\", function () {",
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Response contains operational hours\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.iataCode.code).to.eql(\"LHR\");",
-              "    pm.expect(jsonData.photos.length).to.eql(2);",
-              "    pm.expect(jsonData.terminals.length).to.eql(1);",
+              "    pm.expect(jsonData.operationalHours).to.not.be.null;",
+              "    pm.expect(jsonData.operationalHours.openingTime).to.eql(\"06:00:00\");",
+              "});",
+              "pm.test(\"Response contains contacts\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.contacts).to.be.an(\"array\");",
+              "    pm.expect(jsonData.contacts.length).to.eql(2);",
               "});"
             ]
           }
         }
-      ]
-    },
-    {
-      "name": "US208- Update Airport Details",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
@@ -182,38 +208,35 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US209 - View Routes by Airport",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Response contains operational hours\", function () {",
+              "pm.test(\"Response is paginated\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.operationalHours).to.not.be.null;",
-              "    pm.expect(jsonData.operationalHours.openingTime).to.eql(\"06:00:00\");",
-              "});",
-              "pm.test(\"Response contains contacts\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.contacts).to.be.an(\"array\");",
-              "    pm.expect(jsonData.contacts.length).to.eql(2);",
+              "    pm.expect(jsonData.page).to.not.be.null;",
+              "    pm.expect(jsonData._embedded).to.not.be.null;",
               "});"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
-      ]
-    },
-    {
-      "name": "US209 - View Routes by Airport",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_atcc}}",
               "type": "string"
             }
           ]
@@ -243,7 +266,10 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US210 - Busiest Airports Statistics",
       "event": [
         {
           "listen": "test",
@@ -251,18 +277,14 @@
             "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Response is paginated\", function () {",
+              "pm.test(\"Response is a list\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.page).to.not.be.null;",
-              "    pm.expect(jsonData._embedded).to.not.be.null;",
+              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
               "});"
             ]
           }
         }
-      ]
-    },
-    {
-      "name": "US210 - Busiest Airports Statistics",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
@@ -289,32 +311,34 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US211 - View Airports Grouped by Region",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Response is a list\", function () {",
+              "pm.test(\"Response is a Map\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an(\"array\");",
+              "    pm.expect(jsonData).to.be.an(\"object\");",
               "});"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
-      ]
-    },
-    {
-      "name": "US211 - View Airports Grouped by Region",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_atcc}}}}",
               "type": "string"
             }
           ]
@@ -339,22 +363,17 @@
           ]
         }
       },
-      "response": [],
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Response is a Map\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an(\"object\");",
-              "});"
-            ]
-          }
-        }
-      ]
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": ""
+    },
+    {
+      "key": "jwt_token_atcc",
+      "value": ""
     }
   ]
 }

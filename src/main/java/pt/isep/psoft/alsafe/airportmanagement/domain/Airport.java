@@ -70,6 +70,7 @@ public class Airport {
         this.name = name;
         this.location = location;
         this.timezone = timezone;
+        this.status = Status.OPERATIONAL;
     }
 
     public void updateDetails(OperationalHours operationalHours, List<Contact> contacts) {

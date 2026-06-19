@@ -1,8 +1,9 @@
 {
   "info": {
-    "_postman_id": "87b4c356-e77b-4713-849c-f2531f12e450",
-    "name": "WP#2A - Airports",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "_postman_id": "34a721b6-a194-49e6-bb62-56a83571194b",
+    "name": "WP#2A - Airports Copy",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55038069"
   },
   "item": [
     {
@@ -11,15 +12,18 @@
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "var jsonData = pm.response.json();",
               "if(jsonData.token) {",
-              "    pm.environment.set(\"jwt_token\", jsonData.token);",
-              "    console.log(\"Token saved!\");",
+              "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+              "    pm.collectionVariables.set(\"jwt_token_operator\", jsonData.token);",
+              "    console.log(\"Token saved to collection variables!\");",
               "}"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
@@ -46,17 +50,46 @@
             "login"
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "US106- Create Airport",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
+              "pm.test(\"Response contains IATA code\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData.iataCode).to.eql(\"JFK\");",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              ""
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_operator}}",
               "type": "string"
             }
           ]
@@ -83,32 +116,34 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US107- View Airport Details",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
-              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
-              "pm.test(\"Response contains IATA code\", function () {",
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Airport name is correct\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.iataCode.code).to.eql(\"JFK\");",
+              "    pm.expect(jsonData.name).to.eql(\"John F. Kennedy International Airport\");",
               "});"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
-      ]
-    },
-    {
-      "name": "US107- View Airport Details",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_operator}}",
               "type": "string"
             }
           ]
@@ -127,32 +162,81 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "0. AUTH - Login as ATCC",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Airport name is correct\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.name).to.eql(\"John F. Kennedy International Airport\");",
-              "});"
-            ]
+              "var jsonData = pm.response.json();",
+              "if(jsonData.token) {",
+              "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+              "    pm.collectionVariables.set(\"jwt_token_atcc\", jsonData.token);",
+              "    console.log(\"Token saved to collection variables!\");",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
-      ]
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\": \"atcc\", \"password\": \"atcc123\"}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/auth/login",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
     },
     {
       "name": "US108- Search Airport by City",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+              "pm.test(\"Returns a list\", function () {",
+              "    var jsonData = pm.response.json();",
+              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_atcc}}",
               "type": "string"
             }
           ]
@@ -176,33 +260,34 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US108- Search Airport by Country",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "pm.test(\"Returns a list\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an(\"array\");",
-              "    pm.expect(jsonData.length).to.be.above(0);",
+              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
               "});"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
-      ]
-    },
-    {
-      "name": "US108- Search Airport by Country",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_atcc}}",
               "type": "string"
             }
           ]
@@ -226,33 +311,34 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US108- Search Airport by Name",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
               "pm.test(\"Returns a list\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an(\"array\");",
-              "    pm.expect(jsonData.length).to.be.above(0);",
+              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
               "});"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
-      ]
-    },
-    {
-      "name": "US108- Search Airport by Name",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_atcc}}",
               "type": "string"
             }
           ]
@@ -276,33 +362,34 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US109- Change Status (Closed)",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Returns a list\", function () {",
+              "pm.test(\"Airport status changed to CLOSED\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.be.an(\"array\");",
-              "    pm.expect(jsonData.length).to.be.above(0);",
+              "    pm.expect(jsonData.status).to.eql(\"CLOSED\");",
               "});"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
-      ]
-    },
-    {
-      "name": "US109- Change Status (Closed)",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_operator}}",
               "type": "string"
             }
           ]
@@ -331,32 +418,37 @@
           ]
         }
       },
-      "response": [],
+      "response": []
+    },
+    {
+      "name": "US106a- Certification",
       "event": [
         {
           "listen": "test",
           "script": {
-            "type": "text/javascript",
             "exec": [
               "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Airport status changed to CLOSED\", function () {",
+              "pm.test(\"Certification added\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.status).to.eql(\"CLOSED\");",
+              "    var certs = jsonData.certifications;",
+              "    pm.expect(certs).to.be.an(\"array\");",
+              "    var found = certs.some(function(c) { return c === \"737 MAX\"; });",
+              "    pm.expect(found).to.be.true;",
               "});"
-            ]
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
-      ]
-    },
-    {
-      "name": "US106a- Certification",
+      ],
       "request": {
         "auth": {
           "type": "bearer",
           "bearer": [
             {
               "key": "token",
-              "value": "{{jwt_token}}",
+              "value": "{{jwt_token_operator}}",
               "type": "string"
             }
           ]
@@ -385,25 +477,21 @@
           ]
         }
       },
-      "response": [],
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "type": "text/javascript",
-            "exec": [
-              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
-              "pm.test(\"Certification added\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    var certs = jsonData.certifications;",
-              "    pm.expect(certs).to.be.an(\"array\");",
-              "    var found = certs.some(function(c) { return c.modelName === \"737 MAX\"; });",
-              "    pm.expect(found).to.be.true;",
-              "});"
-            ]
-          }
-        }
-      ]
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "jwt_token",
+      "value": ""
+    },
+    {
+      "key": "jwt_token_operator",
+      "value": ""
+    },
+    {
+      "key": "jwt_token_atcc",
+      "value": ""
     }
   ]
 }

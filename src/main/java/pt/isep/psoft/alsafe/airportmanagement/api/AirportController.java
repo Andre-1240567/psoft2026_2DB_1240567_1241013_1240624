@@ -43,6 +43,7 @@ public class AirportController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
     @Operation(summary = "US106 - Create a new Airport")
     public ResponseEntity<AirportViewDTO> createAirport(@Valid @RequestBody CreateAirportRequestDTO request) {
         Airport createdAirport = airportService.createAirport(request);
@@ -50,6 +51,7 @@ public class AirportController {
     }
 
     @GetMapping("/{iataCode}")
+    @PreAuthorize("hasAnyRole('BACKOFFICE_OPERATOR', 'ATCC')")
     @Operation(summary = "US107 - Get details of a specific Airport by IATA Code")
     public ResponseEntity<AirportViewDTO> getAirportDetails(@PathVariable("iataCode") String iataCode) {
         Airport airport = airportService.getAirportDetails(iataCode);
@@ -57,16 +59,24 @@ public class AirportController {
     }
 
     @GetMapping
-    @Operation(summary = "US108 - Search Airports by city")
-    public ResponseEntity<CollectionModel<AirportViewDTO>> searchAirports(@RequestParam(value = "city", required = false) String city) {
-        if (city == null || city.trim().isEmpty()) {
-            throw new IllegalArgumentException("O parâmetro de pesquisa 'city' é obrigatório.");
+    @PreAuthorize("hasRole('ATCC')")
+    @Operation(summary = "US108 - Search Airports by city, country, or name")
+    public ResponseEntity<CollectionModel<AirportViewDTO>> searchAirports(
+            @RequestParam(value = "city", required = false) String city,
+            @RequestParam(value = "country", required = false) String country,
+            @RequestParam(value = "name", required = false) String name) {
+        
+        if ((city == null || city.trim().isEmpty()) && 
+            (country == null || country.trim().isEmpty()) && 
+            (name == null || name.trim().isEmpty())) {
+            throw new IllegalArgumentException("At least one search parameter (city, country, or name) is required.");
         }
-        List<Airport> airports = airportService.searchAirportsByCity(city);
+        List<Airport> airports = airportService.searchAirports(city, country, name);
         return ResponseEntity.ok(airportModelAssembler.toCollectionModel(airports));
     }
 
     @PatchMapping("/{iataCode}/status")
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
     @Operation(summary = "US109 - Change the operational status of an Airport")
     public ResponseEntity<AirportViewDTO> changeOperationalStatus(
             @PathVariable("iataCode") String iataCode,
@@ -77,6 +87,7 @@ public class AirportController {
     }
 
     @PostMapping("/{iataCode}/certifications")
+    @PreAuthorize("hasAnyRole('BACKOFFICE_OPERATOR', 'ATCC')")
     @Operation(summary = "US106a - Add an airplane certification to an Airport")
     public ResponseEntity<AirportViewDTO> addAirplaneCertification(
             @PathVariable("iataCode") String iataCode,
@@ -87,6 +98,7 @@ public class AirportController {
     }
 
     @PatchMapping("/{iataCode}/details")
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
     @Operation(summary = "US208 - Update airport details including operational hours and contact information")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Airport details updated successfully")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input data")

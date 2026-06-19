@@ -220,32 +220,32 @@ class AirportServiceTest {
     }
 
     @Test
-    void ensureSearchAirportsByCitySuccess() {
+    void ensureSearchAirportsSuccess() {
         String city = "Los Angeles";
         List<Airport> expectedAirports = new ArrayList<>();
         expectedAirports.add(dummyAirport);
 
-        when(airportRepository.findByLocation_City(city)).thenReturn(expectedAirports);
+        when(airportRepository.searchAirports(city, null, null)).thenReturn(expectedAirports);
 
-        List<Airport> result = airportService.searchAirportsByCity(city);
+        List<Airport> result = airportService.searchAirports(city, null, null);
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(dummyAirport, result.get(0));
-        verify(airportRepository, times(1)).findByLocation_City(city);
+        verify(airportRepository, times(1)).searchAirports(city, null, null);
     }
 
     @Test
-    void ensureSearchAirportsByCityReturnsEmptyList() {
+    void ensureSearchAirportsReturnsEmptyList() {
         String city = "Nowhere";
 
-        when(airportRepository.findByLocation_City(city)).thenReturn(new ArrayList<>());
+        when(airportRepository.searchAirports(city, null, null)).thenReturn(new ArrayList<>());
 
-        List<Airport> result = airportService.searchAirportsByCity(city);
+        List<Airport> result = airportService.searchAirports(city, null, null);
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
-        verify(airportRepository, times(1)).findByLocation_City(city);
+        verify(airportRepository, times(1)).searchAirports(city, null, null);
     }
 
     @Test

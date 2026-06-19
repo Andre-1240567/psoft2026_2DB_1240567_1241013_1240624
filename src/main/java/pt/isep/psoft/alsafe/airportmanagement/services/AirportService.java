@@ -31,9 +31,14 @@ public class AirportService {
         }
 
         IATACode iataCodeVO = new IATACode(dto.getIataCode());
-        GPSCoordinates gpsCoordinatesVO = new GPSCoordinates(dto.getLatitude(), dto.getLongitude());
-        Location locationVO = new Location(dto.getRegion(), dto.getCountry(), dto.getCity(), gpsCoordinatesVO);
         Timezone timezoneVO = new Timezone(dto.getTimezone());
+
+        GPSCoordinates gpsCoordinatesVO = null;
+        if (dto.getLatitude() != null && dto.getLongitude() != null) {
+            gpsCoordinatesVO = new GPSCoordinates(dto.getLatitude(), dto.getLongitude());
+        }
+
+        Location locationVO = new Location(dto.getRegion(), dto.getCountry(), dto.getCity(), gpsCoordinatesVO);
 
         Airport newAirport = new Airport(iataCodeVO, dto.getName(), locationVO, timezoneVO);
 
@@ -94,8 +99,8 @@ public class AirportService {
         return airportRepository.save(airport);
     }
 
-    public List<Airport> searchAirportsByCity(String city) {
-        return airportRepository.findByLocation_City(city);
+    public List<Airport> searchAirports(String city, String country, String name) {
+        return airportRepository.searchAirports(city, country, name);
     }
 
     @Transactional

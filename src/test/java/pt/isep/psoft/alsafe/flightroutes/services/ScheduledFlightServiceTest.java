@@ -57,11 +57,9 @@ class ScheduledFlightServiceTest {
     @BeforeEach
     void setUp() {
         origin = new Airport(new IATACode("OPO"), "OPO", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
-        origin.changeStatus(Status.OPERATIONAL);
         origin.addCertification("Boeing 737");
 
         dest = new Airport(new IATACode("MAD"), "MAD", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
-        dest.changeStatus(Status.OPERATIONAL);
         dest.addCertification("Boeing 737");
 
         RouteRequirement req = new RouteRequirement(1000.0, 100);
@@ -260,7 +258,6 @@ class ScheduledFlightServiceTest {
     @Test
     void ensureScheduleFlightThrowsWhenDestinationNotCertified() {
         Airport newDest = new Airport(new IATACode("LIS"), "LIS", new Location("R", "C", "C", new GPSCoordinates(0.0, 0.0)), new Timezone("UTC+00:00"));
-        newDest.changeStatus(Status.OPERATIONAL);
         
         FlightRoute routeToLis = new FlightRoute("routeLIS", origin, newDest, 500.0, 60, new RouteRequirement(1000.0, 100), "atcc");
         
