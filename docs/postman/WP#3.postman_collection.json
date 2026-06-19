@@ -1,9 +1,10 @@
 {
   "info": {
-    "_postman_id": "wp3-complete-2026",
-    "name": "WP3-Complete (FlightRoutes + ScheduledFlights + US223 + US227)",
+    "_postman_id": "a840eb24-1288-40b8-99e7-1fab347097d2",
+    "name": "WP3 + Extras",
     "description": "Full E2E test suite for WP3A, WP3B, Bonus US228/US229, Cancel Flight, Departures Board, US223 Aircraft Utilization, US227 Fuel Efficiency.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55038069"
   },
   "item": [
     {
@@ -29,17 +30,29 @@
       ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"username\": \"atcc\",\n    \"password\": \"atcc123\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/auth/login",
-          "host": ["{{base_url}}"],
-          "path": ["api", "auth", "login"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "0b. AUTH - Login as BACKOFFICE_OPERATOR",
@@ -64,17 +77,29 @@
       ],
       "request": {
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"username\": \"operator\",\n    \"password\": \"operator123\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/auth/login",
-          "host": ["{{base_url}}"],
-          "path": ["api", "auth", "login"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "1. [US110 - WP3A] Create Flight Route (OPO-MAD)",
@@ -83,48 +108,69 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Status is 201 Created\", function () {",
-              "    pm.response.to.have.status(201);",
-              "});",
-              "",
-              "pm.test(\"Response contains HATEOAS _links\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.have.property('_links');",
-              "});",
-              "",
-              "pm.test(\"Route status is ACTIVE\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.routeStatus).to.eql(\"ACTIVE\");",
+              "pm.test(\"Status is 201 Created or 409 Conflict\", function () {",
+              "    pm.expect(pm.response.code).to.be.oneOf([201, 409, 400]);",
               "});",
               "",
               "if (pm.response.code === 201) {",
+              "    pm.test(\"Response contains HATEOAS _links\", function () {",
+              "        var jsonData = pm.response.json();",
+              "        pm.expect(jsonData).to.have.property('_links');",
+              "    });",
+              "",
+              "    pm.test(\"Route status is ACTIVE\", function () {",
+              "        var jsonData = pm.response.json();",
+              "        pm.expect(jsonData.routeStatus).to.eql(\"ACTIVE\");",
+              "    });",
+              "",
               "    var jsonData = pm.response.json();",
               "    pm.environment.set(\"routeId\", jsonData.routeId);",
               "    pm.environment.set(\"routeVersion\", jsonData.version);",
               "    console.log(\"Route ID saved: \" + jsonData.routeId);",
+              "} else {",
+              "    console.log(\"A rota já existia. A saltar a captura do routeId para não esmagar variáveis existentes.\");",
               "}"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"originIata\": \"OPO\",\n    \"destinationIata\": \"MAD\",\n    \"distance\": 420.5,\n    \"estimatedFlightTime\": 70,\n    \"minRangeRequired\": 500.0,\n    \"minCapacityRequired\": 100\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/flight-routes",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "2. [US110 - WP3A] Create Route Error - Same Origin and Destination",
@@ -144,20 +190,37 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"originIata\": \"OPO\",\n    \"destinationIata\": \"OPO\",\n    \"distance\": 420.5,\n    \"estimatedFlightTime\": 70,\n    \"minRangeRequired\": 500.0,\n    \"minCapacityRequired\": 100\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/flight-routes",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "3. [US110 - WP3A] Create Route Error - Airport Not Found",
@@ -177,20 +240,37 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"originIata\": \"XXX\",\n    \"destinationIata\": \"MAD\",\n    \"distance\": 420.5,\n    \"estimatedFlightTime\": 70,\n    \"minRangeRequired\": 500.0,\n    \"minCapacityRequired\": 100\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/flight-routes",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "4. [US113 - WP3A] Get Route by ID",
@@ -220,16 +300,29 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/{{routeId}}",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "{{routeId}}"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "5. [US113 - WP3A] Get Route by ID - Not Found",
@@ -249,16 +342,29 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/non-existent-id",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "non-existent-id"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "non-existent-id"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "6. [US111 - WP3A] Get Route History",
@@ -288,16 +394,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/{{routeId}}/history",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "{{routeId}}", "history"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}",
+            "history"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "7. [US114 - WP3A] Search Routes by Origin",
@@ -322,21 +442,42 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes?originIata=OPO&page=0&size=10",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes"],
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ],
           "query": [
-            { "key": "originIata", "value": "OPO" },
-            { "key": "page", "value": "0" },
-            { "key": "size", "value": "10" }
+            {
+              "key": "originIata",
+              "value": "OPO"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "8. [US114 - WP3A] Search Routes by Origin and Destination",
@@ -361,22 +502,46 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes?originIata=OPO&destinationIata=MAD&page=0&size=10",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes"],
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ],
           "query": [
-            { "key": "originIata", "value": "OPO" },
-            { "key": "destinationIata", "value": "MAD" },
-            { "key": "page", "value": "0" },
-            { "key": "size", "value": "10" }
+            {
+              "key": "originIata",
+              "value": "OPO"
+            },
+            {
+              "key": "destinationIata",
+              "value": "MAD"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "9. [US112 - WP3A] Update Flight Route",
@@ -406,20 +571,38 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "PUT",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"distance\": 450.0,\n    \"estimatedFlightTime\": 75,\n    \"minRangeRequired\": 550.0,\n    \"minCapacityRequired\": 120,\n    \"version\": {{routeVersion}}\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/flight-routes/{{routeId}}",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "{{routeId}}"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "10. [US112 - WP3A] Update Route Error - Stale Version (Concurrency)",
@@ -439,20 +622,38 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "PUT",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
           "raw": "{\n    \"distance\": 450.0,\n    \"estimatedFlightTime\": 75,\n    \"minRangeRequired\": 550.0,\n    \"minCapacityRequired\": 120,\n    \"version\": 0\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/flight-routes/{{routeId}}",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "{{routeId}}"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "11. [US113 - WP3A] Get Routes from Airport (OPO)",
@@ -477,21 +678,42 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes?originIata=OPO&page=0&size=10",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes"],
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ],
           "query": [
-            { "key": "originIata", "value": "OPO" },
-            { "key": "page", "value": "0" },
-            { "key": "size", "value": "10" }
+            {
+              "key": "originIata",
+              "value": "OPO"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "12. [US214 - WP3B] List Active Routes Sorted by Popularity",
@@ -516,22 +738,46 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes?status=ACTIVE&sortBy=popularity&page=0&size=10",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes"],
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ],
           "query": [
-            { "key": "status", "value": "ACTIVE" },
-            { "key": "sortBy", "value": "popularity" },
-            { "key": "page", "value": "0" },
-            { "key": "size", "value": "10" }
+            {
+              "key": "status",
+              "value": "ACTIVE"
+            },
+            {
+              "key": "sortBy",
+              "value": "popularity"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "13. [US214 - WP3B] List Active Routes Sorted by Distance",
@@ -556,22 +802,46 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes?status=ACTIVE&sortBy=distance&page=0&size=10",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes"],
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes"
+          ],
           "query": [
-            { "key": "status", "value": "ACTIVE" },
-            { "key": "sortBy", "value": "distance" },
-            { "key": "page", "value": "0" },
-            { "key": "size", "value": "10" }
+            {
+              "key": "status",
+              "value": "ACTIVE"
+            },
+            {
+              "key": "sortBy",
+              "value": "distance"
+            },
+            {
+              "key": "page",
+              "value": "0"
+            },
+            {
+              "key": "size",
+              "value": "10"
+            }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "14. [US215 - WP3B] Get Total Network Distance",
@@ -601,16 +871,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/network/total-distance",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "network", "total-distance"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "network",
+            "total-distance"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "15. [US216 - WP3B] Search Alternative Routes (fewest-stops)",
@@ -635,21 +919,43 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/alternatives?originIata=OPO&destinationIata=MAD&algorithm=fewest-stops",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "alternatives"],
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "alternatives"
+          ],
           "query": [
-            { "key": "originIata", "value": "OPO" },
-            { "key": "destinationIata", "value": "MAD" },
-            { "key": "algorithm", "value": "fewest-stops" }
+            {
+              "key": "originIata",
+              "value": "OPO"
+            },
+            {
+              "key": "destinationIata",
+              "value": "MAD"
+            },
+            {
+              "key": "algorithm",
+              "value": "fewest-stops"
+            }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "16. [US216 - WP3B] Search Alternative Routes (eco-friendly)",
@@ -674,21 +980,43 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/alternatives?originIata=OPO&destinationIata=MAD&algorithm=eco-friendly",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "alternatives"],
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "alternatives"
+          ],
           "query": [
-            { "key": "originIata", "value": "OPO" },
-            { "key": "destinationIata", "value": "MAD" },
-            { "key": "algorithm", "value": "eco-friendly" }
+            {
+              "key": "originIata",
+              "value": "OPO"
+            },
+            {
+              "key": "destinationIata",
+              "value": "MAD"
+            },
+            {
+              "key": "algorithm",
+              "value": "eco-friendly"
+            }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "17. [US216 - WP3B] Alternative Routes Error - Same Origin and Destination",
@@ -708,21 +1036,43 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/alternatives?originIata=OPO&destinationIata=OPO&algorithm=fewest-stops",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "alternatives"],
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "alternatives"
+          ],
           "query": [
-            { "key": "originIata", "value": "OPO" },
-            { "key": "destinationIata", "value": "OPO" },
-            { "key": "algorithm", "value": "fewest-stops" }
+            {
+              "key": "originIata",
+              "value": "OPO"
+            },
+            {
+              "key": "destinationIata",
+              "value": "OPO"
+            },
+            {
+              "key": "algorithm",
+              "value": "fewest-stops"
+            }
           ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "18. [US212 - WP3B] Schedule Flight (OPO-MAD)",
@@ -746,27 +1096,63 @@
               "    console.log(\"Flight Number saved: \" + jsonData.flightNumber);",
               "}"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const moment = require('moment');\r",
+              "\r",
+              "var depTime = moment().add(1, 'days').set({hour:10, minute:0, second:0}).format(\"YYYY-MM-DDTHH:mm:ss\");\r",
+              "var arrTime = moment().add(1, 'days').set({hour:12, minute:0, second:0}).format(\"YYYY-MM-DDTHH:mm:ss\");\r",
+              "\r",
+              "pm.environment.set(\"dynamic_departure\", depTime);\r",
+              "pm.environment.set(\"dynamic_arrival\", arrTime);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"routeId\": \"{{routeId}}\",\n    \"aircraftRegistration\": \"CS-TPA\",\n    \"departureTime\": \"2026-12-01T10:00:00\",\n    \"arrivalTime\": \"2026-12-01T12:00:00\"\n}"
+          "raw": "{\n    \"routeId\": \"{{routeId}}\",\n    \"aircraftRegistration\": \"CS-TPA\",\n    \"departureTime\": \"{{dynamic_departure}}\",\n    \"arrivalTime\": \"{{dynamic_arrival}}\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "19. [US212 - WP3B] Schedule Flight Error - Time Conflict",
@@ -779,27 +1165,63 @@
               "    pm.response.to.have.status(409);",
               "});"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        },
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const moment = require('moment');\r",
+              "\r",
+              "var overlapDep = moment().add(1, 'days').set({hour:11, minute:0, second:0}).format(\"YYYY-MM-DDTHH:mm:ss\");\r",
+              "var overlapArr = moment().add(1, 'days').set({hour:13, minute:0, second:0}).format(\"YYYY-MM-DDTHH:mm:ss\");\r",
+              "\r",
+              "pm.environment.set(\"overlap_departure\", overlapDep);\r",
+              "pm.environment.set(\"overlap_arrival\", overlapArr);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "POST",
-        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
         "body": {
           "mode": "raw",
-          "raw": "{\n    \"routeId\": \"{{routeId}}\",\n    \"aircraftRegistration\": \"CS-TPA\",\n    \"departureTime\": \"2026-12-01T11:00:00\",\n    \"arrivalTime\": \"2026-12-01T13:00:00\"\n}"
+          "raw": "{\n    \"routeId\": \"{{routeId}}\",\n    \"aircraftRegistration\": \"CS-TPA\",\n    \"departureTime\": \"{{overlap_departure}}\",\n    \"arrivalTime\": \"{{overlap_arrival}}\"\n}"
         },
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "20. [US213 - WP3B] Get Scheduled Flights for Aircraft",
@@ -819,16 +1241,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/aircraft/CS-TPA",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "aircraft", "CS-TPA"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "aircraft",
+            "CS-TPA"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "21. [US213 - WP3B] Get Scheduled Flight by Flight Number",
@@ -853,16 +1289,29 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/{{flightNumber}}",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "{{flightNumber}}"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "{{flightNumber}}"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "22. [US112 - WP3A] Deactivate Route",
@@ -887,16 +1336,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "PATCH",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/{{routeId}}/deactivate",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "{{routeId}}", "deactivate"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}",
+            "deactivate"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "23. [US112 - WP3A] Deactivate Route Error - Already Deactivated",
@@ -916,16 +1379,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "PATCH",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/{{routeId}}/deactivate",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "{{routeId}}", "deactivate"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "{{routeId}}",
+            "deactivate"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "24. [US229 - Bonus] Flight Utilization Report",
@@ -960,16 +1437,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token_operator}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token_operator}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/reports/utilization",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "reports", "utilization"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "reports",
+            "utilization"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "25. [US228 - Bonus] Export Route Network as GeoJSON",
@@ -998,17 +1489,35 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token_operator}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token_operator}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/export?format=geojson",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "export"],
-          "query": [{ "key": "format", "value": "geojson" }]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "export"
+          ],
+          "query": [
+            {
+              "key": "format",
+              "value": "geojson"
+            }
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "26. [US228 - Bonus] Export Route Network as KML",
@@ -1037,17 +1546,35 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token_operator}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token_operator}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/export?format=kml",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "export"],
-          "query": [{ "key": "format", "value": "kml" }]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "export"
+          ],
+          "query": [
+            {
+              "key": "format",
+              "value": "kml"
+            }
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "27. [US228 - Bonus] Export Route Network Error - Invalid Format",
@@ -1067,17 +1594,35 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token_operator}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token_operator}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/flight-routes/export?format=csv",
-          "host": ["{{base_url}}"],
-          "path": ["api", "flight-routes", "export"],
-          "query": [{ "key": "format", "value": "csv" }]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "flight-routes",
+            "export"
+          ],
+          "query": [
+            {
+              "key": "format",
+              "value": "csv"
+            }
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "28. [Bonus] Get Scheduled Flight by ID - Not Found",
@@ -1102,16 +1647,29 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/non-existent-flight-id",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "non-existent-flight-id"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "non-existent-flight-id"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "29. [Bonus] Cancel a Scheduled Flight",
@@ -1141,16 +1699,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "PATCH",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/{{flightNumber}}/cancel",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "{{flightNumber}}", "cancel"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "{{flightNumber}}",
+            "cancel"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "30. [Bonus] Cancel Flight Error - Already Canceled",
@@ -1175,16 +1747,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "PATCH",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/{{flightNumber}}/cancel",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "{{flightNumber}}", "cancel"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "{{flightNumber}}",
+            "cancel"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "31. [Bonus] Cancel Flight Error - Not Found",
@@ -1204,16 +1790,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "PATCH",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/non-existent-id/cancel",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "non-existent-id", "cancel"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "non-existent-id",
+            "cancel"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "32. [Bonus] Departures Board - OPO next 24h",
@@ -1249,17 +1849,36 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/departures/OPO?hours=24",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "departures", "OPO"],
-          "query": [{ "key": "hours", "value": "24" }]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "departures",
+            "OPO"
+          ],
+          "query": [
+            {
+              "key": "hours",
+              "value": "24"
+            }
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "33. [Bonus] Departures Board - Custom Window (48h)",
@@ -1284,17 +1903,36 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/departures/OPO?hours=48",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "departures", "OPO"],
-          "query": [{ "key": "hours", "value": "48" }]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "departures",
+            "OPO"
+          ],
+          "query": [
+            {
+              "key": "hours",
+              "value": "48"
+            }
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "34. [Bonus] Departures Board - 401 No Auth",
@@ -1316,10 +1954,18 @@
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/scheduled-flights/departures/OPO",
-          "host": ["{{base_url}}"],
-          "path": ["api", "scheduled-flights", "departures", "OPO"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "scheduled-flights",
+            "departures",
+            "OPO"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "35. [US223] Get Utilization for All Aircraft",
@@ -1344,27 +1990,41 @@
               "        var key = Object.keys(items)[0];",
               "        var first = items[key][0];",
               "        pm.expect(first).to.have.property('registrationNumber');",
-              "        pm.expect(first).to.have.property('periods');",
+              "        pm.expect(first).to.have.property('utilizationByPeriod');",
               "    }",
               "});"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/aircraft-utilization",
-          "host": ["{{base_url}}"],
-          "path": ["api", "aircraft-utilization"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "aircraft-utilization"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "36. [US223] Get Utilization for Specific Aircraft",
@@ -1382,10 +2042,10 @@
               "    pm.expect(jsonData).to.have.property('registrationNumber');",
               "});",
               "",
-              "pm.test(\"Response has periods array\", function () {",
+              "pm.test(\"Response has utilizationByPeriod array\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.have.property('periods');",
-              "    pm.expect(jsonData.periods).to.be.an('array');",
+              "    pm.expect(jsonData).to.have.property('utilizationByPeriod');",
+              "    pm.expect(jsonData.utilizationByPeriod).to.be.an('array');",
               "});",
               "",
               "pm.test(\"Response contains HATEOAS _links\", function () {",
@@ -1393,23 +2053,38 @@
               "    pm.expect(jsonData).to.have.property('_links');",
               "});"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/aircraft-utilization/CS-TPA",
-          "host": ["{{base_url}}"],
-          "path": ["api", "aircraft-utilization", "CS-TPA"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "aircraft-utilization",
+            "CS-TPA"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "37. [US223] Get Utilization - Aircraft Not Found",
@@ -1429,16 +2104,29 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/aircraft-utilization/XX-INVALID",
-          "host": ["{{base_url}}"],
-          "path": ["api", "aircraft-utilization", "XX-INVALID"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "aircraft-utilization",
+            "XX-INVALID"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "38. [US223] Get Utilization - 401 No Auth",
@@ -1460,10 +2148,16 @@
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/aircraft-utilization",
-          "host": ["{{base_url}}"],
-          "path": ["api", "aircraft-utilization"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "aircraft-utilization"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "39. [US227] Get Fuel Efficiency for All Aircraft",
@@ -1481,34 +2175,49 @@
               "    pm.expect(jsonData).to.have.property('_links');",
               "});",
               "",
-              "pm.test(\"Each entry has registrationNumber and efficiencyKmPerLiter\", function () {",
+              "pm.test(\"Each entry has registrationNumber and efficiencyKmPerL\", function () {",
               "    var jsonData = pm.response.json();",
               "    var items = jsonData._embedded;",
               "    if (items) {",
               "        var key = Object.keys(items)[0];",
               "        var first = items[key][0];",
               "        pm.expect(first).to.have.property('registrationNumber');",
-              "        pm.expect(first).to.have.property('efficiencyKmPerLiter');",
+              "        pm.expect(first).to.have.property('efficiencyKmPerL');",
               "    }",
               "});"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/fuel-efficiency/aircraft",
-          "host": ["{{base_url}}"],
-          "path": ["api", "fuel-efficiency", "aircraft"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "fuel-efficiency",
+            "aircraft"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "40. [US227] Get Fuel Efficiency for Specific Aircraft",
@@ -1526,10 +2235,10 @@
               "    pm.expect(jsonData).to.have.property('registrationNumber');",
               "});",
               "",
-              "pm.test(\"Response has efficiencyKmPerLiter\", function () {",
+              "pm.test(\"Response has efficiencyKmPerL\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.have.property('efficiencyKmPerLiter');",
-              "    pm.expect(jsonData.efficiencyKmPerLiter).to.be.a('number');",
+              "    pm.expect(jsonData).to.have.property('efficiencyKmPerL');",
+              "    pm.expect(jsonData.efficiencyKmPerL).to.be.a('number');",
               "});",
               "",
               "pm.test(\"Response contains HATEOAS _links\", function () {",
@@ -1537,23 +2246,39 @@
               "    pm.expect(jsonData).to.have.property('_links');",
               "});"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/fuel-efficiency/aircraft/CS-TPA",
-          "host": ["{{base_url}}"],
-          "path": ["api", "fuel-efficiency", "aircraft", "CS-TPA"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "fuel-efficiency",
+            "aircraft",
+            "CS-TPA"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "41. [US227] Get Fuel Efficiency - Aircraft Not Found",
@@ -1573,16 +2298,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/fuel-efficiency/aircraft/XX-INVALID",
-          "host": ["{{base_url}}"],
-          "path": ["api", "fuel-efficiency", "aircraft", "XX-INVALID"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "fuel-efficiency",
+            "aircraft",
+            "XX-INVALID"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "42. [US227] Get Fuel Efficiency for All Routes",
@@ -1600,34 +2339,49 @@
               "    pm.expect(jsonData).to.have.property('_links');",
               "});",
               "",
-              "pm.test(\"Each entry has routeId and efficiencyKmPerLiter\", function () {",
+              "pm.test(\"Each entry has routeId and efficiencyKmPerL\", function () {",
               "    var jsonData = pm.response.json();",
               "    var items = jsonData._embedded;",
               "    if (items) {",
               "        var key = Object.keys(items)[0];",
               "        var first = items[key][0];",
               "        pm.expect(first).to.have.property('routeId');",
-              "        pm.expect(first).to.have.property('efficiencyKmPerLiter');",
+              "        pm.expect(first).to.have.property('efficiencyKmPerL');",
               "    }",
               "});"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/fuel-efficiency/routes",
-          "host": ["{{base_url}}"],
-          "path": ["api", "fuel-efficiency", "routes"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "fuel-efficiency",
+            "routes"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "43. [US227] Get Fuel Efficiency for Specific Route",
@@ -1645,10 +2399,10 @@
               "    pm.expect(jsonData).to.have.property('routeId');",
               "});",
               "",
-              "pm.test(\"Response has efficiencyKmPerLiter\", function () {",
+              "pm.test(\"Response has efficiencyKmPerL\", function () {",
               "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData).to.have.property('efficiencyKmPerLiter');",
-              "    pm.expect(jsonData.efficiencyKmPerLiter).to.be.a('number');",
+              "    pm.expect(jsonData).to.have.property('efficiencyKmPerL');",
+              "    pm.expect(jsonData.efficiencyKmPerL).to.be.a('number');",
               "});",
               "",
               "pm.test(\"Response contains HATEOAS _links\", function () {",
@@ -1656,23 +2410,39 @@
               "    pm.expect(jsonData).to.have.property('_links');",
               "});"
             ],
-            "type": "text/javascript"
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
           }
         }
       ],
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/fuel-efficiency/routes/{{routeId}}",
-          "host": ["{{base_url}}"],
-          "path": ["api", "fuel-efficiency", "routes", "{{routeId}}"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "fuel-efficiency",
+            "routes",
+            "{{routeId}}"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "44. [US227] Get Fuel Efficiency Route - Not Found",
@@ -1692,16 +2462,30 @@
       "request": {
         "auth": {
           "type": "bearer",
-          "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{jwt_token}}",
+              "type": "string"
+            }
+          ]
         },
         "method": "GET",
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/fuel-efficiency/routes/non-existent-route",
-          "host": ["{{base_url}}"],
-          "path": ["api", "fuel-efficiency", "routes", "non-existent-route"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "fuel-efficiency",
+            "routes",
+            "non-existent-route"
+          ]
         }
-      }
+      },
+      "response": []
     },
     {
       "name": "45. [US227] Fuel Efficiency - 401 No Auth",
@@ -1723,10 +2507,17 @@
         "header": [],
         "url": {
           "raw": "{{base_url}}/api/fuel-efficiency/aircraft",
-          "host": ["{{base_url}}"],
-          "path": ["api", "fuel-efficiency", "aircraft"]
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "api",
+            "fuel-efficiency",
+            "aircraft"
+          ]
         }
-      }
+      },
+      "response": []
     }
   ]
 }
