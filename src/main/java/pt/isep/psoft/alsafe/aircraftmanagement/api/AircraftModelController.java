@@ -22,6 +22,13 @@ public class AircraftModelController {
     }
 
     @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
+    @GetMapping
+    @Operation(summary = "Get all aircraft models")
+    public java.util.List<AircraftModel> getAllAircraftModels() {
+        return service.getAllAircraftModels();
+    }
+
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Register a new aircraft model (US101)")

@@ -71,8 +71,8 @@ class AircraftModelTest {
     }
     @Test
     void ensureAircraftModelIsCreatedWithImage() {
-        byte[] img = new byte[]{1, 2, 3};
+        String img = "path/to/image.png";
         AircraftModel model = new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0, img);
-        assertArrayEquals(img, model.getImage());
+        assertEquals(img, model.getImage());
     }
 }

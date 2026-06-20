@@ -35,15 +35,14 @@ public class AircraftModel {
     @Column(nullable = false)
     private Double cruisingSpeed;
 
-    @Lob
     @Column(name = "image")
-    private byte[] image;
+    private String image;
 
     public AircraftModel(Manufacturer manufacturer, String modelName, Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed) {
         this(manufacturer, modelName, seatingCapacity, fuelCapacity, maxRange, cruisingSpeed, null);
     }
 
-    public AircraftModel(Manufacturer manufacturer, String modelName, Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed, byte[] image) {
+    public AircraftModel(Manufacturer manufacturer, String modelName, Integer seatingCapacity, Double fuelCapacity, Double maxRange, Double cruisingSpeed, String image) {
         if (manufacturer == null) {
             throw new IllegalArgumentException("Manufacturer cannot be null.");
         }
