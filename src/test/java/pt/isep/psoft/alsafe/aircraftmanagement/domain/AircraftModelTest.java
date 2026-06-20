@@ -108,4 +108,44 @@ class AircraftModelTest {
             model.updateSpecifications(200, 27000.0, 6600.0, 0.0);
         });
     }
+
+    @Test
+    void ensureModelNameCannotBeNull() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, null, 180, 26000.0, 6500.0, 840.0);
+        });
+    }
+
+    @Test
+    void ensureNullParametersThrowException() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, "737 MAX", null, 26000.0, 6500.0, 840.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, null, 6500.0, 840.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, null, 840.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, null);
+        });
+    }
+
+    @Test
+    void ensureUpdateSpecificationsValidatesNullParameters() {
+        AircraftModel model = new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            model.updateSpecifications(null, 27000.0, 6600.0, 850.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            model.updateSpecifications(200, null, 6600.0, 850.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            model.updateSpecifications(200, 27000.0, null, 850.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            model.updateSpecifications(200, 27000.0, 6600.0, null);
+        });
+    }
 }

@@ -99,4 +99,22 @@ class AircraftTest {
         aircraft.addAssignment();
         assertEquals(1, aircraft.getNumberOfAssignments());
     }
+
+    @Test
+    void ensureManufacturingDateCannotBeNull() {
+        AircraftModel model = new AircraftModel(Manufacturer.AIRBUS, "A320neo", 160, 24000.0, 6300.0, 828.0);
+        assertThrows(IllegalArgumentException.class, () -> {
+            new Aircraft("CS-TPA", model, null, "Economy");
+        });
+    }
+
+    @Test
+    void ensureAircraftUsesModelCapacityIfCapacityIsZeroOrNegative() {
+        AircraftModel model = new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0);
+        Aircraft aircraft0 = new Aircraft("CS-TPA", model, LocalDate.now(), "Economy", 0);
+        assertEquals(180, aircraft0.getActiveCapacity());
+        
+        Aircraft aircraftNeg = new Aircraft("CS-TPB", model, LocalDate.now(), "Economy", -10);
+        assertEquals(180, aircraftNeg.getActiveCapacity());
+    }
 }
