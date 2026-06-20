@@ -116,4 +116,14 @@ class AircraftModelServiceTest {
         assertEquals("737 MAX", topModels.get(0).getAircraftModel().getModelName());
         assertEquals(1000.0, topModels.get(0).getUtilizationValue());
     }
+
+    @Test
+    void ensureGetAllAircraftModelsWorks() {
+        when(repository.findAll()).thenReturn(java.util.Collections.singletonList(mockModel));
+        
+        java.util.List<AircraftModel> models = service.getAllAircraftModels();
+        
+        assertEquals(1, models.size());
+        assertEquals("737 MAX", models.get(0).getModelName());
+    }
 }

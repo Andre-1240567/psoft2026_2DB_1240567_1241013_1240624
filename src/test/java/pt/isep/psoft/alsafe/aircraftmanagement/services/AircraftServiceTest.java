@@ -107,4 +107,96 @@ class AircraftServiceTest {
         assertEquals("CS-TPB", result.get(0).getRegistrationNumber()); // 200.0 is greater
         assertEquals("CS-TPA", result.get(1).getRegistrationNumber());
     }
+
+    @Test
+    void ensureCreateAircraftSuccess() {
+        CreateAircraftDTO dto = new CreateAircraftDTO();
+        dto.setRegistrationNumber("CS-TPC");
+        dto.setModelName("A320neo");
+        dto.setManufacturingDate(LocalDate.now());
+
+        when(aircraftRepository.existsById("CS-TPC")).thenReturn(false);
+        when(aircraftModelRepository.findByModelName("A320neo")).thenReturn(Optional.of(mockModel));
+        when(aircraftRepository.save(any(Aircraft.class))).thenAnswer(i -> i.getArgument(0));
+
+        Aircraft created = aircraftService.createAircraft(dto);
+        assertNotNull(created);
+        assertEquals("CS-TPC", created.getRegistrationNumber());
+    }
+
+    @Test
+    void ensureGetAircraftDetailsSuccess() {
+        when(aircraftRepository.findById("CS-TPA")).thenReturn(Optional.of(mockAircraft));
+        Aircraft found = aircraftService.getAircraftDetails("CS-TPA");
+        assertNotNull(found);
+        assertEquals("CS-TPA", found.getRegistrationNumber());
+    }
+
+    @Test
+    void ensureGetAircraftDetailsThrowsWhenNotFound() {
+        when(aircraftRepository.findById("UNKNOWN")).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> aircraftService.getAircraftDetails("UNKNOWN"));
+    }
+
+    @Test
+    void ensureSearchAircraftsByModelAndStatus() {
+        when(aircraftRepository.findByModel_ModelNameAndStatus("A320neo", AircraftStatus.AVAILABLE))
+                .thenReturn(java.util.List.of(mockAircraft));
+        
+        java.util.List<Aircraft> result = aircraftService.searchAircrafts("A320neo", "AVAILABLE", null);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void ensureSearchAircraftsByModelOnly() {
+        when(aircraftRepository.findByModel_ModelName("A320neo"))
+                .thenReturn(java.util.List.of(mockAircraft));
+        
+        java.util.List<Aircraft> result = aircraftService.searchAircrafts("A320neo", null, null);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void ensureSearchAircraftsByStatusOnly() {
+        when(aircraftRepository.findByStatus(AircraftStatus.AVAILABLE))
+                .thenReturn(java.util.List.of(mockAircraft));
+        
+        java.util.List<Aircraft> result = aircraftService.searchAircrafts(null, "AVAILABLE", null);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void ensureSearchAircraftsByYearOnly() {
+        when(aircraftRepository.findAll()).thenReturn(java.util.List.of(mockAircraft));
+        
+        java.util.List<Aircraft> result = aircraftService.searchAircrafts(null, null, LocalDate.now().getYear());
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void ensureSearchAircraftsThrowsOnInvalidStatus() {
+        assertThrows(IllegalArgumentException.class, () -> aircraftService.searchAircrafts(null, "INVALID", null));
+    }
+
+    @Test
+    void ensureUpdateAircraftStatusSuccess() {
+        when(aircraftRepository.findById("CS-TPA")).thenReturn(Optional.of(mockAircraft));
+        when(aircraftRepository.save(any(Aircraft.class))).thenAnswer(i -> i.getArgument(0));
+
+        Aircraft updated = aircraftService.updateAircraftStatus("CS-TPA", "UNDER_MAINTENANCE", 0L);
+        assertNotNull(updated);
+        assertEquals(AircraftStatus.UNDER_MAINTENANCE, updated.getStatus());
+    }
+
+    @Test
+    void ensureUpdateAircraftStatusThrowsIfNotFound() {
+        when(aircraftRepository.findById("CS-TPA")).thenReturn(Optional.empty());
+        assertThrows(IllegalArgumentException.class, () -> aircraftService.updateAircraftStatus("CS-TPA", "AVAILABLE", 0L));
+    }
+
+    @Test
+    void ensureUpdateAircraftStatusThrowsOnInvalidStatus() {
+        when(aircraftRepository.findById("CS-TPA")).thenReturn(Optional.of(mockAircraft));
+        assertThrows(IllegalArgumentException.class, () -> aircraftService.updateAircraftStatus("CS-TPA", "INVALID", 0L));
+    }
 }
