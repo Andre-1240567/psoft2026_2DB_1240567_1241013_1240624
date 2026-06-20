@@ -18,6 +18,10 @@ public class AircraftModelService {
         this.aircraftRepository = aircraftRepository;
     }
 
+    public java.util.List<AircraftModel> getAllAircraftModels() {
+        return repository.findAll();
+    }
+
     public AircraftModel createAircraftModel(CreateAircraftModelDTO dto) {
         AircraftModel newModel = new AircraftModel(
                 dto.getManufacturer(),

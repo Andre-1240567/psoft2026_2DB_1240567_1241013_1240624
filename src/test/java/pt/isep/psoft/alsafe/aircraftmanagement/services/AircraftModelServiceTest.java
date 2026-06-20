@@ -94,14 +94,14 @@ class AircraftModelServiceTest {
         dto.setFuelCapacity(26000.0);
         dto.setMaxRange(6500.0);
         dto.setCruisingSpeed(840.0);
-        dto.setImage(new byte[]{1, 2, 3});
+        dto.setImage("path/to/image.png");
 
         when(repository.save(any(AircraftModel.class))).thenAnswer(i -> i.getArgument(0));
 
         AircraftModel created = service.createAircraftModel(dto);
         assertNotNull(created);
         assertEquals("737 MAX", created.getModelName());
-        assertArrayEquals(new byte[]{1, 2, 3}, created.getImage());
+        assertEquals("path/to/image.png", created.getImage());
     }
 
     @Test

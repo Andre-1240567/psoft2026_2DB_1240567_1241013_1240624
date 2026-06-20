@@ -88,7 +88,7 @@ class AircraftModelControllerTest {
         dto.setFuelCapacity(26000.0);
         dto.setMaxRange(6500.0);
         dto.setCruisingSpeed(840.0);
-        dto.setImage(new byte[]{1, 2, 3});
+        dto.setImage("path/to/image.png");
 
         when(aircraftModelService.createAircraftModel(any(CreateAircraftModelDTO.class))).thenReturn(mockModel);
 
