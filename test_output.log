@@ -1,0 +1,771 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------------< pt.isep.psoft:alsafe >------------------------
+[INFO] Building psoft2026_2DB_1240567_1241013_1240624 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- jacoco:0.8.11:prepare-agent (default) @ alsafe ---
+[INFO] argLine set to -javaagent:/home/pc-andre/.m2/repository/org/jacoco/org.jacoco.agent/0.8.11/org.jacoco.agent-0.8.11-runtime.jar=destfile=/home/pc-andre/Documents/LETI/psoft/psoft2026_2DB_1240567_1241013_1240624/target/jacoco.exec
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ alsafe ---
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] Copying 1 resource from src/main/resources to target/classes
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ alsafe ---
+[INFO] Nothing to compile - all classes are up to date.
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ alsafe ---
+[INFO] skip non existing resourceDirectory /home/pc-andre/Documents/LETI/psoft/psoft2026_2DB_1240567_1241013_1240624/src/test/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ alsafe ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 38 source files with javac [debug parameters release 21] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ alsafe ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest
+18:34:45.667 [main] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest]: AircraftControllerIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+18:34:46.215 [main] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration pt.isep.psoft.alsafe.Psoft20262Db124056712410131240624Application for test class pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.3.0)
+
+2026-06-20T18:34:47.116+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] .a.a.a.AircraftControllerIntegrationTest : Starting AircraftControllerIntegrationTest using Java 21.0.10 with PID 44295 (started by pc-andre in /home/pc-andre/Documents/LETI/psoft/psoft2026_2DB_1240567_1241013_1240624)
+2026-06-20T18:34:47.119+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] .a.a.a.AircraftControllerIntegrationTest : No active profile set, falling back to 1 default profile: "default"
+2026-06-20T18:34:48.964+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-20T18:34:49.195+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 204 ms. Found 6 JPA repository interfaces.
+2026-06-20T18:34:50.734+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-06-20T18:34:50.835+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.5.2.Final
+2026-06-20T18:34:50.897+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-06-20T18:34:51.421+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-20T18:34:51.466+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-20T18:34:51.919+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:alsafedb user=SA
+2026-06-20T18:34:51.922+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-20T18:34:51.971+01:00  WARN 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] org.hibernate.orm.deprecation            : HHH90000025: H2Dialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-06-20T18:34:54.693+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+Hibernate: drop table if exists aircraft cascade 
+Hibernate: drop table if exists aircraft_model cascade 
+Hibernate: drop table if exists airport cascade 
+Hibernate: drop table if exists airport_certifications cascade 
+Hibernate: drop table if exists airport_contacts cascade 
+Hibernate: drop table if exists airport_photos cascade 
+Hibernate: drop table if exists airport_runways cascade 
+Hibernate: drop table if exists flight_route cascade 
+Hibernate: drop table if exists flight_route_history cascade 
+Hibernate: drop table if exists scheduled_flight cascade 
+Hibernate: drop table if exists "system_user" cascade 
+Hibernate: drop table if exists terminal cascade 
+Hibernate: drop table if exists terminal_gates cascade 
+Hibernate: drop table if exists terminal_services cascade 
+Hibernate: create table aircraft (active_capacity integer not null, manufacturing_date date not null, number_of_assignments integer not null, total_flight_hours float(53) not null, model_id bigint not null, version bigint, active_configuration_name varchar(255) not null, registration_number varchar(255) not null, status enum ('AVAILABLE','INACTIVE','IN_FLIGHT','UNDER_MAINTENANCE') not null, primary key (registration_number))
+Hibernate: create table aircraft_model (cruising_speed float(53) not null, fuel_capacity float(53) not null, max_range float(53) not null, seating_capacity integer not null, id bigint generated by default as identity, version bigint, image varchar(255), model_name varchar(255) not null unique, manufacturer enum ('AIRBUS','ATR','BOEING','CIRRUS_AIRCRAFT','COMAC','DIAMOND_AIRCRAFT','EMBRAER','GULFSTREAM_AEROSPACE','PILATUS_AIRCRAFT','TEXTRON_AVIATION') not null, primary key (id))
+Hibernate: create table airport (closing_time time(6), latitude float(53), longitude float(53), opening_time time(6), id bigint generated by default as identity, city varchar(255), code varchar(255), country varchar(255), name varchar(255), offset_value varchar(255), region varchar(255), status enum ('CLOSED','OPERATIONAL','UNDER_MAINTENANCE'), primary key (id))
+Hibernate: create table airport_certifications (certification_date date not null, airport_id bigint not null, model_name varchar(255) not null)
+Hibernate: create table airport_contacts (airport_id bigint not null, department varchar(255), value varchar(255), type enum ('EMAIL','FAX','PHONE'))
+Hibernate: create table airport_photos (airport_id bigint not null, photos varchar(255))
+Hibernate: create table airport_runways (length float(53), airport_id bigint not null, name varchar(255), orientation enum ('E','N','NE','NW','S','SE','SW','W'))
+Hibernate: create table flight_route (distance float(53), estimated_flight_time integer, min_capacity_required integer, min_range_required float(53), destination_id bigint not null, origin_id bigint not null, version bigint, id varchar(255) not null, route_status enum ('ACTIVE','DEACTIVATED'), primary key (id))
+Hibernate: create table flight_route_history (change_date timestamp(6), author varchar(255), description varchar(255), route_id varchar(255) not null)
+Hibernate: create table scheduled_flight (scheduled_arrival timestamp(6) not null, scheduled_departure timestamp(6) not null, version bigint, aircraft_registration varchar(255) not null, flight_number varchar(255) not null, route_id varchar(255) not null, status enum ('CANCELED','COMPLETED','SCHEDULED') not null, primary key (flight_number))
+Hibernate: create table "system_user" (id bigint generated by default as identity, password_hash varchar(255) not null, roles varchar(255) not null, username varchar(255) not null unique, primary key (id))
+Hibernate: create table terminal (airport_id bigint, id bigint generated by default as identity, designation varchar(255), primary key (id))
+Hibernate: create table terminal_gates (terminal_id bigint not null, designation varchar(255))
+Hibernate: create table terminal_services (terminal_id bigint not null, description varchar(255), service_type varchar(255))
+Hibernate: alter table if exists aircraft add constraint FKmlcvw3yhx7oeustg3af2war8h foreign key (model_id) references aircraft_model
+Hibernate: alter table if exists airport_certifications add constraint FKr7tcye9gnvqiknt2gbtm7klyu foreign key (airport_id) references airport
+Hibernate: alter table if exists airport_contacts add constraint FK6skp0k6lp9rkwp4pstiv17xfh foreign key (airport_id) references airport
+Hibernate: alter table if exists airport_photos add constraint FK3abyal6hpbm8qjru2mda9fwy1 foreign key (airport_id) references airport
+Hibernate: alter table if exists airport_runways add constraint FKjl7b16o1mhq3c81yy9r7vb38o foreign key (airport_id) references airport
+Hibernate: alter table if exists flight_route add constraint FK3d4i85m55vmvx28ulgwduo1ha foreign key (destination_id) references airport
+Hibernate: alter table if exists flight_route add constraint FKq2bsfqngg331nw6t6rboyfki7 foreign key (origin_id) references airport
+Hibernate: alter table if exists flight_route_history add constraint FKb05qtlvpp67js264g7cmotea9 foreign key (route_id) references flight_route
+Hibernate: alter table if exists scheduled_flight add constraint FKcp8pi9fkm62ewlrdtkylj8t8n foreign key (aircraft_registration) references aircraft
+Hibernate: alter table if exists scheduled_flight add constraint FK8dg1r8j1pw04mnle30qr2evph foreign key (route_id) references flight_route
+Hibernate: alter table if exists terminal add constraint FK84yrbqpntw2lip70larvakwb0 foreign key (airport_id) references airport
+Hibernate: alter table if exists terminal_gates add constraint FKiljqkhsxf555m0spj2n1yia93 foreign key (terminal_id) references terminal
+Hibernate: alter table if exists terminal_services add constraint FK8m1x0vrqanief8135bkyoffm7 foreign key (terminal_id) references terminal
+2026-06-20T18:34:54.927+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-20T18:34:55.737+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-20T18:34:58.450+01:00  WARN 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-06-20T18:34:58.678+01:00  WARN 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: 1fdf355f-b46b-4f82-985b-aba6ac3ce4f2
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2026-06-20T18:34:58.690+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
+2026-06-20T18:34:59.126+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@b715c43, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@69816e8c, org.springframework.security.web.context.SecurityContextHolderFilter@9efbb1b, org.springframework.security.web.header.HeaderWriterFilter@60d14d40, org.springframework.web.filter.CorsFilter@1b4a26a3, org.springframework.security.web.authentication.logout.LogoutFilter@6172bc2f, pt.isep.psoft.alsafe.security.jwt.AuthTokenFilter@63f19248, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@89607f4, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2b42d68b, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@44af7771, org.springframework.security.web.session.SessionManagementFilter@5a6ecc6d, org.springframework.security.web.access.ExceptionTranslationFilter@ada140a, org.springframework.security.web.access.intercept.AuthorizationFilter@331a3110]
+2026-06-20T18:34:59.627+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.s.b.a.h2.H2ConsoleAutoConfiguration    : H2 console available at '/h2-console'. Database available at 'jdbc:h2:mem:alsafedb'
+2026-06-20T18:34:59.762+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2026-06-20T18:34:59.762+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-06-20T18:34:59.765+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
+2026-06-20T18:34:59.795+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] .a.a.a.AircraftControllerIntegrationTest : Started AircraftControllerIntegrationTest in 13.153 seconds (process running for 16.088)
+Launching Bootstrapper...
+Hibernate: select count(*) from "system_user" su1_0
+Hibernate: insert into "system_user" (password_hash,roles,username,id) values (?,?,?,default)
+Hibernate: insert into "system_user" (password_hash,roles,username,id) values (?,?,?,default)
+Hibernate: insert into "system_user" (password_hash,roles,username,id) values (?,?,?,default)
+ -> Users loaded.
+Hibernate: select count(*) from airport a1_0
+Hibernate: insert into airport (code,city,latitude,longitude,country,region,name,closing_time,opening_time,status,offset_value,id) values (?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into airport (code,city,latitude,longitude,country,region,name,closing_time,opening_time,status,offset_value,id) values (?,?,?,?,?,?,?,?,?,?,?,default)
+Hibernate: insert into airport (code,city,latitude,longitude,country,region,name,closing_time,opening_time,status,offset_value,id) values (?,?,?,?,?,?,?,?,?,?,?,default)
+ -> Airports loaded.
+Hibernate: select count(*) from aircraft_model am1_0
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+ -> Aircraft Models loaded.
+Hibernate: select count(*) from flight_route fr1_0
+Hibernate: select a1_0.id,a1_0.code,a1_0.city,a1_0.latitude,a1_0.longitude,a1_0.country,a1_0.region,a1_0.name,a1_0.closing_time,a1_0.opening_time,a1_0.status,a1_0.offset_value from airport a1_0 where a1_0.code=?
+Hibernate: select a1_0.id,a1_0.code,a1_0.city,a1_0.latitude,a1_0.longitude,a1_0.country,a1_0.region,a1_0.name,a1_0.closing_time,a1_0.opening_time,a1_0.status,a1_0.offset_value from airport a1_0 where a1_0.code=?
+Hibernate: select a1_0.id,a1_0.code,a1_0.city,a1_0.latitude,a1_0.longitude,a1_0.country,a1_0.region,a1_0.name,a1_0.closing_time,a1_0.opening_time,a1_0.status,a1_0.offset_value from airport a1_0 where a1_0.code=?
+ -> Flight Routes loaded.
+Hibernate: select count(*) from aircraft a1_0
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.model_name=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.model_name=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.model_name=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.model_name=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.model_name=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.model_name=?
+Hibernate: select a1_0.id,a1_0.code,a1_0.city,a1_0.latitude,a1_0.longitude,a1_0.country,a1_0.region,a1_0.name,a1_0.closing_time,a1_0.opening_time,a1_0.status,a1_0.offset_value from airport a1_0 where a1_0.code=?
+Hibernate: select a1_0.id,a1_0.code,a1_0.city,a1_0.latitude,a1_0.longitude,a1_0.country,a1_0.region,a1_0.name,a1_0.closing_time,a1_0.opening_time,a1_0.status,a1_0.offset_value from airport a1_0 where a1_0.code=?
+Hibernate: select a1_0.id,a1_0.code,a1_0.city,a1_0.latitude,a1_0.longitude,a1_0.country,a1_0.region,a1_0.name,a1_0.closing_time,a1_0.opening_time,a1_0.status,a1_0.offset_value from airport a1_0 where a1_0.code=?
+ -> Aircrafts loaded.
+ -> Airport certifications loaded.
+Hibernate: select count(*) from scheduled_flight sf1_0
+Hibernate: insert into flight_route (destination_id,distance,estimated_flight_time,origin_id,min_capacity_required,min_range_required,route_status,version,id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into flight_route (destination_id,distance,estimated_flight_time,origin_id,min_capacity_required,min_range_required,route_status,version,id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into flight_route (destination_id,distance,estimated_flight_time,origin_id,min_capacity_required,min_range_required,route_status,version,id) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into aircraft (active_capacity,active_configuration_name,manufacturing_date,model_id,number_of_assignments,status,total_flight_hours,version,registration_number) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into aircraft (active_capacity,active_configuration_name,manufacturing_date,model_id,number_of_assignments,status,total_flight_hours,version,registration_number) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into aircraft (active_capacity,active_configuration_name,manufacturing_date,model_id,number_of_assignments,status,total_flight_hours,version,registration_number) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into aircraft (active_capacity,active_configuration_name,manufacturing_date,model_id,number_of_assignments,status,total_flight_hours,version,registration_number) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into aircraft (active_capacity,active_configuration_name,manufacturing_date,model_id,number_of_assignments,status,total_flight_hours,version,registration_number) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into aircraft (active_capacity,active_configuration_name,manufacturing_date,model_id,number_of_assignments,status,total_flight_hours,version,registration_number) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into aircraft (active_capacity,active_configuration_name,manufacturing_date,model_id,number_of_assignments,status,total_flight_hours,version,registration_number) values (?,?,?,?,?,?,?,?,?)
+Hibernate: insert into airport_certifications (airport_id,certification_date,model_name) values (?,?,?)
+Hibernate: insert into airport_certifications (airport_id,certification_date,model_name) values (?,?,?)
+Hibernate: insert into airport_certifications (airport_id,certification_date,model_name) values (?,?,?)
+Hibernate: insert into airport_certifications (airport_id,certification_date,model_name) values (?,?,?)
+Hibernate: insert into airport_certifications (airport_id,certification_date,model_name) values (?,?,?)
+Hibernate: insert into airport_certifications (airport_id,certification_date,model_name) values (?,?,?)
+Hibernate: insert into flight_route_history (route_id,author,change_date,description) values (?,?,?,?)
+Hibernate: insert into flight_route_history (route_id,author,change_date,description) values (?,?,?,?)
+Hibernate: insert into flight_route_history (route_id,author,change_date,description) values (?,?,?,?)
+Hibernate: select fr1_0.id,fr1_0.destination_id,fr1_0.distance,fr1_0.estimated_flight_time,fr1_0.origin_id,fr1_0.min_capacity_required,fr1_0.min_range_required,fr1_0.route_status,fr1_0.version from flight_route fr1_0
+Hibernate: select fr1_0.id,fr1_0.destination_id,fr1_0.distance,fr1_0.estimated_flight_time,fr1_0.origin_id,fr1_0.min_capacity_required,fr1_0.min_range_required,fr1_0.route_status,fr1_0.version from flight_route fr1_0
+Hibernate: select fr1_0.id,fr1_0.destination_id,fr1_0.distance,fr1_0.estimated_flight_time,fr1_0.origin_id,fr1_0.min_capacity_required,fr1_0.min_range_required,fr1_0.route_status,fr1_0.version from flight_route fr1_0
+ -> Scheduled Flights loaded.
+Bootstrapper deployed!
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+Hibernate: insert into scheduled_flight (aircraft_registration,route_id,scheduled_arrival,scheduled_departure,status,version,flight_number) values (?,?,?,?,?,?,?)
+OpenJDK 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap classpath has been appended
+WARNING: A Java agent has been loaded dynamically (/home/pc-andre/.m2/repository/net/bytebuddy/byte-buddy-agent/1.14.16/byte-buddy-agent-1.14.16.jar)
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Hibernate: select a1_0.registration_number,a1_0.active_capacity,a1_0.active_configuration_name,a1_0.manufacturing_date,a1_0.model_id,a1_0.number_of_assignments,a1_0.status,a1_0.total_flight_hours,a1_0.version from aircraft a1_0
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+2026-06-20T18:35:01.602+01:00  WARN 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 23505, SQLState: 23505
+2026-06-20T18:35:01.603+01:00 ERROR 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]
+Hibernate: select a1_0.registration_number,a1_0.active_capacity,a1_0.active_configuration_name,a1_0.manufacturing_date,a1_0.model_id,a1_0.number_of_assignments,a1_0.status,a1_0.total_flight_hours,a1_0.version from aircraft a1_0
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+2026-06-20T18:35:01.704+01:00  WARN 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 23505, SQLState: 23505
+2026-06-20T18:35:01.704+01:00 ERROR 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]
+Hibernate: select a1_0.registration_number,a1_0.active_capacity,a1_0.active_configuration_name,a1_0.manufacturing_date,a1_0.model_id,a1_0.number_of_assignments,a1_0.status,a1_0.total_flight_hours,a1_0.version from aircraft a1_0
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+2026-06-20T18:35:01.755+01:00  WARN 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 23505, SQLState: 23505
+2026-06-20T18:35:01.756+01:00 ERROR 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]
+[ERROR] Tests run: 3, Failures: 0, Errors: 3, Skipped: 0, Time elapsed: 16.76 s <<< FAILURE! -- in pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest
+[ERROR] pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest.ensureIntegrationSearchAircraftsWorks -- Time elapsed: 0.986 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; SQL [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; constraint [PUBLIC.CONSTRAINT_INDEX_1]
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:290)
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.translateExceptionIfPossible(AbstractEntityManagerFactoryBean.java:550)
+	at org.springframework.dao.support.ChainedPersistenceExceptionTranslator.translateExceptionIfPossible(ChainedPersistenceExceptionTranslator.java:61)
+	at org.springframework.dao.support.DataAccessUtils.translateIfNecessary(DataAccessUtils.java:335)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:152)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:165)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
+	at jdk.proxy2/jdk.proxy2.$Proxy173.save(Unknown Source)
+	at pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest.setUp(AircraftControllerIntegrationTest.java:50)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.exception.ConstraintViolationException: could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]
+	at org.hibernate.dialect.H2Dialect.lambda$buildSQLExceptionConversionDelegate$3(H2Dialect.java:746)
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:197)
+	at org.hibernate.id.insert.GetGeneratedKeysDelegate.performMutation(GetGeneratedKeysDelegate.java:116)
+	at org.hibernate.engine.jdbc.mutation.internal.MutationExecutorSingleNonBatched.performNonBatchedOperations(MutationExecutorSingleNonBatched.java:47)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:55)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.doStaticInserts(InsertCoordinatorStandard.java:194)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.coordinateInsert(InsertCoordinatorStandard.java:132)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.insert(InsertCoordinatorStandard.java:95)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:85)
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:670)
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:291)
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:272)
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:322)
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:391)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:305)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:224)
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:137)
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:175)
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:93)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:77)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:54)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:757)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:741)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:319)
+	at jdk.proxy2/jdk.proxy2.$Proxy169.persist(Unknown Source)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:628)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker$RepositoryFragmentMethodInvoker.lambda$new$0(RepositoryMethodInvoker.java:277)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158)
+	at org.springframework.data.repository.core.support.RepositoryComposition$RepositoryFragments.invoke(RepositoryComposition.java:516)
+	at org.springframework.data.repository.core.support.RepositoryComposition.invoke(RepositoryComposition.java:285)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$ImplementationMethodExecutionInterceptor.invoke(RepositoryFactorySupport.java:628)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:168)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:143)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:392)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137)
+	... 11 more
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.index.Index.getDuplicateKeyException(Index.java:527)
+	at org.h2.mvstore.db.MVSecondaryIndex.checkUnique(MVSecondaryIndex.java:223)
+	at org.h2.mvstore.db.MVSecondaryIndex.add(MVSecondaryIndex.java:184)
+	at org.h2.mvstore.db.MVTable.addRow(MVTable.java:519)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:174)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:242)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:163)
+	at org.h2.command.Command.executeUpdate(Command.java:256)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdateInternal(JdbcPreparedStatement.java:216)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:174)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:194)
+	... 58 more
+
+[ERROR] pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest.ensureIntegrationGetAircraftDetailsWorks -- Time elapsed: 0.042 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; SQL [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; constraint [PUBLIC.CONSTRAINT_INDEX_1]
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:290)
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.translateExceptionIfPossible(AbstractEntityManagerFactoryBean.java:550)
+	at org.springframework.dao.support.ChainedPersistenceExceptionTranslator.translateExceptionIfPossible(ChainedPersistenceExceptionTranslator.java:61)
+	at org.springframework.dao.support.DataAccessUtils.translateIfNecessary(DataAccessUtils.java:335)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:152)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:165)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
+	at jdk.proxy2/jdk.proxy2.$Proxy173.save(Unknown Source)
+	at pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest.setUp(AircraftControllerIntegrationTest.java:50)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.exception.ConstraintViolationException: could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]
+	at org.hibernate.dialect.H2Dialect.lambda$buildSQLExceptionConversionDelegate$3(H2Dialect.java:746)
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:197)
+	at org.hibernate.id.insert.GetGeneratedKeysDelegate.performMutation(GetGeneratedKeysDelegate.java:116)
+	at org.hibernate.engine.jdbc.mutation.internal.MutationExecutorSingleNonBatched.performNonBatchedOperations(MutationExecutorSingleNonBatched.java:47)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:55)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.doStaticInserts(InsertCoordinatorStandard.java:194)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.coordinateInsert(InsertCoordinatorStandard.java:132)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.insert(InsertCoordinatorStandard.java:95)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:85)
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:670)
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:291)
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:272)
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:322)
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:391)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:305)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:224)
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:137)
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:175)
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:93)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:77)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:54)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:757)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:741)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:319)
+	at jdk.proxy2/jdk.proxy2.$Proxy169.persist(Unknown Source)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:628)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker$RepositoryFragmentMethodInvoker.lambda$new$0(RepositoryMethodInvoker.java:277)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158)
+	at org.springframework.data.repository.core.support.RepositoryComposition$RepositoryFragments.invoke(RepositoryComposition.java:516)
+	at org.springframework.data.repository.core.support.RepositoryComposition.invoke(RepositoryComposition.java:285)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$ImplementationMethodExecutionInterceptor.invoke(RepositoryFactorySupport.java:628)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:168)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:143)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:392)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137)
+	... 11 more
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.index.Index.getDuplicateKeyException(Index.java:527)
+	at org.h2.mvstore.db.MVSecondaryIndex.checkUnique(MVSecondaryIndex.java:223)
+	at org.h2.mvstore.db.MVSecondaryIndex.add(MVSecondaryIndex.java:184)
+	at org.h2.mvstore.db.MVTable.addRow(MVTable.java:519)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:174)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:242)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:163)
+	at org.h2.command.Command.executeUpdate(Command.java:256)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdateInternal(JdbcPreparedStatement.java:216)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:174)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:194)
+	... 58 more
+
+[ERROR] pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest.ensureIntegrationCreateAircraftWorks -- Time elapsed: 0.044 s <<< ERROR!
+org.springframework.dao.DataIntegrityViolationException: 
+could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; SQL [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; constraint [PUBLIC.CONSTRAINT_INDEX_1]
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:290)
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.translateExceptionIfPossible(AbstractEntityManagerFactoryBean.java:550)
+	at org.springframework.dao.support.ChainedPersistenceExceptionTranslator.translateExceptionIfPossible(ChainedPersistenceExceptionTranslator.java:61)
+	at org.springframework.dao.support.DataAccessUtils.translateIfNecessary(DataAccessUtils.java:335)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:152)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:165)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
+	at jdk.proxy2/jdk.proxy2.$Proxy173.save(Unknown Source)
+	at pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftControllerIntegrationTest.setUp(AircraftControllerIntegrationTest.java:50)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.hibernate.exception.ConstraintViolationException: could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]
+	at org.hibernate.dialect.H2Dialect.lambda$buildSQLExceptionConversionDelegate$3(H2Dialect.java:746)
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:197)
+	at org.hibernate.id.insert.GetGeneratedKeysDelegate.performMutation(GetGeneratedKeysDelegate.java:116)
+	at org.hibernate.engine.jdbc.mutation.internal.MutationExecutorSingleNonBatched.performNonBatchedOperations(MutationExecutorSingleNonBatched.java:47)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:55)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.doStaticInserts(InsertCoordinatorStandard.java:194)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.coordinateInsert(InsertCoordinatorStandard.java:132)
+	at org.hibernate.persister.entity.mutation.InsertCoordinatorStandard.insert(InsertCoordinatorStandard.java:95)
+	at org.hibernate.action.internal.EntityIdentityInsertAction.execute(EntityIdentityInsertAction.java:85)
+	at org.hibernate.engine.spi.ActionQueue.execute(ActionQueue.java:670)
+	at org.hibernate.engine.spi.ActionQueue.addResolvedEntityInsertAction(ActionQueue.java:291)
+	at org.hibernate.engine.spi.ActionQueue.addInsertAction(ActionQueue.java:272)
+	at org.hibernate.engine.spi.ActionQueue.addAction(ActionQueue.java:322)
+	at org.hibernate.event.internal.AbstractSaveEventListener.addInsertAction(AbstractSaveEventListener.java:391)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSaveOrReplicate(AbstractSaveEventListener.java:305)
+	at org.hibernate.event.internal.AbstractSaveEventListener.performSave(AbstractSaveEventListener.java:224)
+	at org.hibernate.event.internal.AbstractSaveEventListener.saveWithGeneratedId(AbstractSaveEventListener.java:137)
+	at org.hibernate.event.internal.DefaultPersistEventListener.entityIsTransient(DefaultPersistEventListener.java:175)
+	at org.hibernate.event.internal.DefaultPersistEventListener.persist(DefaultPersistEventListener.java:93)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:77)
+	at org.hibernate.event.internal.DefaultPersistEventListener.onPersist(DefaultPersistEventListener.java:54)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.firePersist(SessionImpl.java:757)
+	at org.hibernate.internal.SessionImpl.persist(SessionImpl.java:741)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.orm.jpa.SharedEntityManagerCreator$SharedEntityManagerInvocationHandler.invoke(SharedEntityManagerCreator.java:319)
+	at jdk.proxy2/jdk.proxy2.$Proxy169.persist(Unknown Source)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.save(SimpleJpaRepository.java:628)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker$RepositoryFragmentMethodInvoker.lambda$new$0(RepositoryMethodInvoker.java:277)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158)
+	at org.springframework.data.repository.core.support.RepositoryComposition$RepositoryFragments.invoke(RepositoryComposition.java:516)
+	at org.springframework.data.repository.core.support.RepositoryComposition.invoke(RepositoryComposition.java:285)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$ImplementationMethodExecutionInterceptor.invoke(RepositoryFactorySupport.java:628)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:168)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:143)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:392)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137)
+	... 11 more
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.index.Index.getDuplicateKeyException(Index.java:527)
+	at org.h2.mvstore.db.MVSecondaryIndex.checkUnique(MVSecondaryIndex.java:223)
+	at org.h2.mvstore.db.MVSecondaryIndex.add(MVSecondaryIndex.java:184)
+	at org.h2.mvstore.db.MVTable.addRow(MVTable.java:519)
+	at org.h2.command.dml.Insert.insertRows(Insert.java:174)
+	at org.h2.command.dml.Insert.update(Insert.java:135)
+	at org.h2.command.CommandContainer.executeUpdateWithGeneratedKeys(CommandContainer.java:242)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:163)
+	at org.h2.command.Command.executeUpdate(Command.java:256)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdateInternal(JdbcPreparedStatement.java:216)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:174)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:194)
+	... 58 more
+
+[INFO] Running pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftModelControllerIntegrationTest
+2026-06-20T18:35:01.787+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftModelControllerIntegrationTest]: AircraftModelControllerIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-06-20T18:35:01.801+01:00  INFO 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration pt.isep.psoft.alsafe.Psoft20262Db124056712410131240624Application for test class pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftModelControllerIntegrationTest
+Hibernate: select a1_0.registration_number,a1_0.active_capacity,a1_0.active_configuration_name,a1_0.manufacturing_date,a1_0.model_id,a1_0.number_of_assignments,a1_0.status,a1_0.total_flight_hours,a1_0.version from aircraft a1_0
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: select a1_0.registration_number,a1_0.active_capacity,a1_0.active_configuration_name,a1_0.manufacturing_date,a1_0.model_id,a1_0.number_of_assignments,a1_0.status,a1_0.total_flight_hours,a1_0.version from aircraft a1_0
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0 where am1_0.id=?
+Hibernate: select am1_0.id,am1_0.cruising_speed,am1_0.fuel_capacity,am1_0.image,am1_0.manufacturer,am1_0.max_range,am1_0.model_name,am1_0.seating_capacity,am1_0.version from aircraft_model am1_0
+Hibernate: insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)
+Hibernate: delete from aircraft where registration_number=? and version=?
+2026-06-20T18:35:02.669+01:00  WARN 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : SQL Error: 23503, SQLState: 23503
+2026-06-20T18:35:02.669+01:00 ERROR 44295 --- [psoft2026_2DB_1240567_1241013_1240624] [           main] o.h.engine.jdbc.spi.SqlExceptionHelper   : Referential integrity constraint violation: "FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA')"; SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]
+[ERROR] Tests run: 2, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.896 s <<< FAILURE! -- in pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftModelControllerIntegrationTest
+[ERROR] pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftModelControllerIntegrationTest.ensureIntegrationGetAllAircraftModelsWorks -- Time elapsed: 0.036 s <<< ERROR!
+jakarta.servlet.ServletException: 
+Request processing failed: org.springframework.dao.DataIntegrityViolationException: could not execute statement [Referential integrity constraint violation: "FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA')"; SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]] [delete from aircraft where registration_number=? and version=?]; SQL [delete from aircraft where registration_number=? and version=?]; constraint [FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA'); SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]]
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1022)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at org.springframework.test.web.servlet.TestDispatcherServlet.service(TestDispatcherServlet.java:72)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.springframework.mock.web.MockFilterChain$ServletFilterProxy.doFilter(MockFilterChain.java:165)
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:110)
+	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151)
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:108)
+	at org.springframework.security.web.FilterChainProxy.lambda$doFilterInternal$3(FilterChainProxy.java:231)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:365)
+	at org.springframework.security.web.access.intercept.AuthorizationFilter.doFilter(AuthorizationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:126)
+	at org.springframework.security.web.access.ExceptionTranslationFilter.doFilter(ExceptionTranslationFilter.java:120)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:131)
+	at org.springframework.security.web.session.SessionManagementFilter.doFilter(SessionManagementFilter.java:85)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.AnonymousAuthenticationFilter.doFilter(AnonymousAuthenticationFilter.java:100)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter.doFilter(SecurityContextHolderAwareRequestFilter.java:179)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.savedrequest.RequestCacheAwareFilter.doFilter(RequestCacheAwareFilter.java:63)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at pt.isep.psoft.alsafe.security.jwt.AuthTokenFilter.doFilterInternal(AuthTokenFilter.java:57)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:107)
+	at org.springframework.security.web.authentication.logout.LogoutFilter.doFilter(LogoutFilter.java:93)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.web.filter.CorsFilter.doFilterInternal(CorsFilter.java:91)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.header.HeaderWriterFilter.doHeadersAfter(HeaderWriterFilter.java:90)
+	at org.springframework.security.web.header.HeaderWriterFilter.doFilterInternal(HeaderWriterFilter.java:75)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:82)
+	at org.springframework.security.web.context.SecurityContextHolderFilter.doFilter(SecurityContextHolderFilter.java:69)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter.doFilterInternal(WebAsyncManagerIntegrationFilter.java:62)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.session.DisableEncodeUrlFilter.doFilterInternal(DisableEncodeUrlFilter.java:42)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.security.web.FilterChainProxy$VirtualFilterChain.doFilter(FilterChainProxy.java:374)
+	at org.springframework.security.web.FilterChainProxy.doFilterInternal(FilterChainProxy.java:233)
+	at org.springframework.security.web.FilterChainProxy.doFilter(FilterChainProxy.java:191)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.servlet.handler.HandlerMappingIntrospector.lambda$createCacheFilter$3(HandlerMappingIntrospector.java:195)
+	at org.springframework.web.filter.CompositeFilter$VirtualFilterChain.doFilter(CompositeFilter.java:113)
+	at org.springframework.web.filter.CompositeFilter.doFilter(CompositeFilter.java:74)
+	at org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration$CompositeFilterChainProxy.doFilter(WebMvcSecurityConfiguration.java:230)
+	at org.springframework.web.filter.DelegatingFilterProxy.invokeDelegate(DelegatingFilterProxy.java:352)
+	at org.springframework.web.filter.DelegatingFilterProxy.doFilter(DelegatingFilterProxy.java:268)
+	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151)
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151)
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151)
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.springframework.test.web.servlet.setup.MockMvcFilterDecorator.doFilter(MockMvcFilterDecorator.java:151)
+	at org.springframework.mock.web.MockFilterChain.doFilter(MockFilterChain.java:132)
+	at org.springframework.test.web.servlet.MockMvc.perform(MockMvc.java:201)
+	at pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftModelControllerIntegrationTest.ensureIntegrationGetAllAircraftModelsWorks(AircraftModelControllerIntegrationTest.java:69)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1596)
+Caused by: org.springframework.dao.DataIntegrityViolationException: could not execute statement [Referential integrity constraint violation: "FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA')"; SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]] [delete from aircraft where registration_number=? and version=?]; SQL [delete from aircraft where registration_number=? and version=?]; constraint [FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA'); SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]]
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.convertHibernateAccessException(HibernateJpaDialect.java:290)
+	at org.springframework.orm.jpa.vendor.HibernateJpaDialect.translateExceptionIfPossible(HibernateJpaDialect.java:241)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.translateExceptionIfPossible(AbstractEntityManagerFactoryBean.java:550)
+	at org.springframework.dao.support.ChainedPersistenceExceptionTranslator.translateExceptionIfPossible(ChainedPersistenceExceptionTranslator.java:61)
+	at org.springframework.dao.support.DataAccessUtils.translateIfNecessary(DataAccessUtils.java:335)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:152)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.jpa.repository.support.CrudMethodMetadataPostProcessor$CrudMethodMetadataPopulatingMethodInterceptor.invoke(CrudMethodMetadataPostProcessor.java:165)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.interceptor.ExposeInvocationInterceptor.invoke(ExposeInvocationInterceptor.java:97)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.JdkDynamicAopProxy.invoke(JdkDynamicAopProxy.java:223)
+	at jdk.proxy2/jdk.proxy2.$Proxy173.findAll(Unknown Source)
+	at pt.isep.psoft.alsafe.aircraftmanagement.services.AircraftModelService.getAllAircraftModels(AircraftModelService.java:22)
+	at pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftModelController.getAllAircraftModels(AircraftModelController.java:28)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.invokeJoinpoint(ReflectiveMethodInvocation.java:196)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:163)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.proceed(AuthorizationManagerBeforeMethodInterceptor.java:269)
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.attemptAuthorization(AuthorizationManagerBeforeMethodInterceptor.java:264)
+	at org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor.invoke(AuthorizationManagerBeforeMethodInterceptor.java:197)
+	at org.springframework.security.config.annotation.method.configuration.PrePostMethodSecurityConfiguration$DeferringMethodInterceptor.invoke(PrePostMethodSecurityConfiguration.java:200)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.aop.framework.CglibAopProxy$CglibMethodInvocation.proceed(CglibAopProxy.java:768)
+	at org.springframework.aop.framework.CglibAopProxy$DynamicAdvisedInterceptor.intercept(CglibAopProxy.java:720)
+	at pt.isep.psoft.alsafe.aircraftmanagement.api.AircraftModelController$$SpringCGLIB$$0.getAllAircraftModels(<generated>)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.web.method.support.InvocableHandlerMethod.doInvoke(InvocableHandlerMethod.java:255)
+	at org.springframework.web.method.support.InvocableHandlerMethod.invokeForRequest(InvocableHandlerMethod.java:188)
+	at org.springframework.web.servlet.mvc.method.annotation.ServletInvocableHandlerMethod.invokeAndHandle(ServletInvocableHandlerMethod.java:118)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.invokeHandlerMethod(RequestMappingHandlerAdapter.java:926)
+	at org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter.handleInternal(RequestMappingHandlerAdapter.java:831)
+	at org.springframework.web.servlet.mvc.method.AbstractHandlerMethodAdapter.handle(AbstractHandlerMethodAdapter.java:87)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	... 77 more
+Caused by: org.hibernate.exception.ConstraintViolationException: could not execute statement [Referential integrity constraint violation: "FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA')"; SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]] [delete from aircraft where registration_number=? and version=?]
+	at org.hibernate.exception.internal.SQLExceptionTypeDelegate.convert(SQLExceptionTypeDelegate.java:62)
+	at org.hibernate.exception.internal.StandardSQLExceptionConverter.convert(StandardSQLExceptionConverter.java:58)
+	at org.hibernate.engine.jdbc.spi.SqlExceptionHelper.convert(SqlExceptionHelper.java:108)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:197)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.performNonBatchedMutation(AbstractMutationExecutor.java:134)
+	at org.hibernate.engine.jdbc.mutation.internal.MutationExecutorSingleNonBatched.performNonBatchedOperations(MutationExecutorSingleNonBatched.java:55)
+	at org.hibernate.engine.jdbc.mutation.internal.AbstractMutationExecutor.execute(AbstractMutationExecutor.java:55)
+	at org.hibernate.persister.entity.mutation.AbstractDeleteCoordinator.doStaticDelete(AbstractDeleteCoordinator.java:279)
+	at org.hibernate.persister.entity.mutation.AbstractDeleteCoordinator.delete(AbstractDeleteCoordinator.java:87)
+	at org.hibernate.action.internal.EntityDeleteAction.execute(EntityDeleteAction.java:131)
+	at org.hibernate.engine.spi.ActionQueue.executeActions(ActionQueue.java:632)
+	at org.hibernate.engine.spi.ActionQueue.executeActions(ActionQueue.java:499)
+	at org.hibernate.event.internal.AbstractFlushingEventListener.performExecutions(AbstractFlushingEventListener.java:371)
+	at org.hibernate.event.internal.DefaultAutoFlushEventListener.onAutoFlush(DefaultAutoFlushEventListener.java:66)
+	at org.hibernate.event.service.internal.EventListenerGroupImpl.fireEventOnEachListener(EventListenerGroupImpl.java:127)
+	at org.hibernate.internal.SessionImpl.autoFlushIfRequired(SessionImpl.java:1375)
+	at org.hibernate.query.sqm.internal.ConcreteSqmSelectQueryPlan.lambda$new$2(ConcreteSqmSelectQueryPlan.java:138)
+	at org.hibernate.query.sqm.internal.ConcreteSqmSelectQueryPlan.withCacheableSqmInterpretation(ConcreteSqmSelectQueryPlan.java:382)
+	at org.hibernate.query.sqm.internal.ConcreteSqmSelectQueryPlan.performList(ConcreteSqmSelectQueryPlan.java:302)
+	at org.hibernate.query.sqm.internal.QuerySqmImpl.doList(QuerySqmImpl.java:526)
+	at org.hibernate.query.spi.AbstractSelectionQuery.list(AbstractSelectionQuery.java:423)
+	at org.hibernate.query.Query.getResultList(Query.java:120)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAll(SimpleJpaRepository.java:391)
+	at org.springframework.data.jpa.repository.support.SimpleJpaRepository.findAll(SimpleJpaRepository.java:1)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.aop.support.AopUtils.invokeJoinpointUsingReflection(AopUtils.java:354)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker$RepositoryFragmentMethodInvoker.lambda$new$0(RepositoryMethodInvoker.java:277)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.doInvoke(RepositoryMethodInvoker.java:170)
+	at org.springframework.data.repository.core.support.RepositoryMethodInvoker.invoke(RepositoryMethodInvoker.java:158)
+	at org.springframework.data.repository.core.support.RepositoryComposition$RepositoryFragments.invoke(RepositoryComposition.java:516)
+	at org.springframework.data.repository.core.support.RepositoryComposition.invoke(RepositoryComposition.java:285)
+	at org.springframework.data.repository.core.support.RepositoryFactorySupport$ImplementationMethodExecutionInterceptor.invoke(RepositoryFactorySupport.java:628)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.doInvoke(QueryExecutorMethodInterceptor.java:168)
+	at org.springframework.data.repository.core.support.QueryExecutorMethodInterceptor.invoke(QueryExecutorMethodInterceptor.java:143)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.data.projection.DefaultMethodInvokingMethodInterceptor.invoke(DefaultMethodInvokingMethodInterceptor.java:70)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.transaction.interceptor.TransactionInterceptor$1.proceedWithInvocation(TransactionInterceptor.java:123)
+	at org.springframework.transaction.interceptor.TransactionAspectSupport.invokeWithinTransaction(TransactionAspectSupport.java:392)
+	at org.springframework.transaction.interceptor.TransactionInterceptor.invoke(TransactionInterceptor.java:119)
+	at org.springframework.aop.framework.ReflectiveMethodInvocation.proceed(ReflectiveMethodInvocation.java:184)
+	at org.springframework.dao.support.PersistenceExceptionTranslationInterceptor.invoke(PersistenceExceptionTranslationInterceptor.java:137)
+	... 111 more
+Caused by: org.h2.jdbc.JdbcSQLIntegrityConstraintViolationException: Referential integrity constraint violation: "FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA')"; SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:520)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.constraint.ConstraintReferential.checkRow(ConstraintReferential.java:365)
+	at org.h2.constraint.ConstraintReferential.checkRowRefTable(ConstraintReferential.java:382)
+	at org.h2.constraint.ConstraintReferential.checkRow(ConstraintReferential.java:256)
+	at org.h2.table.Table.fireConstraints(Table.java:1200)
+	at org.h2.table.Table.fireAfterRow(Table.java:1218)
+	at org.h2.command.dml.Delete.update(Delete.java:92)
+	at org.h2.command.dml.DataChangeStatement.update(DataChangeStatement.java:74)
+	at org.h2.command.CommandContainer.update(CommandContainer.java:169)
+	at org.h2.command.Command.executeUpdate(Command.java:256)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdateInternal(JdbcPreparedStatement.java:216)
+	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:174)
+	at com.zaxxer.hikari.pool.ProxyPreparedStatement.executeUpdate(ProxyPreparedStatement.java:61)
+	at com.zaxxer.hikari.pool.HikariProxyPreparedStatement.executeUpdate(HikariProxyPreparedStatement.java)
+	at org.hibernate.engine.jdbc.internal.ResultSetReturnImpl.executeUpdate(ResultSetReturnImpl.java:194)
+	... 151 more
+
+[INFO] 
+[INFO] Results:
+[INFO] 
+[ERROR] Errors: 
+[ERROR]   AircraftControllerIntegrationTest.setUp:50 » DataIntegrityViolation could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; SQL [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; constraint [PUBLIC.CONSTRAINT_INDEX_1]
+[ERROR]   AircraftControllerIntegrationTest.setUp:50 » DataIntegrityViolation could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; SQL [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; constraint [PUBLIC.CONSTRAINT_INDEX_1]
+[ERROR]   AircraftControllerIntegrationTest.setUp:50 » DataIntegrityViolation could not execute statement [Unique index or primary key violation: "PUBLIC.CONSTRAINT_INDEX_1 ON PUBLIC.AIRCRAFT_MODEL(MODEL_NAME NULLS FIRST) VALUES ( /* 4 */ 'A350' )"; SQL statement:
+insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default) [23505-224]] [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; SQL [insert into aircraft_model (cruising_speed,fuel_capacity,image,manufacturer,max_range,model_name,seating_capacity,version,id) values (?,?,?,?,?,?,?,?,default)]; constraint [PUBLIC.CONSTRAINT_INDEX_1]
+[ERROR]   AircraftModelControllerIntegrationTest.ensureIntegrationGetAllAircraftModelsWorks:69 » Servlet Request processing failed: org.springframework.dao.DataIntegrityViolationException: could not execute statement [Referential integrity constraint violation: "FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA')"; SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]] [delete from aircraft where registration_number=? and version=?]; SQL [delete from aircraft where registration_number=? and version=?]; constraint [FKCP8PI9FKM62EWLRDTKYLJ8T8N: PUBLIC.SCHEDULED_FLIGHT FOREIGN KEY(AIRCRAFT_REGISTRATION) REFERENCES PUBLIC.AIRCRAFT(REGISTRATION_NUMBER) ('CS-TPA'); SQL statement:
+delete from aircraft where registration_number=? and version=? [23503-224]]
+[INFO] 
+[ERROR] Tests run: 5, Failures: 0, Errors: 4, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  27.406 s
+[INFO] Finished at: 2026-06-20T18:35:03+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:3.2.5:test (default-test) on project alsafe: 
+[ERROR] 
+[ERROR] Please refer to /home/pc-andre/Documents/LETI/psoft/psoft2026_2DB_1240567_1241013_1240624/target/surefire-reports for the individual test results.
+[ERROR] Please refer to dump files (if any exist) [date].dump, [date]-jvmRun[N].dump and [date].dumpstream.
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

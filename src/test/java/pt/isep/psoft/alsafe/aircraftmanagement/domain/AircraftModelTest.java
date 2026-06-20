@@ -75,4 +75,37 @@ class AircraftModelTest {
         AircraftModel model = new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0, img);
         assertEquals(img, model.getImage());
     }
+
+    @Test
+    void ensureMaxRangeMustBeStrictlyPositive() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 0.0, 840.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, -100.0, 840.0);
+        });
+    }
+
+    @Test
+    void ensureCruisingSpeedMustBeStrictlyPositive() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 0.0);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, -50.0);
+        });
+    }
+
+    @Test
+    void ensureUpdateSpecificationsValidatesMaxRangeAndCruisingSpeed() {
+        AircraftModel model = new AircraftModel(Manufacturer.BOEING, "737 MAX", 180, 26000.0, 6500.0, 840.0);
+        
+        assertThrows(IllegalArgumentException.class, () -> {
+            model.updateSpecifications(200, 27000.0, 0.0, 850.0);
+        });
+        
+        assertThrows(IllegalArgumentException.class, () -> {
+            model.updateSpecifications(200, 27000.0, 6600.0, 0.0);
+        });
+    }
 }

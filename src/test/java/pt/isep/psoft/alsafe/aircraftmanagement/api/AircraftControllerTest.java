@@ -127,4 +127,35 @@ class AircraftControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].registrationNumber").value("CS-TPA"));
     }
+
+    @Test
+    @org.springframework.security.test.context.support.WithMockUser(roles = "ATCC")
+    void ensureSearchAircraftsReturns200OK() throws Exception {
+        when(aircraftService.searchAircrafts("A320neo", null, null)).thenReturn(java.util.List.of(mockAircraft));
+
+        mockMvc.perform(get("/api/aircrafts")
+                        .param("modelName", "A320neo")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].registrationNumber").value("CS-TPA"));
+    }
+
+    @Test
+    @org.springframework.security.test.context.support.WithMockUser(roles = "ATCC")
+    void ensureUpdateAircraftStatusReturns200OK() throws Exception {
+        pt.isep.psoft.alsafe.aircraftmanagement.api.UpdateAircraftStatusDTO dto = new pt.isep.psoft.alsafe.aircraftmanagement.api.UpdateAircraftStatusDTO();
+        dto.setStatus("UNDER_MAINTENANCE");
+        dto.setVersion(0L);
+
+        Aircraft updatedAircraft = new Aircraft("CS-TPA", mockAircraft.getModel(), LocalDate.now(), "Economy");
+        updatedAircraft.updateStatus(pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftStatus.UNDER_MAINTENANCE);
+
+        when(aircraftService.updateAircraftStatus(any(String.class), any(String.class), any(Long.class))).thenReturn(updatedAircraft);
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch("/api/aircrafts/CS-TPA/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("UNDER_MAINTENANCE"));
+    }
 }

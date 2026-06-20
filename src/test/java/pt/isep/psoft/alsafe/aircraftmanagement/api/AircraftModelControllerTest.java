@@ -114,4 +114,15 @@ class AircraftModelControllerTest {
                 .andExpect(jsonPath("$[0].aircraftModel.modelName").value("737 MAX"))
                 .andExpect(jsonPath("$[0].utilizationValue").value(1000.0));
     }
+
+    @Test
+    @WithMockUser(roles = "BACKOFFICE_OPERATOR")
+    void ensureGetAllAircraftModelsReturns200OK() throws Exception {
+        when(aircraftModelService.getAllAircraftModels()).thenReturn(java.util.List.of(mockModel));
+
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/aircraft-models")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].modelName").value("737 MAX"));
+    }
 }
