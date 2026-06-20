@@ -118,6 +118,38 @@ class AircraftModelServiceTest {
     }
 
     @Test
+    void ensureGetTop5MostUtilizedModelsWorksWithAssignments() {
+        Object[] result1 = new Object[]{mockModel, 50.0};
+        when(aircraftRepository.findTopMostUtilizedAircraftModelsByAssignments(any(org.springframework.data.domain.Pageable.class)))
+            .thenReturn(java.util.Collections.singletonList(result1));
+
+        java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO> topModels = service.getTop5MostUtilizedModels("assignments");
+
+        assertEquals(1, topModels.size());
+        assertEquals("737 MAX", topModels.get(0).getAircraftModel().getModelName());
+        assertEquals(50.0, topModels.get(0).getUtilizationValue());
+    }
+
+    @Test
+    void ensureGetTop5MostUtilizedModelsThrowsOnInvalidCriteria() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            service.getTop5MostUtilizedModels("invalid_criteria");
+        });
+    }
+
+    @Test
+    void ensureGetTop5MostUtilizedModelsHandlesNullValue() {
+        Object[] result1 = new Object[]{mockModel, null};
+        when(aircraftRepository.findTopMostUtilizedAircraftModelsByFlightHours(any(org.springframework.data.domain.Pageable.class)))
+            .thenReturn(java.util.Collections.singletonList(result1));
+
+        java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO> topModels = service.getTop5MostUtilizedModels("hours");
+
+        assertEquals(1, topModels.size());
+        assertEquals(0.0, topModels.get(0).getUtilizationValue());
+    }
+
+    @Test
     void ensureGetAllAircraftModelsWorks() {
         when(repository.findAll()).thenReturn(java.util.Collections.singletonList(mockModel));
         

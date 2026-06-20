@@ -199,4 +199,18 @@ class AircraftServiceTest {
         when(aircraftRepository.findById("CS-TPA")).thenReturn(Optional.of(mockAircraft));
         assertThrows(IllegalArgumentException.class, () -> aircraftService.updateAircraftStatus("CS-TPA", "INVALID", 0L));
     }
+
+    @Test
+    void ensureSearchAircraftsHandlesEmptyStatusStr() {
+        when(aircraftRepository.findAll()).thenReturn(java.util.List.of(mockAircraft));
+        java.util.List<Aircraft> result = aircraftService.searchAircrafts(null, "   ", null);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void ensureSearchAircraftsHandlesAllNulls() {
+        when(aircraftRepository.findAll()).thenReturn(java.util.List.of(mockAircraft));
+        java.util.List<Aircraft> result = aircraftService.searchAircrafts(null, null, null);
+        assertEquals(1, result.size());
+    }
 }
