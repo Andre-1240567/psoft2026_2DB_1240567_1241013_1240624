@@ -38,4 +38,10 @@ class OperationalHoursTest {
         assertDoesNotThrow(
                 () -> new OperationalHours(LocalTime.of(8, 0), LocalTime.of(8, 0)));
     }
+
+    @Test
+    void ensureProtectedConstructorExists() {
+        OperationalHours hours = new OperationalHours();
+        assertNotNull(hours);
+    }
 }

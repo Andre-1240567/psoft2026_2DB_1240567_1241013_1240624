@@ -29,4 +29,10 @@ class RunwayTest {
     void ensureNullLengthIsAccepted() {
         assertDoesNotThrow(() -> new Runway("28L", null, Orientation.N));
     }
+
+    @Test
+    void ensureProtectedConstructorExists() {
+        Runway runway = new Runway();
+        assertNotNull(runway);
+    }
 }
