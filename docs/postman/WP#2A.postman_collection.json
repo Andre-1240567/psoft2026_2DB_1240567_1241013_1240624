@@ -1,497 +1,497 @@
 {
-  "info": {
-    "_postman_id": "34a721b6-a194-49e6-bb62-56a83571194b",
-    "name": "WP#2A - Airports Copy",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "55038069"
-  },
-  "item": [
-    {
-      "name": "0. AUTH - Login as BACKOFFICE_OPERATOR",
-      "event": [
-        {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "var jsonData = pm.response.json();",
-              "if(jsonData.token) {",
-              "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
-              "    pm.collectionVariables.set(\"jwt_token_operator\", jsonData.token);",
-              "    console.log(\"Token saved to collection variables!\");",
-              "}"
-            ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"username\": \"operator\", \"password\": \"operator123\"}"
-        },
-        "url": {
-          "raw": "{{base_url}}/api/auth/login",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "auth",
-            "login"
-          ]
-        }
-      },
-      "response": []
+    "info": {
+        "_postman_id": "34a721b6-a194-49e6-bb62-56a83571194b",
+        "name": "WP#2A - Airports Copy",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "55038069"
     },
-    {
-      "name": "US106- Create Airport",
-      "event": [
+    "item": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
-              "pm.test(\"Response contains IATA code\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.iataCode).to.eql(\"JFK\");",
-              "});"
+            "name": "0. AUTH - Login as BACKOFFICE_OPERATOR",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                            "var jsonData = pm.response.json();",
+                            "if(jsonData.token) {",
+                            "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+                            "    pm.collectionVariables.set(\"jwt_token_operator\", jsonData.token);",
+                            "    console.log(\"Token saved to collection variables!\");",
+                            "}"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"username\": \"operator\", \"password\": \"operator123\"}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/auth/login",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "auth",
+                        "login"
+                    ]
+                }
+            },
+            "response": []
         },
         {
-          "listen": "prerequest",
-          "script": {
-            "exec": [
-              ""
+            "name": "US106- Create Airport",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 201 Created\", function () { pm.response.to.have.status(201); });",
+                            "pm.test(\"Response contains IATA code\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.iataCode).to.eql(\"JFK\");",
+                            "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                },
+                {
+                    "listen": "prerequest",
+                    "script": {
+                        "exec": [
+                            ""
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{jwt_token_operator}}",
-              "type": "string"
-            }
-          ]
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{jwt_token_operator}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\r\n  \"iataCode\": \"JFK\",\r\n  \"name\": \"John F. Kennedy International Airport\",\r\n  \"region\": \"North America\",\r\n  \"country\": \"United States of America\",\r\n  \"city\": \"New York\",\r\n  \"latitude\": 40.6413,\r\n  \"longitude\": -73.7781,\r\n  \"timezone\": \"UTC-07:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/airports",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "airports"
+                    ]
+                }
+            },
+            "response": []
         },
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"iataCode\": \"JFK\",\r\n  \"name\": \"John F. Kennedy International Airport\",\r\n  \"region\": \"North America\",\r\n  \"country\": \"United States of America\",\r\n  \"city\": \"New York\",\r\n  \"latitude\": 40.6413,\r\n  \"longitude\": -73.7781,\r\n  \"timezone\": \"UTC-07:00\",\r\n  \"runways\": [\r\n    {\r\n      \"name\": \"17/35\",\r\n      \"length\": 3480,\r\n      \"orientation\": \"SE\"\r\n    }\r\n  ]\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/airports",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "airports"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "US107- View Airport Details",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Airport name is correct\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.name).to.eql(\"John F. Kennedy International Airport\");",
-              "});"
+            "name": "US107- View Airport Details",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                            "pm.test(\"Airport name is correct\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.name).to.eql(\"John F. Kennedy International Airport\");",
+                            "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{jwt_token_operator}}",
-              "type": "string"
-            }
-          ]
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{jwt_token_operator}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/airports/JFK",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "airports",
+                        "JFK"
+                    ]
+                }
+            },
+            "response": []
         },
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/airports/JFK",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "airports",
-            "JFK"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "0. AUTH - Login as ATCC",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "var jsonData = pm.response.json();",
-              "if(jsonData.token) {",
-              "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
-              "    pm.collectionVariables.set(\"jwt_token_atcc\", jsonData.token);",
-              "    console.log(\"Token saved to collection variables!\");",
-              "}"
+            "name": "0. AUTH - Login as ATCC",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                            "var jsonData = pm.response.json();",
+                            "if(jsonData.token) {",
+                            "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+                            "    pm.collectionVariables.set(\"jwt_token_atcc\", jsonData.token);",
+                            "    console.log(\"Token saved to collection variables!\");",
+                            "}"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"username\": \"atcc\", \"password\": \"atcc123\"}"
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\"username\": \"atcc\", \"password\": \"atcc123\"}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/auth/login",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "auth",
+                        "login"
+                    ]
+                }
+            },
+            "response": []
         },
-        "url": {
-          "raw": "{{base_url}}/api/auth/login",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "auth",
-            "login"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "US108- Search Airport by City",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Returns a list\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
-              "});"
+            "name": "US108- Search Airport by City",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                            "pm.test(\"Returns a list\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData._embedded).to.not.be.undefined;",
+                            "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{jwt_token_atcc}}",
-              "type": "string"
-            }
-          ]
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{jwt_token_atcc}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/airports?city=New York",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "airports"
+                    ],
+                    "query": [
+                        {
+                            "key": "city",
+                            "value": "New York"
+                        }
+                    ]
+                }
+            },
+            "response": []
         },
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/airports?city=New York",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "airports"
-          ],
-          "query": [
-            {
-              "key": "city",
-              "value": "New York"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "US108- Search Airport by Country",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Returns a list\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
-              "});"
+            "name": "US108- Search Airport by Country",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                            "pm.test(\"Returns a list\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData._embedded).to.not.be.undefined;",
+                            "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{jwt_token_atcc}}",
-              "type": "string"
-            }
-          ]
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{jwt_token_atcc}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/airports?country=United States of America",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "airports"
+                    ],
+                    "query": [
+                        {
+                            "key": "country",
+                            "value": "United States of America"
+                        }
+                    ]
+                }
+            },
+            "response": []
         },
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/airports?country=United States of America",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "airports"
-          ],
-          "query": [
-            {
-              "key": "country",
-              "value": "United States of America"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "US108- Search Airport by Name",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Returns a list\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData._embedded).to.not.be.undefined;",
-              "});"
+            "name": "US108- Search Airport by Name",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                            "pm.test(\"Returns a list\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData._embedded).to.not.be.undefined;",
+                            "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{jwt_token_atcc}}",
-              "type": "string"
-            }
-          ]
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{jwt_token_atcc}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/airports?name=John F. Kennedy International Airport",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "airports"
+                    ],
+                    "query": [
+                        {
+                            "key": "name",
+                            "value": "John F. Kennedy International Airport"
+                        }
+                    ]
+                }
+            },
+            "response": []
         },
-        "method": "GET",
-        "header": [],
-        "url": {
-          "raw": "{{base_url}}/api/airports?name=John F. Kennedy International Airport",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "airports"
-          ],
-          "query": [
-            {
-              "key": "name",
-              "value": "John F. Kennedy International Airport"
-            }
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "US109- Change Status (Closed)",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Airport status changed to CLOSED\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    pm.expect(jsonData.status).to.eql(\"CLOSED\");",
-              "});"
+            "name": "US109- Change Status (Closed)",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                            "pm.test(\"Airport status changed to CLOSED\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    pm.expect(jsonData.status).to.eql(\"CLOSED\");",
+                            "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
-        }
-      ],
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{jwt_token_operator}}",
-              "type": "string"
-            }
-          ]
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{jwt_token_operator}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"newStatus\": \"CLOSED\",\n    \"version\": 0\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/airports/JFK/status",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "airports",
+                        "JFK",
+                        "status"
+                    ]
+                }
+            },
+            "response": []
         },
-        "method": "PATCH",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\r\n  \"newStatus\": \"CLOSED\"\r\n}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
-        },
-        "url": {
-          "raw": "{{base_url}}/api/airports/JFK/status",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "airports",
-            "JFK",
-            "status"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "US106a- Certification",
-      "event": [
         {
-          "listen": "test",
-          "script": {
-            "exec": [
-              "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
-              "pm.test(\"Certification added\", function () {",
-              "    var jsonData = pm.response.json();",
-              "    var certs = jsonData.certifications;",
-              "    pm.expect(certs).to.be.an(\"array\");",
-              "    var found = certs.some(function(c) { return c === \"737 MAX\"; });",
-              "    pm.expect(found).to.be.true;",
-              "});"
+            "name": "US106a- Certification",
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
+                            "pm.test(\"Certification added\", function () {",
+                            "    var jsonData = pm.response.json();",
+                            "    var certs = jsonData.certifications;",
+                            "    pm.expect(certs).to.be.an(\"array\");",
+                            "    var found = certs.some(function(c) { return c === \"737 MAX\"; });",
+                            "    pm.expect(found).to.be.true;",
+                            "});"
+                        ],
+                        "type": "text/javascript",
+                        "packages": {},
+                        "requests": {}
+                    }
+                }
             ],
-            "type": "text/javascript",
-            "packages": {},
-            "requests": {}
-          }
+            "request": {
+                "auth": {
+                    "type": "bearer",
+                    "bearer": [
+                        {
+                            "key": "token",
+                            "value": "{{jwt_token_operator}}",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"aircraftModelName\": \"737 MAX\",\n    \"version\": 1\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/airports/JFK/certifications",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "airports",
+                        "JFK",
+                        "certifications"
+                    ]
+                }
+            },
+            "response": []
         }
-      ],
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
-            {
-              "key": "token",
-              "value": "{{jwt_token_operator}}",
-              "type": "string"
-            }
-          ]
+    ],
+    "variable": [
+        {
+            "key": "jwt_token",
+            "value": ""
         },
-        "method": "POST",
-        "header": [],
-        "body": {
-          "mode": "raw",
-          "raw": "{\"aircraftModelName\": \"737 MAX\"}",
-          "options": {
-            "raw": {
-              "language": "json"
-            }
-          }
+        {
+            "key": "jwt_token_operator",
+            "value": ""
         },
-        "url": {
-          "raw": "{{base_url}}/api/airports/JFK/certifications",
-          "host": [
-            "{{base_url}}"
-          ],
-          "path": [
-            "api",
-            "airports",
-            "JFK",
-            "certifications"
-          ]
+        {
+            "key": "jwt_token_atcc",
+            "value": ""
         }
-      },
-      "response": []
-    }
-  ],
-  "variable": [
-    {
-      "key": "jwt_token",
-      "value": ""
-    },
-    {
-      "key": "jwt_token_operator",
-      "value": ""
-    },
-    {
-      "key": "jwt_token_atcc",
-      "value": ""
-    }
-  ]
+    ]
 }

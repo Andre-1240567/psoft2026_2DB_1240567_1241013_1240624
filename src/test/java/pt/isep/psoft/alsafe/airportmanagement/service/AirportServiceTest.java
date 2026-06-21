@@ -43,6 +43,7 @@ class AirportServiceTest {
         IATACode iataCode = new IATACode("LAX");
         Timezone timezone = new Timezone("UTC-07:00");
         dummyAirport = new Airport(iataCode, "Los Angeles International Airport", location, timezone);
+        org.springframework.test.util.ReflectionTestUtils.setField(dummyAirport, "version", 0L);
     }
 
     @Test
@@ -216,7 +217,7 @@ class AirportServiceTest {
         when(airportRepository.findByIataCode_Code("LAX")).thenReturn(Optional.of(dummyAirport));
         when(airportRepository.save(any(Airport.class))).thenReturn(dummyAirport);
 
-        Airport result = airportService.changeOperationalStatus("LAX", "UNDER_MAINTENANCE");
+        Airport result = airportService.changeOperationalStatus("LAX", "UNDER_MAINTENANCE", 0L);
 
         assertNotNull(result);
         verify(airportRepository).save(dummyAirport);
@@ -227,7 +228,7 @@ class AirportServiceTest {
         when(airportRepository.findByIataCode_Code("LAX")).thenReturn(Optional.of(dummyAirport));
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> airportService.changeOperationalStatus("LAX", "FLYING"));
+                () -> airportService.changeOperationalStatus("LAX", "FLYING", 0L));
 
         assertTrue(ex.getMessage().contains("Invalid status"));
         verify(airportRepository, never()).save(any());
@@ -238,7 +239,7 @@ class AirportServiceTest {
         when(airportRepository.findByIataCode_Code("ZZZ")).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
-                () -> airportService.changeOperationalStatus("ZZZ", "CLOSED"));
+                () -> airportService.changeOperationalStatus("ZZZ", "CLOSED", 0L));
 
         verify(airportRepository, never()).save(any());
     }
@@ -248,7 +249,7 @@ class AirportServiceTest {
         when(airportRepository.findByIataCode_Code("LAX")).thenReturn(Optional.of(dummyAirport));
 
         assertThrows(IllegalArgumentException.class,
-                () -> airportService.changeOperationalStatus("LAX", "OPERATIONAL"));
+                () -> airportService.changeOperationalStatus("LAX", "OPERATIONAL", 0L));
 
         verify(airportRepository, never()).save(any());
     }
@@ -286,7 +287,7 @@ class AirportServiceTest {
                 .thenReturn(Optional.of(dummyAirport));
         when(airportRepository.save(any(Airport.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Airport result = airportService.addAirplaneCertification("LAX", modelName);
+        Airport result = airportService.addAirplaneCertification("LAX", modelName, 0L);
 
         assertNotNull(result);
         assertEquals(1, result.getCertifications().size());
@@ -299,7 +300,7 @@ class AirportServiceTest {
         when(aircraftModelRepository.findByModelName("GHOST-PLANE")).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
-                () -> airportService.addAirplaneCertification("LAX", "GHOST-PLANE"));
+                () -> airportService.addAirplaneCertification("LAX", "GHOST-PLANE", 0L));
 
         verify(airportRepository, never()).save(any());
     }
@@ -311,7 +312,7 @@ class AirportServiceTest {
         when(airportRepository.findByIataCode_Code("ZZZ")).thenReturn(Optional.empty());
 
         assertThrows(IllegalArgumentException.class,
-                () -> airportService.addAirplaneCertification("ZZZ", "737 MAX"));
+                () -> airportService.addAirplaneCertification("ZZZ", "737 MAX", 0L));
 
         verify(airportRepository, never()).save(any());
     }
@@ -324,17 +325,18 @@ class AirportServiceTest {
                 .thenReturn(Optional.of(dummyAirport));
         when(airportRepository.save(any(Airport.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        airportService.addAirplaneCertification("LAX", "737 MAX");
+        airportService.addAirplaneCertification("LAX", "737 MAX", 0L);
 
         when(airportRepository.findByIataCode_Code("LAX")).thenReturn(Optional.of(dummyAirport));
 
         assertThrows(IllegalArgumentException.class,
-                () -> airportService.addAirplaneCertification("LAX", "737 MAX"));
+                () -> airportService.addAirplaneCertification("LAX", "737 MAX", 0L));
     }
 
     @Test
     void ensureUpdateAirportDetailsWithBothFieldsSuccess() {
         UpdateAirportDetailsRequestDTO dto = mock(UpdateAirportDetailsRequestDTO.class);
+        when(dto.getVersion()).thenReturn(0L);
 
         OperationalHoursDTO opHoursDTO = mock(OperationalHoursDTO.class);
         when(opHoursDTO.getOpeningTime()).thenReturn("08:00");
@@ -360,6 +362,7 @@ class AirportServiceTest {
     @Test
     void ensureUpdateAirportDetailsWithOnlyOperationalHoursSuccess() {
         UpdateAirportDetailsRequestDTO dto = mock(UpdateAirportDetailsRequestDTO.class);
+        when(dto.getVersion()).thenReturn(0L);
 
         OperationalHoursDTO opHoursDTO = mock(OperationalHoursDTO.class);
         when(opHoursDTO.getOpeningTime()).thenReturn("06:00");
@@ -380,6 +383,7 @@ class AirportServiceTest {
     @Test
     void ensureUpdateAirportDetailsWithOnlyContactsSuccess() {
         UpdateAirportDetailsRequestDTO dto = mock(UpdateAirportDetailsRequestDTO.class);
+        when(dto.getVersion()).thenReturn(0L);
         when(dto.getOperationalHours()).thenReturn(null);
 
         ContactDTO contactDTO = mock(ContactDTO.class);
@@ -520,5 +524,33 @@ class AirportServiceTest {
         assertEquals(1, result.getTerminals().size());
         assertTrue(result.getTerminals().get(0).getGates().isEmpty(), "As gates devem inicializar vazias");
         assertTrue(result.getTerminals().get(0).getServices().isEmpty(), "Os serviços devem inicializar vazios");
+    }
+
+    @Test
+    void ensureOptimisticLockingThrowsExceptionOnChangeOperationalStatus() {
+        when(airportRepository.findByIataCode_Code("LAX")).thenReturn(Optional.of(dummyAirport));
+        
+        assertThrows(org.springframework.orm.ObjectOptimisticLockingFailureException.class,
+                () -> airportService.changeOperationalStatus("LAX", "CLOSED", 99L));
+    }
+
+    @Test
+    void ensureOptimisticLockingThrowsExceptionOnUpdateDetails() {
+        UpdateAirportDetailsRequestDTO dto = mock(UpdateAirportDetailsRequestDTO.class);
+        when(dto.getVersion()).thenReturn(99L);
+        when(airportRepository.findByIataCode_Code("LAX")).thenReturn(Optional.of(dummyAirport));
+        
+        assertThrows(org.springframework.orm.ObjectOptimisticLockingFailureException.class,
+                () -> airportService.updateAirportDetails("LAX", dto));
+    }
+
+    @Test
+    void ensureOptimisticLockingThrowsExceptionOnAddCertification() {
+        when(aircraftModelRepository.findByModelName("737 MAX"))
+                .thenReturn(Optional.of(mock(AircraftModel.class)));
+        when(airportRepository.findByIataCode_Code("LAX")).thenReturn(Optional.of(dummyAirport));
+        
+        assertThrows(org.springframework.orm.ObjectOptimisticLockingFailureException.class,
+                () -> airportService.addAirplaneCertification("LAX", "737 MAX", 99L));
     }
 }
