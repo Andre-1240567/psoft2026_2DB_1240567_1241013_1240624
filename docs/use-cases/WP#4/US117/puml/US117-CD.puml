@@ -1,0 +1,40 @@
+@startuml US117-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + getTotalMaintenanceHours(): ResponseEntity
+    }
+    class MaintenanceHoursSummaryDTO {
+        - registrationNumber: String
+        - totalHours: Double
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + getTotalMaintenanceHoursPerAircraft(): List<MaintenanceHoursSummary>
+    }
+    class MaintenanceHoursSummary <<record>> {
+        - registrationNumber: String
+        - totalHours: Double
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - expectedDurationHours: Double
+    }
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository {
+        + findTotalMaintenanceHoursPerAircraft(): List<Object[]>
+    }
+}
+
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordController ..> MaintenanceHoursSummaryDTO : produces
+MaintenanceRecordService ..> MaintenanceRecordRepository : uses
+MaintenanceRecordService ..> MaintenanceHoursSummary : maps rows into
+
+@enduml

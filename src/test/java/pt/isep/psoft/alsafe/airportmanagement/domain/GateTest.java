@@ -21,4 +21,10 @@ class GateTest {
     void ensureBlankDesignationThrows() {
         assertThrows(IllegalArgumentException.class, () -> new Gate("   "));
     }
+
+    @Test
+    void ensureProtectedConstructorExists() {
+        Gate gate = new Gate();
+        assertNotNull(gate);
+    }
 }

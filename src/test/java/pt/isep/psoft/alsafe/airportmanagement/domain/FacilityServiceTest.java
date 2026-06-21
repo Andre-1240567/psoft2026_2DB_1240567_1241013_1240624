@@ -29,4 +29,10 @@ class FacilityServiceTest {
     void ensureNullDescriptionIsAccepted() {
         assertDoesNotThrow(() -> new FacilityService("WIFI", null));
     }
+
+    @Test
+    void ensureProtectedConstructorExists() {
+        FacilityService service = new FacilityService();
+        assertNotNull(service);
+    }
 }

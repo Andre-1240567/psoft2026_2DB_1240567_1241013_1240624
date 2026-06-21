@@ -1,0 +1,45 @@
+@startuml WP#4-UCD
+
+left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+actor "Maintenance Technician" as TECH
+actor "Maintenance Supervisor" as SUP
+actor "ATCC" as ATCC
+
+rectangle "WP#4 — Maintenance Records Management" {
+
+    package "WP#4A — Core Maintenance" {
+        usecase "US115A — Create maintenance template" as US115A
+        usecase "US115B — Create maintenance record" as US115B
+        usecase "US116 — View maintenance records\nfor a specific aircraft" as US116
+        usecase "US117 — View total maintenance hours\nfor fleet" as US117
+        usecase "US119 — Mark maintenance record\nas completed" as US119
+    }
+
+    package "WP#4B — Enhanced Maintenance" {
+        usecase "US217 — Categorize records\nby maintenance component" as US217
+        usecase "US218 — Search records by aircraft,\ndate range, or component" as US218
+        usecase "US219 — View all ongoing\nmaintenance activities" as US219
+        usecase "US220 — Generate maintenance\ncost reports" as US220
+        usecase "US221 — View average turnaround\ntime per aircraft type" as US221
+        usecase "US222 — Receive scheduled\nmaintenance alerts" as US222
+    }
+}
+
+TECH --> US115A
+TECH --> US115B
+TECH --> US116
+TECH --> US119
+TECH --> US217
+TECH --> US218
+
+SUP --> US219
+SUP --> US221
+
+ATCC --> US117
+ATCC --> US220
+ATCC --> US222
+
+@enduml

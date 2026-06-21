@@ -486,4 +486,14 @@ class AirportControllerTest {
         mockMvc.perform(get("/api/airports/grouped").param("groupBy", "invalid"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    @WithMockUser(roles = "ATCC")
+    void searchAirports_ShouldReturn400_WhenAllParamsAreBlank() throws Exception {
+        mockMvc.perform(get("/api/airports")
+                .param("city", "   ")
+                .param("country", "")
+                .param("name", "      "))
+                .andExpect(status().isBadRequest());
+    }
 }

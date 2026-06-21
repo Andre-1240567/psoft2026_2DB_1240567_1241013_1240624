@@ -1,0 +1,44 @@
+@startuml US218-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + searchRecords(registrationNumber, component,\nfrom, to): ResponseEntity
+    }
+    class MaintenanceRecordResponseDTO {
+        - registrationNumber: String
+        - component: String
+        - startDate: LocalDate
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + searchRecords(registrationNumber, componentStr,\nfrom, to): List<MaintenanceRecord>
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - startDate: LocalDate
+        - component: MaintenanceComponent
+    }
+    enum MaintenanceComponent {
+        ENGINE
+        AIRFRAME
+        AVIONICS
+        INTERIOR
+        EXTERIOR
+    }
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository {
+        + search(registrationNumber, component,\nfrom, to): List<MaintenanceRecord>
+    }
+}
+
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordService ..> MaintenanceRecordRepository : uses
+MaintenanceRecord --> MaintenanceComponent : categorized by
+
+@enduml

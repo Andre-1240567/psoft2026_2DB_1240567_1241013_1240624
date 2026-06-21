@@ -1,0 +1,10 @@
+@startuml US117-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+ATCC -> System : GET /api/maintenance-records/reports/total-hours
+
+System --> ATCC : 200 OK\nList<MaintenanceHoursSummaryDTO>\n[{registrationNumber, totalHours}, ...]\nsorted descending — may be empty
+
+@enduml

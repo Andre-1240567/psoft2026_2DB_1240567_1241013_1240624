@@ -1,0 +1,20 @@
+@startuml US119-SSD
+
+actor "Maintenance Technician" as TECH
+participant "AISafe System" as System
+
+TECH -> System : PATCH /api/maintenance-records/{id}/complete\n{completionNotes, actualDurationHours, actualCost, version}
+
+alt missing or invalid fields
+    System --> TECH : 400 Bad Request\n"Completion notes are mandatory." / etc.
+else record not found
+    System --> TECH : 404 Not Found\n"Maintenance record with id '...' not found."
+else record is not IN_PROGRESS
+    System --> TECH : 409 Conflict\n"Cannot complete a record that is not IN_PROGRESS."
+else stale version (optimistic locking conflict)
+    System --> TECH : 409 Conflict\n"Concurrency conflict: the record was modified by another user."
+else success
+    System --> TECH : 200 OK\nMaintenanceRecordResponseDTO\n(status=COMPLETED)\naircraft status restored to AVAILABLE
+end
+
+@enduml

@@ -36,4 +36,10 @@ class ContactTest {
     void ensureNullDepartmentIsAccepted() {
         assertDoesNotThrow(() -> new Contact("+351210000000", null, ContactType.EMAIL));
     }
+
+    @Test
+    void ensureProtectedConstructorExists() {
+        Contact contact = new Contact();
+        assertNotNull(contact);
+    }
 }

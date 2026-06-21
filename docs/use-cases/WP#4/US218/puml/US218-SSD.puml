@@ -1,0 +1,16 @@
+@startuml US218-SSD
+
+actor "Maintenance Technician" as TECH
+participant "AISafe System" as System
+
+TECH -> System : GET /api/maintenance-records/search?registrationNumber={reg}\n&component={comp}&from={date}&to={date}
+
+alt invalid component value
+    System --> TECH : 400 Bad Request\n"Invalid maintenance component: '...'"
+else 'from' date is after 'to' date
+    System --> TECH : 400 Bad Request\n"Start date 'from' cannot be after end date 'to'."
+else success
+    System --> TECH : 200 OK\nList<MaintenanceRecordResponseDTO>\n(matching all provided filters — may be empty)
+end
+
+@enduml

@@ -1,0 +1,14 @@
+@startuml US116-SSD
+
+actor "Maintenance Technician" as TECH
+participant "AISafe System" as System
+
+TECH -> System : GET /api/maintenance-records/aircraft/{registrationNumber}
+
+alt aircraft not found
+    System --> TECH : 404 Not Found\n"Aircraft '...' not found."
+else success
+    System --> TECH : 200 OK\nList<MaintenanceRecordResponseDTO>\n(all statuses, with HATEOAS links)
+end
+
+@enduml

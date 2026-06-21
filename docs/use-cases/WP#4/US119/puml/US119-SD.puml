@@ -1,0 +1,49 @@
+@startuml US119-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "MaintenanceRecordRepository" as RecordRepo
+participant "AircraftRepository" as AircraftRepo
+participant "MaintenanceRecordModelAssembler" as Assembler
+
+Controller -> Service : completeRecord(id, version, completionNotes,\nactualDurationHours, actualCost)
+
+Service -> RecordRepo : findById(id)
+RecordRepo --> Service : Optional<MaintenanceRecord>
+
+alt record not found
+    Service --> Controller : throws ResourceNotFoundException
+    Controller --> "Technician" : 404 Not Found
+else record found
+    Service -> Service : record.getVersion().equals(clientVersion)?
+
+    alt version mismatch
+        Service --> Controller : throws ObjectOptimisticLockingFailureException
+        Controller --> "Technician" : 409 Conflict
+    else version matches
+        Service -> Service : record.markAsCompleted(completionNotes,\nactualDurationHours, actualCost)
+
+        note right of Service
+            Domain validates: status must be IN_PROGRESS,
+            completionNotes not blank,
+            actualDurationHours > 0,
+            actualCost >= 0 (if provided).
+            Sets status=COMPLETED, completedAt=now().
+        end note
+
+        Service -> AircraftRepo : aircraft.updateStatus(AVAILABLE)\nsave(aircraft)
+        AircraftRepo --> Service : Aircraft
+
+        Service -> RecordRepo : save(record)
+        RecordRepo --> Service : MaintenanceRecord
+
+        Service --> Controller : MaintenanceRecord
+
+        Controller -> Assembler : toModel(record)
+        Assembler --> Controller : MaintenanceRecordResponseDTO
+
+        Controller --> "Technician" : 200 OK\nMaintenanceRecordResponseDTO
+    end
+end
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml US222-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + getAlertsDueByDate(): ResponseEntity
+        + getAlertsDueByFlightHours(): ResponseEntity
+    }
+    class MaintenanceRecordResponseDTO {
+        - nextMaintenanceDueDate: LocalDate
+        - nextMaintenanceDueHours: Double
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + getAlertsDueByDate(): List<MaintenanceRecord>
+        + getAlertsDueByFlightHours(): List<MaintenanceRecord>
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - nextMaintenanceDueDate: LocalDate
+        - nextMaintenanceDueHours: Double
+        + scheduleNextMaintenance(dueDate, dueHours)
+    }
+    class Aircraft <<Entity>> {
+        - totalFlightHours: Double
+    }
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository {
+        + findDueForMaintenanceByDate(today: LocalDate): List<MaintenanceRecord>
+        + findDueForMaintenanceByFlightHours(): List<MaintenanceRecord>
+    }
+}
+
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordController ..> MaintenanceRecordModelAssembler : uses
+MaintenanceRecordService ..> MaintenanceRecordRepository : uses
+MaintenanceRecord --> Aircraft : performed on
+
+@enduml

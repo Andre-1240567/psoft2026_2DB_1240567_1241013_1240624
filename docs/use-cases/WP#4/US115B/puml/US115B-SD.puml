@@ -1,0 +1,55 @@
+@startuml US115B-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "AircraftRepository" as AircraftRepo
+participant "MaintenanceTemplateRepository" as TemplateRepo
+participant "MaintenanceRecordRepository" as RecordRepo
+participant "MaintenanceRecordModelAssembler" as Assembler
+
+Controller -> Controller : parseComponent(dto.component)
+
+Controller -> Service : createRecord(registrationNumber, templateId,\ndescription, startDate, expectedDurationHours,\ncomponent, estimatedCost)
+
+Service -> AircraftRepo : findById(registrationNumber)
+AircraftRepo --> Service : Optional<Aircraft>
+
+alt aircraft not found
+    Service --> Controller : throws ResourceNotFoundException
+    Controller --> "Technician" : 404 Not Found
+else aircraft already UNDER_MAINTENANCE
+    Service --> Controller : throws IllegalStateException
+    Controller --> "Technician" : 409 Conflict
+else aircraft is available
+    Service -> TemplateRepo : findById(templateId)
+    TemplateRepo --> Service : Optional<MaintenanceTemplate>
+
+    alt template not found
+        Service --> Controller : throws ResourceNotFoundException
+        Controller --> "Technician" : 404 Not Found
+    else template found
+        Service -> Service : new MaintenanceRecord(aircraft, template,\ndescription, startDate, expectedDurationHours,\ncomponent, estimatedCost)
+
+        note right of Service
+            Constructor validates template.isApplicableTo(aircraft.getModel())
+            and deep-copies the checklist via template.cloneChecklist().
+            Falls back to template.defaultDurationHours
+            if expectedDurationHours is null/non-positive.
+        end note
+
+        Service -> AircraftRepo : aircraft.updateStatus(UNDER_MAINTENANCE)\nsave(aircraft)
+        AircraftRepo --> Service : Aircraft
+
+        Service -> RecordRepo : save(record)
+        RecordRepo --> Service : MaintenanceRecord
+
+        Service --> Controller : MaintenanceRecord
+
+        Controller -> Assembler : toModel(record)
+        Assembler --> Controller : MaintenanceRecordResponseDTO\n(with HATEOAS links)
+
+        Controller --> "Technician" : 201 Created\nMaintenanceRecordResponseDTO
+    end
+end
+
+@enduml

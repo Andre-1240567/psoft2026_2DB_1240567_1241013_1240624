@@ -1,0 +1,14 @@
+@startuml US220-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+alt cost report per aircraft
+    ATCC -> System : GET /api/maintenance-records/reports/cost-per-aircraft
+    System --> ATCC : 200 OK\nList<MaintenanceCostSummaryDTO>\n[{key: registrationNumber, estimatedCost, actualCost}, ...]\nsorted by actualCost descending — may be empty
+else cost report per aircraft model
+    ATCC -> System : GET /api/maintenance-records/reports/cost-per-model
+    System --> ATCC : 200 OK\nList<MaintenanceCostSummaryDTO>\n[{key: modelName, estimatedCost, actualCost}, ...]\nsorted by actualCost descending — may be empty
+end
+
+@enduml

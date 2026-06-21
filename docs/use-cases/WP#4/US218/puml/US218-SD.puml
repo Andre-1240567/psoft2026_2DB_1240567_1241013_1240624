@@ -1,0 +1,39 @@
+@startuml US218-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "MaintenanceRecordRepository" as Repo
+participant "MaintenanceRecordModelAssembler" as Assembler
+
+Controller -> Service : searchRecords(registrationNumber, component,\nfrom, to)
+
+Service -> Service : parse component string\n(if provided)
+
+alt component string is invalid
+    Service --> Controller : throws IllegalArgumentException
+    Controller --> "Technician" : 400 Bad Request
+else component is valid or null
+    Service -> Service : validate from.isAfter(to) == false
+
+    alt from is after to
+        Service --> Controller : throws IllegalArgumentException
+        Controller --> "Technician" : 400 Bad Request
+    else date range is valid
+        Service -> Repo : search(registrationNumber, component, from, to)
+        note right of Repo
+            JPQL with dynamic "IS NULL OR ..." filters:
+            each parameter is optional —
+            omitting it means "match all" for that field.
+        end note
+        Repo --> Service : List<MaintenanceRecord>
+
+        Service --> Controller : List<MaintenanceRecord>
+
+        Controller -> Assembler : toModel(record) for each
+        Assembler --> Controller : List<MaintenanceRecordResponseDTO>
+
+        Controller --> "Technician" : 200 OK\nList<MaintenanceRecordResponseDTO>
+    end
+end
+
+@enduml

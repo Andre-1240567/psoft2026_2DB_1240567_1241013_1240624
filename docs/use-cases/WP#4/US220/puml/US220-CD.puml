@@ -1,0 +1,50 @@
+@startuml US220-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + getCostReportPerAircraft(): ResponseEntity
+        + getCostReportPerAircraftModel(): ResponseEntity
+    }
+    class MaintenanceCostSummaryDTO {
+        - key: String
+        - estimatedCost: Double
+        - actualCost: Double
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + getCostReportPerAircraft(): List<MaintenanceCostSummary>
+        + getCostReportPerAircraftModel(): List<MaintenanceCostSummary>
+    }
+    class MaintenanceCostSummary <<record>> {
+        - key: String
+        - estimatedCost: Double
+        - actualCost: Double
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - estimatedCost: Double
+        - actualCost: Double
+    }
+    class Aircraft <<Entity>>
+    class AircraftModel <<Entity>>
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository {
+        + findCostReportPerAircraft(): List<Object[]>
+        + findCostReportPerAircraftModel(): List<Object[]>
+    }
+}
+
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordController ..> MaintenanceCostSummaryDTO : produces
+MaintenanceRecordService ..> MaintenanceRecordRepository : uses
+MaintenanceRecordService ..> MaintenanceCostSummary : maps rows into
+MaintenanceRecord --> Aircraft : performed on
+Aircraft --> AircraftModel : is of model
+
+@enduml

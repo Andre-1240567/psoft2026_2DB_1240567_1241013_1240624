@@ -1,0 +1,45 @@
+@startuml US219-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + getOngoingActivities(): ResponseEntity
+    }
+    class MaintenanceRecordResponseDTO {
+        - registrationNumber: String
+        - status: String
+        - startDate: LocalDate
+        - component: String
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + getOngoingActivities(): List<MaintenanceRecord>
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - status: MaintenanceStatus
+        - startDate: LocalDate
+        + isOngoing(): boolean
+    }
+    enum MaintenanceStatus {
+        PLANNED
+        IN_PROGRESS
+        COMPLETED
+        CANCELED
+    }
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository {
+        + findAllOngoing(): List<MaintenanceRecord>
+    }
+}
+
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordService ..> MaintenanceRecordRepository : uses
+MaintenanceRecord --> MaintenanceStatus : has status
+
+@enduml

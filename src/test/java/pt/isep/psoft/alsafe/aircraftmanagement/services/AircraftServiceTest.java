@@ -167,10 +167,15 @@ class AircraftServiceTest {
 
     @Test
     void ensureSearchAircraftsByYearOnly() {
-        when(aircraftRepository.findAll()).thenReturn(java.util.List.of(mockAircraft));
+        Aircraft oldAircraft = new Aircraft("CS-OLD", mockModel, LocalDate.of(1999, 1, 1), "Economy");
         
-        java.util.List<Aircraft> result = aircraftService.searchAircrafts(null, null, LocalDate.now().getYear());
+        when(aircraftRepository.findAll()).thenReturn(java.util.Arrays.asList(mockAircraft, oldAircraft));
+        
+        int currentYear = LocalDate.now().getYear();
+        java.util.List<Aircraft> result = aircraftService.searchAircrafts(null, null, currentYear);
+        
         assertEquals(1, result.size());
+        assertEquals("CS-TPA", result.get(0).getRegistrationNumber(), "O filtro não removeu o avião correto!");
     }
 
     @Test

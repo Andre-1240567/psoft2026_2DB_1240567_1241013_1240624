@@ -1,0 +1,24 @@
+@startuml US115B-SSD
+
+actor "Maintenance Technician" as TECH
+participant "AISafe System" as System
+
+TECH -> System : POST /api/maintenance-records\n{registrationNumber, templateId, description,\nstartDate, expectedDurationHours, component, estimatedCost}
+
+alt missing or invalid fields
+    System --> TECH : 400 Bad Request\n"Description is mandatory." / etc.
+else invalid component value
+    System --> TECH : 400 Bad Request\n"Invalid maintenance component: '...'"
+else aircraft not found
+    System --> TECH : 404 Not Found\n"Aircraft '...' not found."
+else maintenance template not found
+    System --> TECH : 404 Not Found\n"Maintenance template with id '...' not found."
+else aircraft already UNDER_MAINTENANCE
+    System --> TECH : 409 Conflict\n"Aircraft '...' is already under maintenance."
+else template not applicable to aircraft model
+    System --> TECH : 400 Bad Request\n"Template '...' is not applicable to aircraft model '...'"
+else success
+    System --> TECH : 201 Created\nMaintenanceRecordResponseDTO\n(status=PLANNED, with HATEOAS links)\naircraft status set to UNDER_MAINTENANCE
+end
+
+@enduml

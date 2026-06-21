@@ -1,0 +1,55 @@
+@startuml US116-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + getRecordsForAircraft(registrationNumber: String): ResponseEntity
+    }
+    class MaintenanceRecordResponseDTO {
+        - id: Long
+        - registrationNumber: String
+        - status: String
+        - startDate: LocalDate
+        - completedAt: LocalDateTime
+    }
+    class MaintenanceRecordModelAssembler {
+        + toModel(record: MaintenanceRecord): MaintenanceRecordResponseDTO
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + getRecordsForAircraft(registrationNumber: String): List<MaintenanceRecord>
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - status: MaintenanceStatus
+        - startDate: LocalDate
+    }
+    enum MaintenanceStatus {
+        PLANNED
+        IN_PROGRESS
+        COMPLETED
+        CANCELED
+    }
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository {
+        + findByAircraft_RegistrationNumber(\nregistrationNumber: String): List<MaintenanceRecord>
+    }
+    interface AircraftRepository {
+        + existsById(registrationNumber: String): boolean
+    }
+}
+
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordController ..> MaintenanceRecordModelAssembler : uses
+MaintenanceRecordModelAssembler ..> MaintenanceRecordResponseDTO : produces
+
+MaintenanceRecordService ..> AircraftRepository : checks existence
+MaintenanceRecordService ..> MaintenanceRecordRepository : queries
+MaintenanceRecord --> MaintenanceStatus : has status
+
+@enduml
