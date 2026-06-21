@@ -30,7 +30,7 @@
 
 ## Design Justification
 - **Pagination & Limitations:** We delegate the "Top 5" truncation to the database layer (via Spring Data JPA `Pageable` mechanism) to ensure high performance, rather than fetching all models into memory and sorting them manually.
-- **DTO Pattern:** `TopAircraftModelDTO` is created strictly to bind the model object to its calculated utilization metric.
+- **DTO Pattern & HATEOAS:** `TopAircraftModelDTO` is created strictly to bind the model object to its calculated utilization metric without exposing the underlying JPA entity. It also extends `RepresentationModel` to supply HATEOAS navigational links.
 
 ## Sequence Diagrams
 
