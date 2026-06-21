@@ -104,14 +104,21 @@ class AircraftControllerTest {
     @org.springframework.security.test.context.support.WithMockUser(roles = "ATCC")
     void ensureGetStatusOverviewReturns200OK() throws Exception {
         AircraftStatusOverviewDTO overview = new AircraftStatusOverviewDTO();
+        
         overview.addAircraftToStatus("AVAILABLE", new AircraftResponseDTO(mockAircraft));
-
+        overview.addAircraftToStatus("IN_FLIGHT", new AircraftResponseDTO(mockAircraft));
+        overview.addAircraftToStatus("UNDER_MAINTENANCE", new AircraftResponseDTO(mockAircraft));
+        overview.addAircraftToStatus("INACTIVE", new AircraftResponseDTO(mockAircraft));
+        overview.addAircraftToStatus("UNKNOWN_STATUS", new AircraftResponseDTO(mockAircraft));
         when(aircraftService.getAircraftStatusOverview()).thenReturn(overview);
 
         mockMvc.perform(get("/api/aircrafts/status-overview")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalAvailable").value(1))
+                .andExpect(jsonPath("$.totalInFlight").value(1))
+                .andExpect(jsonPath("$.totalUnderMaintenance").value(1))
+                .andExpect(jsonPath("$.totalInactive").value(1))
                 .andExpect(jsonPath("$.aircraftsByStatus.AVAILABLE[0].registrationNumber").value("CS-TPA"));
     }
 

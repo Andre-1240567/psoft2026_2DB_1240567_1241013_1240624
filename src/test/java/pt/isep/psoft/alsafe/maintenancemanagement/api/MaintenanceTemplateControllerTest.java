@@ -318,4 +318,13 @@ class MaintenanceTemplateControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void ensureGetTemplatesWithBlankTypeReturnsAllTemplates() throws Exception {
+        when(templateService.getAllTemplates()).thenReturn(List.of(validTemplate));
+
+        mockMvc.perform(get("/api/maintenance-templates").param("templateType", "   "))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].templateName").value("A-Check Routine Inspection"));
+    }
 }

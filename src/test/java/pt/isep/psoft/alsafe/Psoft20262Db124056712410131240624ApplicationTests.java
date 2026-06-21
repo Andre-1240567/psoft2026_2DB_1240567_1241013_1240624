@@ -15,4 +15,9 @@ class Psoft20262Db124056712410131240624ApplicationTests {
     void contextLoads() {
     }
 
+    @Test
+    void mainMethodRunsSuccessfully() {
+        Psoft20262Db124056712410131240624Application.main(new String[]{});
+    }
+
 }
