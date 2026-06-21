@@ -217,7 +217,7 @@ class MaintenanceRecordRepositoryTest {
             r1.markAsCompleted("Done", 8.0, 480.0);
             entityManager.persist(r1);
 
-            MaintenanceRecord r2 = persistRecord(
+            persistRecord(
                     aircraftA, templateForA320, LocalDate.now(), MaintenanceComponent.ENGINE, 300.0, null);
             entityManager.flush();
 
@@ -225,8 +225,8 @@ class MaintenanceRecordRepositoryTest {
 
             assertThat(result).hasSize(1);
             assertThat(result.get(0)[0]).isEqualTo("CS-TTA");
-            assertThat(((Number) result.get(0)[1]).doubleValue()).isEqualTo(800.0); 
-            assertThat(((Number) result.get(0)[2]).doubleValue()).isEqualTo(480.0); 
+            assertThat(((Number) result.get(0)[1]).doubleValue()).isEqualTo(800.0);
+            assertThat(((Number) result.get(0)[2]).doubleValue()).isEqualTo(480.0);
         }
 
         @Test
