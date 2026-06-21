@@ -154,12 +154,18 @@ public class FlightRouteController {
     })
     @PreAuthorize("hasRole('ATCC')")
     @GetMapping("/network/total-distance")
-    public ResponseEntity<java.util.Map<String, Double>> getTotalNetworkDistance() {
+    public ResponseEntity<NetworkDistanceResponseDTO> getTotalNetworkDistance() {
         
         Double totalDistance = flightRouteService.getTotalNetworkDistance();
+        NetworkDistanceResponseDTO response = new NetworkDistanceResponseDTO(totalDistance);
+
+        response.add(linkTo(methodOn(FlightRouteController.class).getTotalNetworkDistance()).withSelfRel());
         
-        return ResponseEntity.ok(java.util.Map.of("totalDistance", totalDistance));
+        response.add(linkTo(FlightRouteController.class).withRel("all_routes"));
+
+        return ResponseEntity.ok(response);
     }
+
 
     @Operation(summary = "US216: Search for alternative routes",
                description = "Finds alternative combinations of active flight routes connecting two airports via layovers. Defaults to fewest-stops algorithm. Requires ATCC role.")
