@@ -5,7 +5,7 @@ import org.springframework.hateoas.RepresentationModel;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
 
 @Getter
-public class TopAircraftModelDTO extends RepresentationModel<TopAircraftModelDTO> {
+public class AircraftModelResponseDTO extends RepresentationModel<AircraftModelResponseDTO> {
 
     private final Long id;
     private final String manufacturer;
@@ -14,9 +14,10 @@ public class TopAircraftModelDTO extends RepresentationModel<TopAircraftModelDTO
     private final Double fuelCapacity;
     private final Double maxRange;
     private final Double cruisingSpeed;
-    private final Double utilizationValue;
+    private final String image;
+    private final Long version;
 
-    public TopAircraftModelDTO(AircraftModel model, Double utilizationValue) {
+    public AircraftModelResponseDTO(AircraftModel model) {
         this.id = model.getId();
         this.manufacturer = model.getManufacturer().name();
         this.modelName = model.getModelName();
@@ -24,6 +25,7 @@ public class TopAircraftModelDTO extends RepresentationModel<TopAircraftModelDTO
         this.fuelCapacity = model.getFuelCapacity();
         this.maxRange = model.getMaxRange();
         this.cruisingSpeed = model.getCruisingSpeed();
-        this.utilizationValue = utilizationValue;
+        this.image = model.getImage();
+        this.version = model.getVersion();
     }
 }
