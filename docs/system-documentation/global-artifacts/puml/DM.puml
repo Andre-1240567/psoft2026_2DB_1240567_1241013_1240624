@@ -11,16 +11,11 @@ skinparam packageStyle rectangle
 
 ' --- AGGREGATE: USER (WP#0A) ---
 package "User Aggregate" {
-    enum Role <<Enum>> {
-        ADMIN
-        BACKOFFICE_OPERATOR
-        ATCC
-    }
     class User <<Aggregate Root>> <<Entity>> {
         - username : String
         - passwordHash : String
+        - roles : String
     }
-    User "1" *-- "1" Role : has >
 }
 
 ' --- AGGREGATE: AIRCRAFT MODEL ---
@@ -38,23 +33,16 @@ package "Aircraft Model Aggregate" {
         DIAMOND_AIRCRAFT
     }
     class AircraftModel <<Aggregate Root>> <<Entity>> {
+        - id : Long
+        - version : Long
         - modelName : String
+        - seatingCapacity : Integer
         - fuelCapacity : Double
         - maxRange : Double
         - cruisingSpeed : Double
-        - seatingCapacity : Integer
-        - technicalImage : String
-    }
-    class SeatConfiguration <<Value Object>> {
-        - configurationName : String
-        - capacity : Integer
-    }
-    class AircraftFeature <<Value Object>> {
-        - featureDescription : String
+        - image : String
     }
     AircraftModel "1" *-- "1" Manufacturer : built by >
-    AircraftModel "1" *-- "1..*" SeatConfiguration : has >
-    AircraftModel "1" *-- "0..*" AircraftFeature : possesses >
 }
 
 ' --- AGGREGATE: AIRCRAFT ---
@@ -70,6 +58,8 @@ package "Aircraft Aggregate" {
         - manufacturingDate : Date
         - activeConfigurationName : String
         - activeCapacity : Integer
+        - totalFlightHours : Double
+        - numberOfAssignments : Integer
         - version : Long
     }
     Aircraft "1" *-- "1" AircraftStatus : current status >
@@ -77,7 +67,7 @@ package "Aircraft Aggregate" {
 
 ' --- AGGREGATE: AIRPORT ---
 package "Airport Aggregate" {
-    enum AirportStatus <<Enum>> {
+    enum Status <<Enum>> {
         OPERATIONAL
         CLOSED
         UNDER_MAINTENANCE
@@ -151,7 +141,7 @@ package "Airport Aggregate" {
     Contact "1" *-- "1" ContactType : is of type >
     Airport "1" *-- "1..*" Runway : has >
     Airport "1" *-- "0..*" AirplaneCertification : grants >
-    Airport "1" *-- "1" AirportStatus : has >
+    Airport "1" *-- "1" Status : has >
     Airport "1" *-- "0..*" Terminal : has >
     Terminal "1" *-- "1..*" Gate : contains >
     Terminal "1" *-- "0..*" FacilityService : provides >
@@ -213,5 +203,65 @@ FlightRoute "0..*" --> "1" Airport : destination >
 ScheduledFlight "0..*" --> "1" Aircraft : assigned to >
 ScheduledFlight "0..*" --> "1" FlightRoute : scheduled on >
 AirplaneCertification "0..*" --> "1" AircraftModel : certifies >
+
+' --- AGGREGATE: MAINTENANCE TEMPLATE ---
+package "Maintenance Template Aggregate" {
+    enum TemplateType <<Enum>> {
+        INSPECTION
+        SCHEDULED_MAINTENANCE
+        OVERHAUL
+        MODIFICATION
+    }
+    class ChecklistItem <<Value Object>> {
+        - description : String
+        - completed : Boolean
+    }
+    class MaintenanceTemplate <<Aggregate Root>> <<Entity>> {
+        - id : Long
+        - version : Long
+        - templateName : String
+        - defaultDurationHours : Double
+    }
+    MaintenanceTemplate "1" *-- "1" TemplateType : has >
+    MaintenanceTemplate "1" *-- "1..*" ChecklistItem : contains >
+    MaintenanceTemplate "0..*" --> "1..*" AircraftModel : applicable to >
+}
+
+' --- AGGREGATE: MAINTENANCE RECORD ---
+package "Maintenance Record Aggregate" {
+    enum MaintenanceStatus <<Enum>> {
+        PLANNED
+        IN_PROGRESS
+        COMPLETED
+        CANCELED
+    }
+    enum MaintenanceComponent <<Enum>> {
+        ENGINE
+        AIRFRAME
+        AVIONICS
+        INTERIOR
+        EXTERIOR
+    }
+    class MaintenanceRecord <<Aggregate Root>> <<Entity>> {
+        - id : Long
+        - version : Long
+        - description : String
+        - startDate : Date
+        - expectedDurationHours : Double
+        - createdAt : DateTime
+        - completedAt : DateTime
+        - completionNotes : String
+        - actualDurationHours : Double
+        - estimatedCost : Double
+        - actualCost : Double
+        - nextMaintenanceDueDate : Date
+        - nextMaintenanceDueHours : Double
+    }
+    MaintenanceRecord "1" *-- "1" MaintenanceStatus : has >
+    MaintenanceRecord "1" *-- "1" MaintenanceComponent : affects >
+    MaintenanceRecord "1" *-- "1..*" ChecklistItem : uses >
+    MaintenanceRecord "0..*" --> "1" Aircraft : performed on >
+    MaintenanceRecord "0..*" --> "1" MaintenanceTemplate : based on >
+}
 
 @enduml
