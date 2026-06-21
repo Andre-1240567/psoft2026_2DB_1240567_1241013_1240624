@@ -1,0 +1,2027 @@
+{
+	"info": {
+		"_postman_id": "wp4-maintenance-management-alsafe",
+		"name": "WP#4 - Maintenance Management Full Audit",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "AUTH",
+			"item": [
+				{
+					"name": "0a. Login as MAINTENANCE_TECHNICIAN",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"jwt_token\", pm.response.json().token);",
+									"    console.log(\"JWT (technician) saved.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"technician\",\n    \"password\": \"technician123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "0b. Login as ATCC",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"jwt_token_atcc\", pm.response.json().token);",
+									"    console.log(\"JWT (atcc) saved.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"atcc\",\n    \"password\": \"atcc123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				},
+				{
+					"name": "0c. Login as MAINTENANCE_SUPERVISOR",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"jwt_token_supervisor\", pm.response.json().token);",
+									"    console.log(\"JWT (supervisor) saved.\");",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"supervisor\",\n    \"password\": \"supervisor123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US115A - Maintenance Templates",
+			"item": [
+				{
+					"name": "1. TEST POST - Create Template (Correct)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Response contains HATEOAS _links\", function () {",
+									"    pm.expect(pm.response.json()).to.have.property('_links');",
+									"});",
+									"pm.test(\"Template has correct name\", function () {",
+									"    pm.expect(pm.response.json().templateName).to.eql(\"Engine Inspection A\");",
+									"});",
+									"pm.test(\"Checklist has 3 items\", function () {",
+									"    pm.expect(pm.response.json().checklist).to.have.lengthOf(3);",
+									"});",
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.environment.set(\"templateId\", json.id);",
+									"    pm.environment.set(\"templateVersion\", json.version);",
+									"    console.log(\"Template ID saved: \" + json.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"templateName\": \"Engine Inspection A\",\n    \"templateType\": \"INSPECTION\",\n    \"defaultDurationHours\": 8.0,\n    \"applicableModelIds\": [1, 2, 3, 4],\n    \"checklistItems\": [\n        \"Check oil levels\",\n        \"Inspect fan blades for damage\",\n        \"Verify fuel line integrity\"\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates"
+							]
+						}
+					}
+				},
+				{
+					"name": "2. TEST POST - Create Template (Duplicate Name → 409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 409 Conflict — duplicate name\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"templateName\": \"Engine Inspection A\",\n    \"templateType\": \"INSPECTION\",\n    \"defaultDurationHours\": 4.0,\n    \"applicableModelIds\": [1],\n    \"checklistItems\": [\"Some check\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates"
+							]
+						}
+					}
+				},
+				{
+					"name": "3. TEST POST - Create Template (Invalid Model ID → 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 404 Not Found — model does not exist\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"templateName\": \"Ghost Template\",\n    \"templateType\": \"OVERHAUL\",\n    \"defaultDurationHours\": 24.0,\n    \"applicableModelIds\": [99999],\n    \"checklistItems\": [\"Some check\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates"
+							]
+						}
+					}
+				},
+				{
+					"name": "4. TEST POST - Create Template (Missing Fields → 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 400 Bad Request — missing mandatory fields\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"templateType\": \"INSPECTION\",\n    \"defaultDurationHours\": 4.0\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates"
+							]
+						}
+					}
+				},
+				{
+					"name": "5. TEST GET - Get Template by Id (Correct)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Template id matches\", function () {",
+									"    pm.expect(String(pm.response.json().id)).to.eql(String(pm.environment.get(\"templateId\")));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates/{{templateId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates",
+								"{{templateId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "6. TEST GET - Get Template by Id (Not Found → 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 404 Not Found\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates/99999",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates",
+								"99999"
+							]
+						}
+					}
+				},
+				{
+					"name": "7. TEST GET - List All Templates",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates"
+							]
+						}
+					}
+				},
+				{
+					"name": "8. TEST GET - List Templates by Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"All results have type INSPECTION\", function () {",
+									"    pm.response.json().forEach(function(t) {",
+									"        pm.expect(t.templateType).to.eql(\"INSPECTION\");",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates?templateType=INSPECTION",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates"
+							],
+							"query": [
+								{
+									"key": "templateType",
+									"value": "INSPECTION"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "9. TEST PATCH - Update Template (Correct)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK after Update\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Duration was updated\", function () {",
+									"    pm.expect(pm.response.json().defaultDurationHours).to.eql(10.0);",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"templateVersion\", pm.response.json().version);",
+									"    console.log(\"New template version saved: \" + pm.response.json().version);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"defaultDurationHours\": 10.0,\n    \"version\": {{templateVersion}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates/{{templateId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates",
+								"{{templateId}}"
+							]
+						}
+					}
+				},
+				{
+					"name": "10. TEST PATCH - Update Template (Concurrency → 409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 409 Conflict — stale version\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"defaultDurationHours\": 99.0,\n    \"version\": 99999\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates/{{templateId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates",
+								"{{templateId}}"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US115B - Maintenance Records",
+			"item": [
+				{
+					"name": "11. TEST POST - Create Record (Correct)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Response contains HATEOAS _links\", function () {",
+									"    pm.expect(pm.response.json()).to.have.property('_links');",
+									"});",
+									"pm.test(\"Status is PLANNED\", function () {",
+									"    pm.expect(pm.response.json().status).to.eql(\"PLANNED\");",
+									"});",
+									"pm.test(\"Checklist is not empty\", function () {",
+									"    pm.expect(pm.response.json().checklist.length).to.be.above(0);",
+									"});",
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.environment.set(\"recordId\", json.id);",
+									"    pm.environment.set(\"recordVersion\", json.version);",
+									"    console.log(\"Record ID saved: \" + json.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"registrationNumber\": \"CS-TPD\",\n    \"templateId\": {{templateId}},\n    \"description\": \"Routine engine inspection before summer season\",\n    \"startDate\": \"2026-07-01\",\n    \"expectedDurationHours\": 8.0,\n    \"component\": \"ENGINE\",\n    \"estimatedCost\": 1500.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records"
+							]
+						}
+					}
+				},
+				{
+					"name": "12. TEST POST - Create Record (Aircraft Already Under Maintenance → 409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 409 Conflict — aircraft already under maintenance\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"registrationNumber\": \"CS-TPD\",\n    \"templateId\": {{templateId}},\n    \"description\": \"Duplicate record — should fail\",\n    \"startDate\": \"2026-07-01\",\n    \"component\": \"AIRFRAME\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records"
+							]
+						}
+					}
+				},
+				{
+					"name": "13. TEST POST - Create Record (Invalid Component → 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 400 Bad Request — invalid component\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"registrationNumber\": \"CS-TPB\",\n    \"templateId\": {{templateId}},\n    \"description\": \"Bad component test\",\n    \"startDate\": \"2026-07-01\",\n    \"component\": \"WINGS\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records"
+							]
+						}
+					}
+				},
+				{
+					"name": "14. TEST POST - Create Record (Aircraft Not Found → 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 404 Not Found — aircraft does not exist\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"registrationNumber\": \"XX-ZZZ\",\n    \"templateId\": {{templateId}},\n    \"description\": \"Ghost aircraft\",\n    \"startDate\": \"2026-07-01\",\n    \"component\": \"ENGINE\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US116 - View Records for Aircraft",
+			"item": [
+				{
+					"name": "15. TEST GET - Records for Aircraft (Correct)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array with at least 1 record\", function () {",
+									"    var json = pm.response.json();",
+									"    pm.expect(json).to.be.an('array');",
+									"    pm.expect(json.length).to.be.above(0);",
+									"});",
+									"pm.test(\"All records belong to CS-TPA\", function () {",
+									"    pm.response.json().forEach(function(r) {",
+									"        pm.expect(r.registrationNumber).to.eql(\"CS-TPA\");",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/aircraft/CS-TPA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"aircraft",
+								"CS-TPA"
+							]
+						}
+					}
+				},
+				{
+					"name": "16. TEST GET - Records for Aircraft (Not Found → 404)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 404 Not Found — aircraft does not exist\", function () {",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/aircraft/XX-ZZZ",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"aircraft",
+								"XX-ZZZ"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US119 - Lifecycle Transitions",
+			"item": [
+				{
+					"name": "17. TEST PATCH - Start Record (PLANNED → IN_PROGRESS)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Status changed to IN_PROGRESS\", function () {",
+									"    pm.expect(pm.response.json().status).to.eql(\"IN_PROGRESS\");",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"recordVersion\", pm.response.json().version);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"version\": {{recordVersion}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/{{recordId}}/start",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"{{recordId}}",
+								"start"
+							]
+						}
+					}
+				},
+				{
+					"name": "18. TEST PATCH - Start Record Again (Already IN_PROGRESS → 409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 409 Conflict — not PLANNED\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"version\": {{recordVersion}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/{{recordId}}/start",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"{{recordId}}",
+								"start"
+							]
+						}
+					}
+				},
+				{
+					"name": "19. TEST PATCH - Complete Record (IN_PROGRESS → COMPLETED)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Status changed to COMPLETED\", function () {",
+									"    pm.expect(pm.response.json().status).to.eql(\"COMPLETED\");",
+									"});",
+									"pm.test(\"completedAt is set\", function () {",
+									"    pm.expect(pm.response.json().completedAt).to.not.be.null;",
+									"});",
+									"pm.test(\"Completion notes are present\", function () {",
+									"    pm.expect(pm.response.json().completionNotes).to.not.be.empty;",
+									"});",
+									"if (pm.response.code === 200) {",
+									"    pm.environment.set(\"recordVersion\", pm.response.json().version);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"completionNotes\": \"All checks passed. Engine in good condition.\",\n    \"actualDurationHours\": 7.5,\n    \"actualCost\": 1420.00,\n    \"version\": {{recordVersion}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/{{recordId}}/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"{{recordId}}",
+								"complete"
+							]
+						}
+					}
+				},
+				{
+					"name": "20. TEST PATCH - Complete Record Again (Already COMPLETED → 409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 409 Conflict — not IN_PROGRESS\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"completionNotes\": \"Should fail.\",\n    \"actualDurationHours\": 1.0,\n    \"version\": {{recordVersion}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/{{recordId}}/complete",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"{{recordId}}",
+								"complete"
+							]
+						}
+					}
+				},
+				{
+					"name": "20b. TEST POST - Create Second Record (for Cancel Test)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 201 Created\", function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"pm.test(\"Status is PLANNED\", function () {",
+									"    pm.expect(pm.response.json().status).to.eql(\"PLANNED\");",
+									"});",
+									"if (pm.response.code === 201) {",
+									"    var json = pm.response.json();",
+									"    pm.environment.set(\"cancelRecordId\", json.id);",
+									"    pm.environment.set(\"cancelRecordVersion\", json.version);",
+									"    console.log(\"Cancel-test Record ID saved: \" + json.id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"registrationNumber\": \"CS-TPE\",\n    \"templateId\": {{templateId}},\n    \"description\": \"Record created solely to test cancellation\",\n    \"startDate\": \"2026-08-01\",\n    \"expectedDurationHours\": 6.0,\n    \"component\": \"AVIONICS\",\n    \"estimatedCost\": 900.00\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "21. TEST PATCH - Cancel a New Record (PLANNED → CANCELED)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Status changed to CANCELED\", function () {",
+									"    pm.expect(pm.response.json().status).to.eql(\"CANCELED\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reason\": \"Schedule conflict with higher priority maintenance\",\n    \"version\": {{cancelRecordVersion}}\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/{{cancelRecordId}}/cancel",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"{{cancelRecordId}}",
+								"cancel"
+							]
+						}
+					}
+				},
+				{
+					"name": "22. TEST PATCH - Concurrency Conflict on Start (→ 409)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 409 Conflict — stale version\", function () {",
+									"    pm.response.to.have.status(409);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"version\": 99999\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/{{recordId}}/start",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"{{recordId}}",
+								"start"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US117 - Total Maintenance Hours",
+			"item": [
+				{
+					"name": "23. TEST GET - Total Maintenance Hours per Aircraft",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});",
+									"pm.test(\"Each entry has registrationNumber and totalHours\", function () {",
+									"    pm.response.json().forEach(function(entry) {",
+									"        pm.expect(entry).to.have.property('registrationNumber');",
+									"        pm.expect(entry).to.have.property('totalHours');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_atcc}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/reports/total-hours",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"reports",
+								"total-hours"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US218 - Search Records",
+			"item": [
+				{
+					"name": "24. TEST GET - Search by Aircraft",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"All results belong to CS-TPA\", function () {",
+									"    pm.response.json().forEach(function(r) {",
+									"        pm.expect(r.registrationNumber).to.eql(\"CS-TPA\");",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/search?registrationNumber=CS-TPA",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"search"
+							],
+							"query": [
+								{
+									"key": "registrationNumber",
+									"value": "CS-TPA"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "25. TEST GET - Search by Component",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"All results have component ENGINE\", function () {",
+									"    pm.response.json().forEach(function(r) {",
+									"        pm.expect(r.component).to.eql(\"ENGINE\");",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/search?component=ENGINE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"search"
+							],
+							"query": [
+								{
+									"key": "component",
+									"value": "ENGINE"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "26. TEST GET - Search by Date Range",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/search?from=2026-01-01&to=2026-12-31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"search"
+							],
+							"query": [
+								{
+									"key": "from",
+									"value": "2026-01-01"
+								},
+								{
+									"key": "to",
+									"value": "2026-12-31"
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "27. TEST GET - Search Invalid Component (→ 400)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 400 Bad Request — invalid component\", function () {",
+									"    pm.response.to.have.status(400);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/search?component=WINGS",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"search"
+							],
+							"query": [
+								{
+									"key": "component",
+									"value": "WINGS"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US219 - Ongoing Activities",
+			"item": [
+				{
+					"name": "28. TEST GET - Ongoing Maintenance Activities (Supervisor)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"All results are PLANNED or IN_PROGRESS\", function () {",
+									"    pm.response.json().forEach(function(r) {",
+									"        pm.expect([\"PLANNED\", \"IN_PROGRESS\"]).to.include(r.status);",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_supervisor}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/ongoing",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"ongoing"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US220 - Cost Reports",
+			"item": [
+				{
+					"name": "29. TEST GET - Cost Report per Aircraft",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Each entry has key, estimatedCost and actualCost fields\", function () {",
+									"    pm.response.json().forEach(function(entry) {",
+									"        pm.expect(entry).to.have.property('key');",
+									"        pm.expect(entry).to.have.property('estimatedCost');",
+									"        pm.expect(entry).to.have.property('actualCost');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_atcc}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/reports/cost-per-aircraft",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"reports",
+								"cost-per-aircraft"
+							]
+						}
+					}
+				},
+				{
+					"name": "30. TEST GET - Cost Report per Aircraft Model",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Each entry has a key (model name)\", function () {",
+									"    pm.response.json().forEach(function(entry) {",
+									"        pm.expect(entry).to.have.property('key');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_atcc}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/reports/cost-per-model",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"reports",
+								"cost-per-model"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US221 - Average Turnaround",
+			"item": [
+				{
+					"name": "31. TEST GET - Average Turnaround per Aircraft Type (Supervisor)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Each entry has modelName and avgDurationHours\", function () {",
+									"    pm.response.json().forEach(function(entry) {",
+									"        pm.expect(entry).to.have.property('modelName');",
+									"        pm.expect(entry).to.have.property('avgDurationHours');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_supervisor}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/reports/avg-turnaround",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"reports",
+								"avg-turnaround"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "US222 - Maintenance Alerts",
+			"item": [
+				{
+					"name": "32. TEST GET - Alerts Due by Calendar Date",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_atcc}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/alerts/due-by-date",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"alerts",
+								"due-by-date"
+							]
+						}
+					}
+				},
+				{
+					"name": "33. TEST GET - Alerts Due by Flight Hours",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 200 OK\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"Response is an array\", function () {",
+									"    pm.expect(pm.response.json()).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_atcc}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/alerts/due-by-flight-hours",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"alerts",
+								"due-by-flight-hours"
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Security",
+			"item": [
+				{
+					"name": "34. TEST - Unauthenticated Request (→ 401)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 401 Unauthorized\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/ongoing",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"ongoing"
+							]
+						}
+					}
+				},
+				{
+					"name": "35. TEST - ATCC Cannot Create Template (→ 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 403 Forbidden — ATCC cannot create templates\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token_atcc}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"templateName\": \"Should Fail\",\n    \"templateType\": \"INSPECTION\",\n    \"defaultDurationHours\": 4.0,\n    \"applicableModelIds\": [1],\n    \"checklistItems\": [\"Check something\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-templates",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-templates"
+							]
+						}
+					}
+				},
+				{
+					"name": "36. TEST - Technician Cannot Access Ongoing (→ 403)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status is 403 Forbidden — Technician cannot view ongoing fleet activities\", function () {",
+									"    pm.response.to.have.status(403);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{jwt_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/api/maintenance-records/ongoing",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"maintenance-records",
+								"ongoing"
+							]
+						}
+					}
+				}
+			]
+		}
+	]
+}

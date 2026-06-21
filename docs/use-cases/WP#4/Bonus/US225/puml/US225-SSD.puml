@@ -1,0 +1,20 @@
+@startuml US225-SSD
+autonumber
+actor "Backoffice Operator" as Admin
+participant "AISafe System" as Sys
+
+activate Admin
+Admin -> Sys : POST /api/airports/import (file)
+activate Sys
+
+alt file is missing or empty
+    Sys --> Admin : 400 Bad Request
+else file has no valid rows
+    Sys --> Admin : 400 Bad Request (ImportAirportsResponseDTO with errors)
+else at least one row was imported
+    Sys --> Admin : 201 Created (ImportAirportsResponseDTO with successes and errors)
+end
+
+deactivate Sys
+deactivate Admin
+@enduml

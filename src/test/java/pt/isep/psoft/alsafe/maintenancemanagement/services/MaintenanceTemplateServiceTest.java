@@ -67,14 +67,14 @@ class MaintenanceTemplateServiceTest {
         }
 
         @Test
-        @DisplayName("throws IllegalArgumentException when the template name already exists")
+        @DisplayName("throws IllegalStateException when the template name already exists")
         void throwsWhenNameAlreadyExists() {
             when(templateRepository.existsByTemplateName("A-Check")).thenReturn(true);
 
             assertThatThrownBy(() -> service.createTemplate(
                     "A-Check", TemplateType.INSPECTION, 8.0,
                     List.of(1L), List.of("Check oil level")))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("already exists");
 
             verify(templateRepository, never()).save(any());
@@ -276,7 +276,7 @@ class MaintenanceTemplateServiceTest {
         }
 
         @Test
-        @DisplayName("throws IllegalArgumentException when changing to a name already taken")
+        @DisplayName("throws IllegalStateException when changing to a name already taken")
         void throwsWhenNewNameAlreadyTaken() {
             MaintenanceTemplate template = buildTemplate();
             setVersion(template, 0L);
@@ -285,7 +285,7 @@ class MaintenanceTemplateServiceTest {
 
             assertThatThrownBy(() -> service.updateTemplate(
                     1L, 0L, "Taken", null, null, null, null))
-                    .isInstanceOf(IllegalArgumentException.class)
+                    .isInstanceOf(IllegalStateException.class)
                     .hasMessageContaining("already exists");
 
             verify(templateRepository, never()).save(any());
