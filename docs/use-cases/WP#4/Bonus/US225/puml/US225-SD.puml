@@ -1,0 +1,70 @@
+@startuml US225-SD
+autonumber
+actor "Backoffice Operator" as Admin
+participant "AirportController" as Ctrl
+participant "AirportService" as Svc
+participant "Validator" as Val
+participant "AirportRepository" as Repo
+participant "AirportModelAssembler" as Asm
+
+activate Admin
+Admin -> Ctrl : importAirports(file)
+activate Ctrl
+
+Ctrl -> Svc : importAirportsFromCsv(file)
+activate Svc
+
+alt file is null or empty
+    Svc --> Ctrl : throws IllegalArgumentException
+else valid file
+    Svc -> Svc : parse CSV file (row by row)
+
+    loop for each CSVRecord
+        Svc -> Svc : mapToCreateAirportRequestDTO(record)
+
+        Svc -> Val : validate(dto)
+        activate Val
+        Val --> Svc : Set<ConstraintViolation>
+        deactivate Val
+
+        alt no violations
+            Svc -> Svc : createAirport(dto)
+            activate Svc
+            Svc -> Repo : findByIataCode_Code(iataCode)
+            activate Repo
+            Repo --> Svc : Optional<Airport>
+            deactivate Repo
+
+            alt airport is new
+                Svc -> Repo : save(airport)
+                activate Repo
+                Repo --> Svc : Airport
+                deactivate Repo
+                Svc -> Svc : createdAirports.add(airport)
+            else airport already exists
+                Svc -> Svc : throw IllegalArgumentException
+            end
+            deactivate Svc
+
+        else violation or runtime exception
+            Svc -> Svc : errors.add(AirportImportErrorDTO)
+        end
+    end
+
+    Svc --> Ctrl : AirportImportResult
+end
+deactivate Svc
+
+alt createdAirports is not empty
+    Ctrl -> Asm : toCollectionModel(createdAirports)
+    activate Asm
+    Asm --> Ctrl : CollectionModel<AirportViewDTO>
+    deactivate Asm
+    Ctrl --> Admin : 201 Created (ImportAirportsResponseDTO)
+else createdAirports is empty
+    Ctrl --> Admin : 400 Bad Request (ImportAirportsResponseDTO)
+end
+
+deactivate Ctrl
+deactivate Admin
+@enduml

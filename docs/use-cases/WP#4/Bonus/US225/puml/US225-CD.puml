@@ -1,0 +1,80 @@
+@startuml US225-CD
+
+package "pt.isep.psoft.alsafe.airportmanagement" {
+
+    package "api" {
+        class AirportController {
+            + importAirports(file: MultipartFile): ResponseEntity<ImportAirportsResponseDTO>
+        }
+        class AirportModelAssembler {
+            + toCollectionModel(airports: List<Airport>): CollectionModel<AirportViewDTO>
+        }
+
+        package "dto" {
+            class ImportAirportsResponseDTO {
+                - totalRows: int
+                - successCount: int
+                - failureCount: int
+            }
+            class AirportImportErrorDTO {
+                - row: int
+                - iataCode: String
+                - message: String
+            }
+            class AirportViewDTO
+            class CreateAirportRequestDTO {
+                - iataCode: String
+                - name: String
+                - latitude: Double
+                - longitude: Double
+            }
+            class CreateRunwayRequestDTO {
+                - length: Double
+            }
+        }
+    }
+
+    package "services" {
+        class AirportService {
+            + importAirportsFromCsv(file: MultipartFile): AirportImportResult
+            + createAirport(dto: CreateAirportRequestDTO): Airport
+        }
+        class AirportImportResult {
+            - totalRows: int
+        }
+    }
+
+    package "domain" {
+        class Airport <<Entity>>
+        enum Orientation {
+            N, S, E, W, NW, NE, SW, SE
+        }
+    }
+
+    package "repositories" {
+        interface AirportRepository {
+            + findByIataCode_Code(code: String): Optional<Airport>
+            + save(airport: Airport): Airport
+        }
+    }
+}
+
+AirportController --> AirportService : delegates to
+AirportController --> AirportModelAssembler : uses
+AirportController ..> ImportAirportsResponseDTO : produces
+
+AirportModelAssembler ..> AirportViewDTO : produces
+
+ImportAirportsResponseDTO o--> "0..*" AirportViewDTO : createdAirports
+ImportAirportsResponseDTO o--> "0..*" AirportImportErrorDTO : errors
+CreateAirportRequestDTO o--> "1..*" CreateRunwayRequestDTO : runways
+CreateRunwayRequestDTO --> Orientation : uses
+
+AirportService --> AirportRepository : uses
+AirportService ..> CreateAirportRequestDTO : builds per row
+AirportService ..> AirportImportResult : returns
+
+AirportImportResult o--> "0..*" Airport : createdAirports
+AirportImportResult o--> "0..*" AirportImportErrorDTO : errors
+
+@enduml

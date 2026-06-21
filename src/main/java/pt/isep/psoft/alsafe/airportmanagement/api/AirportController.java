@@ -4,8 +4,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +17,7 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.security.access.prepost.PreAuthorize;
 import pt.isep.psoft.alsafe.airportmanagement.api.dto.*;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
+import pt.isep.psoft.alsafe.airportmanagement.services.AirportImportResult;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
 import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
 import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
@@ -48,6 +51,28 @@ public class AirportController {
     public ResponseEntity<AirportViewDTO> createAirport(@Valid @RequestBody CreateAirportRequestDTO request) {
         Airport createdAirport = airportService.createAirport(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(airportModelAssembler.toModel(createdAirport));
+    }
+
+    @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('BACKOFFICE_OPERATOR')")
+    @Operation(summary = "US225 - Bulk import airports from a CSV file",
+            description = "Accepts a CSV file (multipart/form-data, field name 'file'). Each row is created " +
+                    "through the same path as US106 (POST /api/airports), so the same validation rules apply. " +
+                    "A bad row does not block the others: the response lists which rows were created and which " +
+                    "failed, with a reason for each failure.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "At least one airport was created (check 'errors' for any row that failed)")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "File missing/empty, or no row could be imported")
+    public ResponseEntity<ImportAirportsResponseDTO> importAirports(@RequestParam("file") MultipartFile file) {
+
+        AirportImportResult result = airportService.importAirportsFromCsv(file);
+
+        CollectionModel<AirportViewDTO> createdModel = airportModelAssembler.toCollectionModel(result.getCreatedAirports());
+
+        ImportAirportsResponseDTO response = new ImportAirportsResponseDTO(
+                result.getTotalRows(), createdModel, result.getErrors());
+
+        HttpStatus status = result.getCreatedAirports().isEmpty() ? HttpStatus.BAD_REQUEST : HttpStatus.CREATED;
+        return ResponseEntity.status(status).body(response);
     }
 
     @GetMapping("/{iataCode}")
