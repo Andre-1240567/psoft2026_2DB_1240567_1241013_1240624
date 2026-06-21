@@ -208,10 +208,6 @@ public class FlightRouteService {
                 .toList();
     }
 
-    // -----------------------------------------------------------------------
-    // Bonus US229 — Flight utilization report
-    // -----------------------------------------------------------------------
-
     @Transactional(readOnly = true)
     public List<RouteUtilizationDTO> getRouteUtilizationReport() {
         return scheduledFlightRepository.findRouteUtilizationReport().stream()
@@ -289,10 +285,6 @@ public class FlightRouteService {
         sb.append("</Document></kml>");
         return sb.toString();
     }
-
-        // ---------------------------------------------------------------------------
-        // Helpers
-        // ---------------------------------------------------------------------------
 
         private Airport resolveAirport(String iata) {
             try {

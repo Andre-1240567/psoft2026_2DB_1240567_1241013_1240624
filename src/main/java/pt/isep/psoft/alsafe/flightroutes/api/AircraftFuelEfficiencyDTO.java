@@ -3,14 +3,6 @@ package pt.isep.psoft.alsafe.flightroutes.api;
 import lombok.Getter;
 import org.springframework.hateoas.RepresentationModel;
 
-/**
- * DTO for US227 - Fuel efficiency metrics per aircraft.
- *
- * Design decision: fuelBurnRate is derived from AircraftModel.fuelCapacity / AircraftModel.maxRange,
- * representing average fuel consumption (L/km) over the model's certified maximum range.
- * This is an approximation — the system does not store a dedicated fuelBurnPerKm field.
- * A future enhancement could add that field to AircraftModel for higher accuracy.
- */
 @Getter
 public class AircraftFuelEfficiencyDTO extends RepresentationModel<AircraftFuelEfficiencyDTO> {
 

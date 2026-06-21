@@ -4,10 +4,6 @@ import jakarta.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-/**
- * Value Object representing the unique identifier of a FlightRoute.
- * Mirrors the IATACode pattern used in the airport aggregate.
- */
 @Embeddable
 @Getter
 @NoArgsConstructor
