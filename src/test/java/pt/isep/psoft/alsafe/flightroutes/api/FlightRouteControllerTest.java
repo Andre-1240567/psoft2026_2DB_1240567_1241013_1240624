@@ -16,6 +16,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AlternativeRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.CreateFlightRouteDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.RouteUtilizationDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteHistory;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;

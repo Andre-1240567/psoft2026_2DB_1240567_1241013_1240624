@@ -15,6 +15,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AlternativeRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.CreateFlightRouteDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.NetworkDistanceResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.RouteUtilizationDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 

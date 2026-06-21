@@ -7,6 +7,8 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AircraftUtilizationDTO;
 import pt.isep.psoft.alsafe.flightroutes.services.AircraftUtilizationService;
 
 import java.util.List;

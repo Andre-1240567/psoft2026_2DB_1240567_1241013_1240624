@@ -17,7 +17,7 @@ import pt.isep.psoft.alsafe.airportmanagement.api.dto.BusiestAirportDTO;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
 import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteModelAssembler;
-import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;

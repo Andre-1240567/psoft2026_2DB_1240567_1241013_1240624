@@ -85,8 +85,8 @@ class AircraftControllerTest {
     void ensureGetCompatibleRoutesReturns200OK() throws Exception {
         when(aircraftService.getAircraftDetails("CS-TPA")).thenReturn(mockAircraft);
         
-        pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO routeDto = 
-            org.mockito.Mockito.mock(pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO.class);
+        pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO routeDto = 
+            org.mockito.Mockito.mock(pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO.class);
         when(routeDto.getOriginIataCode()).thenReturn("LIS");
         when(routeDto.getDestinationIataCode()).thenReturn("OPO");
 

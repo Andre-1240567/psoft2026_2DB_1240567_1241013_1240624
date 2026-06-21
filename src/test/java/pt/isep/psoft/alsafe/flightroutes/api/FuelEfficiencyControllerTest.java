@@ -7,6 +7,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AircraftFuelEfficiencyDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.RouteFuelEfficiencyDTO;
 import pt.isep.psoft.alsafe.flightroutes.services.FuelEfficiencyService;
 import pt.isep.psoft.alsafe.security.jwt.AuthTokenFilter;
 import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;

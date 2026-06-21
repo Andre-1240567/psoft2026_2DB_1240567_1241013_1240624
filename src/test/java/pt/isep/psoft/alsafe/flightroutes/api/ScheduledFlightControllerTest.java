@@ -14,6 +14,7 @@ import pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.Manufacturer;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.CreateScheduledFlightDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;

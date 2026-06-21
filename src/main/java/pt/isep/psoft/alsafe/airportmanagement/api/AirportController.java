@@ -19,7 +19,7 @@ import pt.isep.psoft.alsafe.airportmanagement.api.dto.*;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportImportResult;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
-import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO;
 import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
 
 import java.util.List;

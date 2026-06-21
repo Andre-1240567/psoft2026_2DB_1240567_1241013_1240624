@@ -2,6 +2,9 @@ package pt.isep.psoft.alsafe.flightroutes.api;
 
 import org.junit.jupiter.api.Test;
 
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AircraftUtilizationDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AircraftUtilizationPeriodDTO;
+
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;

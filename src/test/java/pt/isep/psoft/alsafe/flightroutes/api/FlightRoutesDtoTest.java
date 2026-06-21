@@ -2,6 +2,13 @@ package pt.isep.psoft.alsafe.flightroutes.api;
 
 import org.junit.jupiter.api.Test;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AlternativeRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.CreateFlightRouteDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.CreateScheduledFlightDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.DeparturesBoardResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.ScheduledFlightResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 

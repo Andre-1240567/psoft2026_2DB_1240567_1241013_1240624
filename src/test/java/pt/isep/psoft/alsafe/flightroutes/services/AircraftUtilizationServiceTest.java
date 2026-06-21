@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.Aircraft;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftModel;
 import pt.isep.psoft.alsafe.aircraftmanagement.domain.Manufacturer;
-import pt.isep.psoft.alsafe.flightroutes.api.AircraftUtilizationDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AircraftUtilizationDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 import pt.isep.psoft.alsafe.flightroutes.repositories.ScheduledFlightRepository;
