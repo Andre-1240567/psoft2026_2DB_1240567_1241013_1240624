@@ -83,9 +83,13 @@ public class AirportService {
         return airportRepository.findByIataCode_Code(iataCode)
                 .orElseThrow(() -> new IllegalArgumentException("Airport with the code " + iataCode + " not found."));
     }
-    public Airport changeOperationalStatus(String iataCode, String statusString) {
+    public Airport changeOperationalStatus(String iataCode, String statusString, Long version) {
 
         Airport airport = getAirportDetails(iataCode);
+
+        if (version == null || !airport.getVersion().equals(version)) {
+            throw new org.springframework.orm.ObjectOptimisticLockingFailureException(pt.isep.psoft.alsafe.airportmanagement.domain.Airport.class, iataCode);
+        }
 
         Status newStatus;
         try {
@@ -104,13 +108,17 @@ public class AirportService {
     }
 
     @Transactional
-    public Airport addAirplaneCertification(String iataCode, String modelName) {
+    public Airport addAirplaneCertification(String iataCode, String modelName, Long version) {
 
         if (aircraftModelRepository.findByModelName(modelName).isEmpty()) {
             throw new IllegalArgumentException("Error: The airplane model'" + modelName + "' is not registred in the system.");
         }
 
         Airport airport = getAirportDetails(iataCode);
+
+        if (version == null || !airport.getVersion().equals(version)) {
+            throw new org.springframework.orm.ObjectOptimisticLockingFailureException(pt.isep.psoft.alsafe.airportmanagement.domain.Airport.class, iataCode);
+        }
 
         airport.addCertification(modelName);
 
@@ -120,6 +128,10 @@ public class AirportService {
     @Transactional
     public Airport updateAirportDetails(String iataCode, UpdateAirportDetailsRequestDTO dto) {
         Airport airport = getAirportDetails(iataCode);
+
+        if (dto.getVersion() == null || !airport.getVersion().equals(dto.getVersion())) {
+            throw new org.springframework.orm.ObjectOptimisticLockingFailureException(pt.isep.psoft.alsafe.airportmanagement.domain.Airport.class, iataCode);
+        }
 
         OperationalHours operationalHours = null;
         if (dto.getOperationalHours() != null) {

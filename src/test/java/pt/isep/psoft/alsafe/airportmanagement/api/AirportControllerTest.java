@@ -249,8 +249,9 @@ class AirportControllerTest {
     void changeOperationalStatus_ShouldReturn200_WhenBackofficeOperator() throws Exception {
         ChangeAirportStatusDTO dto = new ChangeAirportStatusDTO();
         dto.setNewStatus("CLOSED");
+        dto.setVersion(0L);
 
-        Mockito.when(airportService.changeOperationalStatus("OPO", "CLOSED"))
+        Mockito.when(airportService.changeOperationalStatus("OPO", "CLOSED", 0L))
                .thenReturn(Mockito.mock(Airport.class));
 
         mockMvc.perform(patch("/api/airports/OPO/status")
@@ -264,6 +265,7 @@ class AirportControllerTest {
     void changeOperationalStatus_ShouldReturn403_WhenRoleIsATCC() throws Exception {
         ChangeAirportStatusDTO dto = new ChangeAirportStatusDTO();
         dto.setNewStatus("CLOSED");
+        dto.setVersion(0L);
 
         mockMvc.perform(patch("/api/airports/OPO/status")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -276,6 +278,7 @@ class AirportControllerTest {
     void changeOperationalStatus_ShouldReturn400_WhenStatusIsBlank() throws Exception {
         ChangeAirportStatusDTO dto = new ChangeAirportStatusDTO();
         dto.setNewStatus("");
+        dto.setVersion(0L);
 
         mockMvc.perform(patch("/api/airports/OPO/status")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -289,8 +292,9 @@ class AirportControllerTest {
     void addCertification_ShouldReturn200_WhenBackofficeOperator() throws Exception {
         AddCertificationDTO dto = new AddCertificationDTO();
         dto.setAircraftModelName("737 MAX");
+        dto.setVersion(0L);
 
-        Mockito.when(airportService.addAirplaneCertification("OPO", "737 MAX"))
+        Mockito.when(airportService.addAirplaneCertification("OPO", "737 MAX", 0L))
                .thenReturn(Mockito.mock(Airport.class));
 
         mockMvc.perform(post("/api/airports/OPO/certifications")
@@ -304,8 +308,9 @@ class AirportControllerTest {
     void addCertification_ShouldReturn200_WhenATCC() throws Exception {
         AddCertificationDTO dto = new AddCertificationDTO();
         dto.setAircraftModelName("A320neo");
+        dto.setVersion(0L);
 
-        Mockito.when(airportService.addAirplaneCertification("LIS", "A320neo"))
+        Mockito.when(airportService.addAirplaneCertification("LIS", "A320neo", 0L))
                .thenReturn(Mockito.mock(Airport.class));
 
         mockMvc.perform(post("/api/airports/LIS/certifications")
@@ -319,6 +324,7 @@ class AirportControllerTest {
     void addCertification_ShouldReturn403_WhenRoleHasNoAccess() throws Exception {
         AddCertificationDTO dto = new AddCertificationDTO();
         dto.setAircraftModelName("737 MAX");
+        dto.setVersion(0L);
 
         mockMvc.perform(post("/api/airports/OPO/certifications")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -331,6 +337,7 @@ class AirportControllerTest {
     void addCertification_ShouldReturn400_WhenModelNameIsBlank() throws Exception {
         AddCertificationDTO dto = new AddCertificationDTO();
         dto.setAircraftModelName("");
+        dto.setVersion(0L);
 
         mockMvc.perform(post("/api/airports/OPO/certifications")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -347,6 +354,7 @@ class AirportControllerTest {
         opHours.setOpeningTime("08:00");
         opHours.setClosingTime("22:00");
         dto.setOperationalHours(opHours);
+        dto.setVersion(0L);
 
         Mockito.when(airportService.updateAirportDetails(eq("OPO"), any()))
                .thenReturn(Mockito.mock(Airport.class));
@@ -361,6 +369,7 @@ class AirportControllerTest {
     @WithMockUser(roles = "ATCC")
     void updateAirportDetails_ShouldReturn403_WhenRoleIsATCC() throws Exception {
         UpdateAirportDetailsRequestDTO dto = new UpdateAirportDetailsRequestDTO();
+        dto.setVersion(0L);
 
         mockMvc.perform(patch("/api/airports/OPO/details")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -376,6 +385,7 @@ class AirportControllerTest {
         opHours.setOpeningTime("8am");
         opHours.setClosingTime("22:00");
         dto.setOperationalHours(opHours);
+        dto.setVersion(0L);
 
         mockMvc.perform(patch("/api/airports/OPO/details")
                         .contentType(MediaType.APPLICATION_JSON)

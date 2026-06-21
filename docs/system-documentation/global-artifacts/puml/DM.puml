@@ -1,4 +1,4 @@
-@startuml DM
+    @startuml DM
 title Domain Model - AISafe (WP1, WP2, WP3)
 
 skinparam classAttributeIconSize 0

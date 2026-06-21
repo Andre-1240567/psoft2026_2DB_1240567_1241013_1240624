@@ -82,7 +82,7 @@ public class AirportController {
             @PathVariable("iataCode") String iataCode,
             @Valid @RequestBody ChangeAirportStatusDTO dto) {
 
-        Airport updatedAirport = airportService.changeOperationalStatus(iataCode, dto.getNewStatus());
+        Airport updatedAirport = airportService.changeOperationalStatus(iataCode, dto.getNewStatus(), dto.getVersion());
         return ResponseEntity.ok(airportModelAssembler.toModel(updatedAirport));
     }
 
@@ -93,7 +93,7 @@ public class AirportController {
             @PathVariable("iataCode") String iataCode,
             @Valid @RequestBody pt.isep.psoft.alsafe.airportmanagement.api.dto.AddCertificationDTO dto) {
 
-        Airport updatedAirport = airportService.addAirplaneCertification(iataCode, dto.getAircraftModelName());
+        Airport updatedAirport = airportService.addAirplaneCertification(iataCode, dto.getAircraftModelName(), dto.getVersion());
         return ResponseEntity.ok(airportModelAssembler.toModel(updatedAirport));
     }
 
