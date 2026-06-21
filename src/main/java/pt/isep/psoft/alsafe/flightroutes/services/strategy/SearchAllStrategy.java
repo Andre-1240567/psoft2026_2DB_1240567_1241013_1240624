@@ -7,10 +7,6 @@ import org.springframework.stereotype.Component;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
 
-/**
- * Fallback strategy: applies when no filter parameters are provided.
- * Must be ordered last so it doesn't shadow more-specific strategies.
- */
 @Component
 @Order(Integer.MAX_VALUE)
 public class SearchAllStrategy implements RouteSearchStrategy {

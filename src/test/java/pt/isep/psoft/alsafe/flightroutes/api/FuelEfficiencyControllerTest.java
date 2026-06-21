@@ -18,11 +18,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-/**
- * Slice tests for FuelEfficiencyController (US227).
- * Security filters are disabled (@AutoConfigureMockMvc addFilters=false) following
- * the project-wide convention for WebMvcTest — auth is covered by SecurityConfig unit tests.
- */
 @WebMvcTest(FuelEfficiencyController.class)
 @AutoConfigureMockMvc(addFilters = false)
 class FuelEfficiencyControllerTest {

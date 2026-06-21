@@ -13,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-
 import pt.isep.psoft.alsafe.airportmanagement.api.dto.BusiestAirportDTO;
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
@@ -22,13 +21,16 @@ import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
+import pt.isep.psoft.alsafe.flightroutes.repositories.ScheduledFlightRepository;
 import pt.isep.psoft.alsafe.flightroutes.services.FlightRouteService;
-import pt.isep.psoft.alsafe.flightroutes.services.routing.AlternativeRoutingStrategy;
 import pt.isep.psoft.alsafe.flightroutes.services.strategy.*;
+import pt.isep.psoft.alsafe.shared.exceptions.ResourceNotFoundException;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,21 +41,18 @@ class AirportFlightRouteServiceTest {
     @Mock private FlightRouteModelAssembler assembler;
     @Mock private SecurityContext securityContext;
     @Mock private Authentication authentication;
-    @Mock private pt.isep.psoft.alsafe.flightroutes.repositories.ScheduledFlightRepository scheduledFlightRepository;
-
+    @Mock private ScheduledFlightRepository scheduledFlightRepository;
 
     private FlightRouteService flightRouteService;
 
     @BeforeEach
     void setUp() {
-        // Security context
         lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
         lenient().when(authentication.isAuthenticated()).thenReturn(true);
         lenient().when(authentication.getName()).thenReturn("atcc_jose");
         lenient().when(authentication.getPrincipal()).thenReturn("atcc_jose");
         SecurityContextHolder.setContext(securityContext);
 
-        // Build the service with real strategy implementations (backed by the mocked repository)
         List<RouteSearchStrategy> strategies = List.of(
                 new SearchByBothStrategy(routeRepository),
                 new SearchByOriginStrategy(routeRepository),
@@ -61,11 +60,10 @@ class AirportFlightRouteServiceTest {
                 new SearchAllStrategy(routeRepository)
         );
 
-        List<AlternativeRoutingStrategy> routingStrategies = List.of();
-
         flightRouteService = new FlightRouteService(
-        routeRepository, scheduledFlightRepository, airportService, assembler, strategies, routingStrategies);
-}
+                routeRepository, scheduledFlightRepository, airportService,
+                assembler, strategies, List.of());
+    }
 
     @AfterEach
     void clearSecurityContext() {
@@ -74,8 +72,7 @@ class AirportFlightRouteServiceTest {
 
     private Airport createFakeAirport(String iata, Status status) {
         Airport airport = new Airport(
-                new IATACode(iata),
-                "Fake Airport",
+                new IATACode(iata), "Fake Airport",
                 new Location("Reg", "Country", "City", new GPSCoordinates(0.0, 0.0)),
                 new Timezone("UTC+00:00"));
         if (status != null) {
@@ -85,24 +82,12 @@ class AirportFlightRouteServiceTest {
     }
 
     private FlightRoute createFakeRoute(String id, String originIata, String destIata) {
-        Airport origin      = createFakeAirport(originIata, null);
-        Airport destination = createFakeAirport(destIata,  null);
-        RouteRequirement req = new RouteRequirement(600.0, 150);
-        FlightRoute route = new FlightRoute(id, origin, destination, 500.0, 60, req, "atcc_jose");
-
-        // Simulate a JPA-persisted entity that already has version = 0
-        FlightRoute spyRoute = spy(route);
-        lenient().when(spyRoute.getVersion()).thenReturn(0L);
-        return spyRoute;
+        Airport origin = createFakeAirport(originIata, null);
+        Airport dest   = createFakeAirport(destIata,   null);
+        
+        return new FlightRoute(id, origin, dest, 500.0, 60,
+                new RouteRequirement(600.0, 150), "atcc_jose");
     }
-
-    private FlightRouteResponseDTO fakeDto(FlightRoute route) {
-        return new FlightRouteResponseDTO(route);
-    }
-
-    // -----------------------------------------------------------------------
-    // US209: getRoutesByAirport
-    // -----------------------------------------------------------------------
 
     @Test
     void ensureGetRoutesByAirportSuccess() {
@@ -111,28 +96,66 @@ class AirportFlightRouteServiceTest {
         Page<FlightRoute> page = new PageImpl<>(List.of(r1));
 
         when(airportService.getAirportDetails("LAX")).thenReturn(createFakeAirport("LAX", null));
-        when(routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code("LAX", "LAX", pageable)).thenReturn(page);
-        
-        FlightRouteResponseDTO dto1 = fakeDto(r1);
-        when(assembler.toModel(r1)).thenReturn(dto1);
+        when(routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code("LAX", "LAX", pageable))
+                .thenReturn(page);
+        when(assembler.toModel(r1)).thenReturn(new FlightRouteResponseDTO(r1));
 
         Page<FlightRouteResponseDTO> result = flightRouteService.getRoutesByAirport("lax", pageable);
 
         assertNotNull(result);
         assertEquals(1, result.getContent().size());
-        verify(routeRepository).findByOrigin_IataCode_CodeOrDestination_IataCode_Code("LAX", "LAX", pageable);
+        verify(routeRepository)
+                .findByOrigin_IataCode_CodeOrDestination_IataCode_Code("LAX", "LAX", pageable);
     }
 
-    // -----------------------------------------------------------------------
-    // US210: getBusiestAirports
-    // -----------------------------------------------------------------------
+    @Test
+    void ensureGetRoutesByAirportNormalisesIataCodeToUpperCase() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(airportService.getAirportDetails("OPO")).thenReturn(createFakeAirport("OPO", null));
+        when(routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code("OPO", "OPO", pageable))
+                .thenReturn(new PageImpl<>(Collections.emptyList()));
+
+        Page<FlightRouteResponseDTO> result = flightRouteService.getRoutesByAirport("opo", pageable);
+
+        assertNotNull(result);
+        assertTrue(result.getContent().isEmpty());
+        verify(routeRepository)
+                .findByOrigin_IataCode_CodeOrDestination_IataCode_Code("OPO", "OPO", pageable);
+    }
+
+    @Test
+    void ensureGetRoutesByAirportThrowsIfAirportNotFound() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(airportService.getAirportDetails("ZZZ"))
+                .thenThrow(new ResourceNotFoundException("Airport with the code ZZZ not found."));
+
+        ResourceNotFoundException ex = assertThrows(ResourceNotFoundException.class,
+                () -> flightRouteService.getRoutesByAirport("zzz", pageable));
+
+        assertTrue(ex.getMessage().contains("not found"));
+        verify(routeRepository, never())
+                .findByOrigin_IataCode_CodeOrDestination_IataCode_Code(any(), any(), any());
+    }
+
+    @Test
+    void ensureGetRoutesByAirportReturnsEmptyPageWhenNoRoutes() {
+        Pageable pageable = PageRequest.of(0, 10);
+        when(airportService.getAirportDetails("OPO")).thenReturn(createFakeAirport("OPO", null));
+        when(routeRepository.findByOrigin_IataCode_CodeOrDestination_IataCode_Code("OPO", "OPO", pageable))
+                .thenReturn(new PageImpl<>(Collections.emptyList()));
+
+        Page<FlightRouteResponseDTO> result = flightRouteService.getRoutesByAirport("OPO", pageable);
+
+        assertNotNull(result);
+        assertTrue(result.getContent().isEmpty());
+        assertEquals(0, result.getTotalElements());
+    }
 
     @Test
     void ensureGetBusiestAirportsSuccess() {
-        Object[] row1 = new Object[]{"LAX", 10L};
-        Object[] row2 = new Object[]{"JFK", 8L};
-        List<Object[]> queryResults = List.of(row1, row2);
-
+        List<Object[]> queryResults = new java.util.ArrayList<>();
+        queryResults.add(new Object[]{"LAX", 10L});
+        queryResults.add(new Object[]{"JFK", 8L});
         when(routeRepository.findBusiestAirportsStatistics()).thenReturn(queryResults);
 
         List<BusiestAirportDTO> result = flightRouteService.getBusiestAirports();
@@ -141,5 +164,30 @@ class AirportFlightRouteServiceTest {
         assertEquals(2, result.size());
         assertEquals("LAX", result.get(0).getIataCode());
         assertEquals(10L, result.get(0).getRouteCount());
+        assertEquals("JFK", result.get(1).getIataCode());
+        assertEquals(8L,   result.get(1).getRouteCount());
+    }
+
+    @Test
+    void ensureGetBusiestAirportsReturnsEmptyListWhenNoRoutes() {
+        when(routeRepository.findBusiestAirportsStatistics()).thenReturn(Collections.emptyList());
+
+        List<BusiestAirportDTO> result = flightRouteService.getBusiestAirports();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    void ensureGetBusiestAirportsReturnsSingleEntry() {
+        List<Object[]> queryResults = new java.util.ArrayList<>();
+        queryResults.add(new Object[]{"LIS", 3L});
+        when(routeRepository.findBusiestAirportsStatistics()).thenReturn(queryResults);
+
+        List<BusiestAirportDTO> result = flightRouteService.getBusiestAirports();
+
+        assertEquals(1, result.size());
+        assertEquals("LIS", result.get(0).getIataCode());
+        assertEquals(3L,    result.get(0).getRouteCount());
     }
 }

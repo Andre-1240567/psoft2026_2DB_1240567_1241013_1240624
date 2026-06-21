@@ -15,7 +15,6 @@ import pt.isep.psoft.alsafe.airportmanagement.domain.Airport;
 import pt.isep.psoft.alsafe.airportmanagement.domain.GPSCoordinates;
 import pt.isep.psoft.alsafe.airportmanagement.domain.IATACode;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Location;
-import pt.isep.psoft.alsafe.airportmanagement.domain.Status;
 import pt.isep.psoft.alsafe.airportmanagement.domain.Timezone;
 import pt.isep.psoft.alsafe.airportmanagement.repositories.AirportRepository;
 
@@ -25,11 +24,18 @@ import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 import pt.isep.psoft.alsafe.flightroutes.repositories.FlightRouteRepository;
 import pt.isep.psoft.alsafe.flightroutes.repositories.ScheduledFlightRepository;
 
+import pt.isep.psoft.alsafe.maintenancemanagement.domain.MaintenanceComponent;
+import pt.isep.psoft.alsafe.maintenancemanagement.domain.MaintenanceTemplate;
+import pt.isep.psoft.alsafe.maintenancemanagement.domain.TemplateType;
+import pt.isep.psoft.alsafe.maintenancemanagement.repositories.MaintenanceTemplateRepository;
+import pt.isep.psoft.alsafe.maintenancemanagement.services.MaintenanceRecordService;
+
 import pt.isep.psoft.alsafe.security.domain.SystemUser;
 import pt.isep.psoft.alsafe.security.repositories.SystemUserRepository;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Component
@@ -41,6 +47,8 @@ public class Bootstrapper implements CommandLineRunner {
     private final FlightRouteRepository flightRouteRepository;
     private final ScheduledFlightRepository scheduledFlightRepository;
     private final SystemUserRepository userRepository;
+    private final MaintenanceTemplateRepository maintenanceTemplateRepository;
+    private final MaintenanceRecordService maintenanceRecordService;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -49,13 +57,17 @@ public class Bootstrapper implements CommandLineRunner {
                         AircraftRepository aircraftRepository,
                         FlightRouteRepository flightRouteRepository,
                         ScheduledFlightRepository scheduledFlightRepository,
-                        SystemUserRepository userRepository) {
+                        SystemUserRepository userRepository,
+                        MaintenanceTemplateRepository maintenanceTemplateRepository,
+                        MaintenanceRecordService maintenanceRecordService) {
         this.airportRepository        = airportRepository;
         this.aircraftModelRepository  = aircraftModelRepository;
         this.aircraftRepository       = aircraftRepository;
         this.flightRouteRepository    = flightRouteRepository;
         this.scheduledFlightRepository = scheduledFlightRepository;
         this.userRepository           = userRepository;
+        this.maintenanceTemplateRepository = maintenanceTemplateRepository;
+        this.maintenanceRecordService      = maintenanceRecordService;
     }
 
     @Override
@@ -68,6 +80,8 @@ public class Bootstrapper implements CommandLineRunner {
         bootstrapFlightRoutes();
         bootstrapAircrafts();
         bootstrapScheduledFlights();
+        bootstrapMaintenanceTemplates();
+        bootstrapMaintenanceRecords();
         System.out.println("Bootstrapper deployed!");
     }
 
@@ -84,9 +98,19 @@ public class Bootstrapper implements CommandLineRunner {
                     "BACKOFFICE_OPERATOR"
             ));
             userRepository.save(new SystemUser(
+                    "technician",
+                    passwordEncoder.encode("technician123"),
+                    "MAINTENANCE_TECHNICIAN"
+            ));
+            userRepository.save(new SystemUser(
+                    "supervisor",
+                    passwordEncoder.encode("supervisor123"),
+                    "MAINTENANCE_SUPERVISOR"
+            ));
+            userRepository.save(new SystemUser(
                     "admin",
                     passwordEncoder.encode("admin123"),
-                    "ADMIN,BACKOFFICE_OPERATOR,ATCC"
+                    "ADMIN,BACKOFFICE_OPERATOR,ATCC,MAINTENANCE_TECHNICIAN,MAINTENANCE_SUPERVISOR"
             ));
             System.out.println(" -> Users loaded.");
         }
@@ -143,6 +167,7 @@ public class Bootstrapper implements CommandLineRunner {
             System.out.println(" -> Flight Routes loaded.");
         }
     }
+
     private void bootstrapAircrafts() {
         if (aircraftRepository.count() == 0) {
             AircraftModel b737 = aircraftModelRepository.findByModelName("737 MAX").orElseThrow();
@@ -176,7 +201,6 @@ public class Bootstrapper implements CommandLineRunner {
             Aircraft a6 = new Aircraft("CS-TPF", e195, LocalDate.of(2019, 8, 20), "Economy");
             a6.addFlightHours(9000.0);
             for(int i=0; i<20; i++) a6.addAssignment();
-            a6.updateStatus(pt.isep.psoft.alsafe.aircraftmanagement.domain.AircraftStatus.UNDER_MAINTENANCE);
 
             Aircraft a7 = new Aircraft("CS-TPG", atr72, LocalDate.of(2018, 12, 1), "Economy");
             a7.addFlightHours(12000.0);
@@ -257,5 +281,158 @@ public class Bootstrapper implements CommandLineRunner {
 
             System.out.println(" -> Scheduled Flights loaded.");
         }
+    }
+
+    private void bootstrapMaintenanceTemplates() {
+        if (maintenanceTemplateRepository.count() == 0) {
+            AircraftModel b737 = aircraftModelRepository.findByModelName("737 MAX").orElseThrow();
+            AircraftModel a320 = aircraftModelRepository.findByModelName("A320neo").orElseThrow();
+            AircraftModel b777 = aircraftModelRepository.findByModelName("777X").orElseThrow();
+            AircraftModel a350 = aircraftModelRepository.findByModelName("A350").orElseThrow();
+            AircraftModel e195 = aircraftModelRepository.findByModelName("E195-E2").orElseThrow();
+            AircraftModel atr72 = aircraftModelRepository.findByModelName("ATR 72-600").orElseThrow();
+
+            maintenanceTemplateRepository.save(new MaintenanceTemplate(
+                    "A-Check Routine Inspection",
+                    TemplateType.INSPECTION,
+                    8.0,
+                    List.of(a320, b737, e195, atr72),
+                    List.of(
+                            "Visual inspection of fuselage and wings",
+                            "Check tyre pressure and brake wear",
+                            "Inspect cabin emergency equipment",
+                            "Verify navigation lights operation"
+                    )
+            ));
+
+            maintenanceTemplateRepository.save(new MaintenanceTemplate(
+                    "C-Check Scheduled Maintenance",
+                    TemplateType.SCHEDULED_MAINTENANCE,
+                    72.0,
+                    List.of(a320, b737, b777, a350),
+                    List.of(
+                            "Detailed structural inspection",
+                            "Lubrication of moving components",
+                            "Hydraulic system pressure test",
+                            "Avionics software update check",
+                            "Cabin interior deep cleaning"
+                    )
+            ));
+
+            maintenanceTemplateRepository.save(new MaintenanceTemplate(
+                    "Engine Overhaul",
+                    TemplateType.OVERHAUL,
+                    160.0,
+                    List.of(b777, a350, b737),
+                    List.of(
+                            "Full engine disassembly",
+                            "Turbine blade inspection and replacement",
+                            "Combustion chamber inspection",
+                            "Reassembly and test-bench run",
+                            "Final certification test flight"
+                    )
+            ));
+
+            maintenanceTemplateRepository.save(new MaintenanceTemplate(
+                    "Cabin WiFi Retrofit",
+                    TemplateType.MODIFICATION,
+                    24.0,
+                    List.of(a320, e195, atr72, b737),
+                    List.of(
+                            "Install satellite antenna housing",
+                            "Route cabin network cabling",
+                            "Install and configure WiFi access points",
+                            "Functional connectivity test"
+                    )
+            ));
+
+            maintenanceTemplateRepository.save(new MaintenanceTemplate(
+                    "Avionics Inspection",
+                    TemplateType.INSPECTION,
+                    6.0,
+                    List.of(atr72, e195),
+                    List.of(
+                            "Test cockpit display units",
+                            "Check autopilot calibration",
+                            "Inspect communication radios"
+                    )
+            ));
+
+            System.out.println(" -> Maintenance Templates loaded.");
+        }
+    }
+
+    private void bootstrapMaintenanceRecords() {
+        if (maintenanceRecordService.getRecordsForAircraft("CS-TPA").isEmpty()
+                && maintenanceRecordService.getRecordsForAircraft("CS-TPB").isEmpty()) {
+
+            Long aCheckId       = maintenanceTemplateRepository.findByTemplateName("A-Check Routine Inspection").orElseThrow().getId();
+            Long cCheckId        = maintenanceTemplateRepository.findByTemplateName("C-Check Scheduled Maintenance").orElseThrow().getId();
+            Long overhaulId      = maintenanceTemplateRepository.findByTemplateName("Engine Overhaul").orElseThrow().getId();
+            Long wifiId          = maintenanceTemplateRepository.findByTemplateName("Cabin WiFi Retrofit").orElseThrow().getId();
+            Long avionicsCheckId = maintenanceTemplateRepository.findByTemplateName("Avionics Inspection").orElseThrow().getId();
+
+
+            completeFlow("CS-TPC", aCheckId, "Routine A-Check before redeployment",
+                    LocalDate.now().minusDays(60), MaintenanceComponent.AIRFRAME, 1200.0,
+                    "All checklist items passed; no defects found.", 7.5, 1150.0);
+
+            completeFlow("CS-TPD", cCheckId, "Scheduled C-Check, structural and avionics review",
+                    LocalDate.now().minusDays(45), MaintenanceComponent.AVIONICS, 9000.0,
+                    "Replaced two avionics modules; all systems nominal.", 80.0, 9650.0);
+
+            completeFlow("CS-TPE", overhaulId, "Engine overhaul after 6000 flight hours",
+                    LocalDate.now().minusDays(30), MaintenanceComponent.ENGINE, 45000.0,
+                    "Turbine blades replaced; test flight successful.", 168.0, 47200.0);
+
+            completeFlow("CS-TPG", aCheckId, "A-Check before reactivation",
+                    LocalDate.now().minusDays(20), MaintenanceComponent.EXTERIOR, 900.0,
+                    "Minor corrosion treated on fuselage panels.", 9.0, 980.0);
+
+            startedFlow("CS-TPF", avionicsCheckId, "Avionics inspection following reported display glitch",
+                    LocalDate.now().minusDays(2), MaintenanceComponent.AVIONICS, 600.0);
+
+            startedFlow("CS-TPB", wifiId, "Cabin WiFi retrofit in progress",
+                    LocalDate.now().minusDays(1), MaintenanceComponent.INTERIOR, 15000.0);
+
+
+            maintenanceRecordService.createRecord(
+                    "CS-TPA", cCheckId, "Upcoming scheduled C-Check",
+                    LocalDate.now().plusDays(10), null, MaintenanceComponent.AIRFRAME, 8500.0);
+
+            System.out.println(" -> Maintenance Records loaded.");
+        }
+    }
+
+    private void completeFlow(String registrationNumber,
+                              Long templateId,
+                              String description,
+                              LocalDate startDate,
+                              MaintenanceComponent component,
+                              Double estimatedCost,
+                              String completionNotes,
+                              Double actualDurationHours,
+                              Double actualCost) {
+
+        var record = maintenanceRecordService.createRecord(
+                registrationNumber, templateId, description, startDate, null, component, estimatedCost);
+
+        record = maintenanceRecordService.startRecord(record.getId(), record.getVersion());
+
+        maintenanceRecordService.completeRecord(
+                record.getId(), record.getVersion(), completionNotes, actualDurationHours, actualCost);
+    }
+
+    private void startedFlow(String registrationNumber,
+                             Long templateId,
+                             String description,
+                             LocalDate startDate,
+                             MaintenanceComponent component,
+                             Double estimatedCost) {
+
+        var record = maintenanceRecordService.createRecord(
+                registrationNumber, templateId, description, startDate, null, component, estimatedCost);
+
+        maintenanceRecordService.startRecord(record.getId(), record.getVersion());
     }
 }

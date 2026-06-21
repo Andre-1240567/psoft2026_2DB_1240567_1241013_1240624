@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional // Rolls back the database after each test
+@Transactional
 class AircraftModelControllerIntegrationTest {
 
     @Autowired
@@ -38,7 +38,6 @@ class AircraftModelControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // No deleteAll to avoid FK constraint issues with Bootstrap data
     }
 
     @Test

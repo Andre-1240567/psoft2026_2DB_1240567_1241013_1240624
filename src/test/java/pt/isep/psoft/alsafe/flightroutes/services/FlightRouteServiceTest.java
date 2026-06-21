@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
@@ -88,6 +89,12 @@ class FlightRouteServiceTest {
         }
         return airport;
     }
+    
+    private Airport createFakeAirportWithNullStatus(String iata) {
+        Airport airport = createFakeAirport(iata, null);
+        ReflectionTestUtils.setField(airport, "status", null);
+        return airport;
+    }
 
     private FlightRoute createFakeRoute(String id, String originIata, String destIata) {
         Airport origin      = createFakeAirport(originIata, null);
@@ -151,6 +158,26 @@ class FlightRouteServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 flightRouteService.createFlightRoute(dto));
 
+        assertTrue(ex.getMessage().contains("is not operational"));
+        verify(routeRepository, never()).save(any());
+    }
+
+    @Test
+    void ensureExceptionIsThrownWhenOriginAirportStatusIsNull() {
+        CreateFlightRouteDTO dto = new CreateFlightRouteDTO();
+        dto.setOriginIata("OPO");
+        dto.setDestinationIata("MAD");
+        dto.setDistance(500.0);
+        dto.setEstimatedFlightTime(60);
+        dto.setMinRangeRequired(600.0);
+        dto.setMinCapacityRequired(150);
+
+        when(airportService.getAirportDetails("OPO")).thenReturn(createFakeAirportWithNullStatus("OPO"));
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                flightRouteService.createFlightRoute(dto));
+
+        assertTrue(ex.getMessage().contains("Origin airport"));
         assertTrue(ex.getMessage().contains("is not operational"));
         verify(routeRepository, never()).save(any());
     }
@@ -745,6 +772,30 @@ class FlightRouteServiceTest {
 
         when(airportService.getAirportDetails("OPO")).thenReturn(origin);
         when(airportService.getAirportDetails("MAD")).thenReturn(destinationClosed);
+
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                flightRouteService.createFlightRoute(dto));
+
+        assertTrue(ex.getMessage().contains("Destination airport"));
+        assertTrue(ex.getMessage().contains("is not operational"));
+        verify(routeRepository, never()).save(any());
+    }
+
+    @Test
+    void ensureExceptionIsThrownWhenDestinationAirportStatusIsNull() {
+        CreateFlightRouteDTO dto = new CreateFlightRouteDTO();
+        dto.setOriginIata("OPO");
+        dto.setDestinationIata("MAD");
+        dto.setDistance(500.0);
+        dto.setEstimatedFlightTime(60);
+        dto.setMinRangeRequired(600.0);
+        dto.setMinCapacityRequired(150);
+
+        Airport origin = createFakeAirport("OPO", null);
+        Airport destinationNullStatus = createFakeAirportWithNullStatus("MAD");
+
+        when(airportService.getAirportDetails("OPO")).thenReturn(origin);
+        when(airportService.getAirportDetails("MAD")).thenReturn(destinationNullStatus);
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 flightRouteService.createFlightRoute(dto));

@@ -18,16 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Service for US227 - Fuel efficiency metrics per aircraft and per route.
- *
- * Design decision: fuel burn rate is derived from AircraftModel specifications:
- *   fuelBurnRate (L/km) = fuelCapacity / maxRange
- * This represents the average consumption over the model's certified maximum range.
- * No dedicated fuelBurnPerKm field exists in the domain — this derivation avoids
- * modifying the aircraftmanagement aggregate (owned by a different team member)
- * while still producing meaningful and consistent metrics.
- */
 @Service
 @RequiredArgsConstructor
 public class FuelEfficiencyService {

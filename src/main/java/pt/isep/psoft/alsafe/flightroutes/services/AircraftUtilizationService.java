@@ -13,14 +13,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Service for US223 - Aircraft utilization rates over time.
- * Computes per-aircraft monthly utilization (flight hours and number of flights)
- * from completed/scheduled flights in ScheduledFlight.
- *
- * Placed in flightroutes.services because it queries ScheduledFlight data
- * without touching the aircraftmanagement aggregate directly.
- */
 @Service
 public class AircraftUtilizationService {
 
@@ -30,9 +22,6 @@ public class AircraftUtilizationService {
         this.scheduledFlightRepository = scheduledFlightRepository;
     }
 
-    /**
-     * Returns utilization data over time for all aircraft in the fleet.
-     */
     @Transactional(readOnly = true)
     public List<AircraftUtilizationDTO> getUtilizationForAllAircraft() {
         List<ScheduledFlight> flights =
@@ -40,11 +29,6 @@ public class AircraftUtilizationService {
         return buildUtilizationList(flights);
     }
 
-    /**
-     * Returns utilization data over time for a single aircraft.
-     *
-     * @param registrationNumber the aircraft registration number (case-insensitive)
-     */
     @Transactional(readOnly = true)
     public AircraftUtilizationDTO getUtilizationForAircraft(String registrationNumber) {
         String reg = registrationNumber.toUpperCase();
@@ -65,12 +49,6 @@ public class AircraftUtilizationService {
 
 
 
-    /**
-     * Groups a list of ScheduledFlight entries by aircraft and then by year/month,
-     * computing total flights and total flight hours for each period.
-     *
-     * Key structure: registrationNumber -> "YYYY-MM" -> [totalFlights, totalHours]
-     */
     private List<AircraftUtilizationDTO> buildUtilizationList(List<ScheduledFlight> flights) {
 
 
@@ -98,10 +76,6 @@ public class AircraftUtilizationService {
         return result;
     }
 
-    /**
-     * Computes the duration of a scheduled flight in fractional hours.
-     * Uses ChronoUnit.MINUTES for precision, then converts to hours.
-     */
     private double computeFlightHours(ScheduledFlight sf) {
         long minutes = ChronoUnit.MINUTES.between(sf.getScheduledDeparture(), sf.getScheduledArrival());
         return minutes / 60.0;
@@ -111,9 +85,6 @@ public class AircraftUtilizationService {
 
 
 
-    /**
-     * Accumulates per-period data for a single aircraft.
-     */
     private static class AircraftMeta {
         private final String registrationNumber;
         private final String modelName;

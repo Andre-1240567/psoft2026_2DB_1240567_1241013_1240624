@@ -79,11 +79,7 @@ public class FlightRoute {
 
         this.addHistory("Flight route created.", author);
     }
-
-    /**
-     * Convenience getter returning the raw String ID, used by services and DTOs
-     * that already operated on the String representation before RouteId was introduced.
-     */
+    
     public String getRouteIdValue() {
         return routeId.getId();
     }
