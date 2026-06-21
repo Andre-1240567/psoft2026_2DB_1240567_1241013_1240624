@@ -60,7 +60,7 @@ public class MaintenanceTemplateService {
                                               List<String> checklistDescriptions) {
 
         if (templateRepository.existsByTemplateName(templateName)) {
-            throw new IllegalArgumentException(
+            throw new IllegalStateException(
                     "A maintenance template with name '" + templateName + "' already exists.");
         }
 
@@ -154,7 +154,7 @@ public class MaintenanceTemplateService {
         // Name uniqueness check (only if the name is actually changing)
         if (!resolvedName.equals(template.getTemplateName())
                 && templateRepository.existsByTemplateName(resolvedName)) {
-            throw new IllegalArgumentException(
+            throw new IllegalStateException(
                     "A maintenance template with name '" + resolvedName + "' already exists.");
         }
 

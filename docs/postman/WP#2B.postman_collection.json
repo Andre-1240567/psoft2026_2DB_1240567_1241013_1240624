@@ -17,7 +17,7 @@
                             "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
                             "var jsonData = pm.response.json();",
                             "if(jsonData.token) {",
-                            "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+                            "    pm.environment.set(\"jwt_token\", jsonData.token);",
                             "    console.log(\"Token saved!\");",
                             "}"
                         ]
@@ -60,7 +60,7 @@
                             "pm.test(\"Status is 200 OK\", function () { pm.response.to.have.status(200); });",
                             "var jsonData = pm.response.json();",
                             "if(jsonData.token) {",
-                            "    pm.collectionVariables.set(\"jwt_token_atcc\", jsonData.token);",
+                            "    pm.environment.set(\"jwt_token_atcc\", jsonData.token);",
                             "    console.log(\"Token saved!\");",
                             "}"
                         ],
@@ -338,7 +338,7 @@
                     "bearer": [
                         {
                             "key": "token",
-                            "value": "{{jwt_token_atcc}}}}",
+                            "value": "{{jwt_token_atcc}}",
                             "type": "string"
                         }
                     ]
