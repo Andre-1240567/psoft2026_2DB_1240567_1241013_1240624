@@ -35,7 +35,7 @@
 ## Design Justification
 - **Domain-Driven Design (DDD):** `AircraftModel` acts as an Entity in our domain.
 - **Security & Authorization:** The endpoint is secured as a cross-cutting concern using Spring Security JWT (`@PreAuthorize`).
-- **DTO Pattern:** Inputs and outputs are isolated from domain entities using `UpdateAircraftModelDTO`.
+- **DTO Pattern & HATEOAS:** Inputs and outputs are strictly isolated from domain entities using `UpdateAircraftModelDTO` for requests and `AircraftModelResponseDTO` for responses. The response DTO includes HAL-compliant relational links (HATEOAS).
 - **Concurrency Control:** We use `@Version` annotation from JPA/Hibernate on the `AircraftModel` entity to enforce optimistic locking. This ensures that if two Backoffice Operators attempt to update the same model simultaneously, the second one will receive a conflict error and won't blindly overwrite the first operator's changes.
 
 ## Sequence Diagrams

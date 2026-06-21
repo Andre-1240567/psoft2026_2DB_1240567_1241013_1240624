@@ -111,7 +111,7 @@ class AircraftModelControllerTest {
                         .param("criteria", "hours")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].aircraftModel.modelName").value("737 MAX"))
+                .andExpect(jsonPath("$[0].modelName").value("737 MAX"))
                 .andExpect(jsonPath("$[0].utilizationValue").value(1000.0));
     }
 

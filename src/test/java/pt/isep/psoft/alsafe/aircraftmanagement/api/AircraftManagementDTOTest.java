@@ -153,21 +153,12 @@ class AircraftManagementDTOTest {
         AircraftModel model = new AircraftModel(Manufacturer.AIRBUS, "A320neo", 160, 24000.0, 6300.0, 828.0);
         TopAircraftModelDTO dto = new TopAircraftModelDTO(model, 1000.0);
 
-        assertEquals(model, dto.getAircraftModel());
+        assertEquals("A320neo", dto.getModelName());
+        assertEquals("AIRBUS", dto.getManufacturer());
+        assertEquals(160, dto.getSeatingCapacity());
+        assertEquals(24000.0, dto.getFuelCapacity());
+        assertEquals(6300.0, dto.getMaxRange());
+        assertEquals(828.0, dto.getCruisingSpeed());
         assertEquals(1000.0, dto.getUtilizationValue());
-
-        AircraftModel model2 = new AircraftModel(Manufacturer.BOEING, "737", 180, 26000.0, 6000.0, 800.0);
-        dto.setAircraftModel(model2);
-        dto.setUtilizationValue(2000.0);
-
-        assertEquals(model2, dto.getAircraftModel());
-        assertEquals(2000.0, dto.getUtilizationValue());
-
-        TopAircraftModelDTO dto2 = new TopAircraftModelDTO();
-        dto2.setAircraftModel(model2);
-        dto2.setUtilizationValue(2000.0);
-
-        assertEquals(dto, dto2);
-        assertNotNull(dto.toString());
     }
 }

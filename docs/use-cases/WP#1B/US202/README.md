@@ -30,7 +30,7 @@
 
 ## Design Justification
 - **Domain-Driven Design (DDD):** `AircraftModel` is an Entity. It has been updated to include an `image` attribute (stored as a Large Object `byte[]`).
-- **Data Transfer:** To simplify the REST API consumption from frontend applications, we utilize Jackson's automatic Base64-to-byte[] deserialization. The frontend sends the image as a standard JSON string property (`"image": "iVBORw0KGgo..."`), and the API returns it in the same format.
+- **Data Transfer & HATEOAS:** To simplify the REST API consumption from frontend applications, we utilize Jackson's automatic Base64-to-byte[] deserialization. The frontend sends the image as a standard JSON string property (`"image": "iVBORw0KGgo..."`), and the API returns it in the same format using `AircraftModelResponseDTO`, which also injects necessary HATEOAS self-links.
 - **Optionality:** The image field is not mandatory, allowing models to be registered with just technical specs if no diagram is available.
 
 ## Sequence Diagrams

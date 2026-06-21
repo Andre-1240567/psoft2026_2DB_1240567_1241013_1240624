@@ -113,7 +113,7 @@ class AircraftModelServiceTest {
         java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO> topModels = service.getTop5MostUtilizedModels("hours");
 
         assertEquals(1, topModels.size());
-        assertEquals("737 MAX", topModels.get(0).getAircraftModel().getModelName());
+        assertEquals("737 MAX", topModels.get(0).getModelName());
         assertEquals(1000.0, topModels.get(0).getUtilizationValue());
     }
 
@@ -126,7 +126,7 @@ class AircraftModelServiceTest {
         java.util.List<pt.isep.psoft.alsafe.aircraftmanagement.api.dto.TopAircraftModelDTO> topModels = service.getTop5MostUtilizedModels("assignments");
 
         assertEquals(1, topModels.size());
-        assertEquals("737 MAX", topModels.get(0).getAircraftModel().getModelName());
+        assertEquals("737 MAX", topModels.get(0).getModelName());
         assertEquals(50.0, topModels.get(0).getUtilizationValue());
     }
 
