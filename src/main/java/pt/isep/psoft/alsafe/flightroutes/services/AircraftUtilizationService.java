@@ -2,8 +2,9 @@ package pt.isep.psoft.alsafe.flightroutes.services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pt.isep.psoft.alsafe.flightroutes.api.AircraftUtilizationDTO;
-import pt.isep.psoft.alsafe.flightroutes.api.AircraftUtilizationPeriodDTO;
+
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AircraftUtilizationDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AircraftUtilizationPeriodDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 import pt.isep.psoft.alsafe.flightroutes.repositories.ScheduledFlightRepository;
 

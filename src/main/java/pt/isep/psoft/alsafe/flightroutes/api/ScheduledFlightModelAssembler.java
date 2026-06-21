@@ -2,6 +2,8 @@ package pt.isep.psoft.alsafe.flightroutes.api;
 
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
+
+import pt.isep.psoft.alsafe.flightroutes.api.dto.ScheduledFlightResponseDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;

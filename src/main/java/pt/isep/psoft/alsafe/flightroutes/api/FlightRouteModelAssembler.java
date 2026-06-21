@@ -2,6 +2,9 @@ package pt.isep.psoft.alsafe.flightroutes.api;
 
 import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSupport;
 import org.springframework.stereotype.Component;
+
+import pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
 

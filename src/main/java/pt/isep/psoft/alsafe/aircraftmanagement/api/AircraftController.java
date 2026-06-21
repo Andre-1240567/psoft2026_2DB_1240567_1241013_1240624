@@ -89,13 +89,13 @@ public class AircraftController {
     @PreAuthorize("hasRole('ATCC')") //US203
     @GetMapping("/{registrationNumber}/compatible-routes")
     @Operation(summary = "View which routes are compatible with a specific aircraft (US203)")
-    public ResponseEntity<java.util.List<pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO>> getCompatibleRoutes(
+    public ResponseEntity<java.util.List<pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO>> getCompatibleRoutes(
             @PathVariable String registrationNumber) {
         Aircraft aircraft = aircraftService.getAircraftDetails(registrationNumber);
         Double maxRange = aircraft.getModel().getMaxRange();
         Integer capacity = aircraft.getActiveCapacity();
 
-        java.util.List<pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO> compatibleRoutes =
+        java.util.List<pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO> compatibleRoutes =
                 flightRouteService.getCompatibleRoutesForAircraft(maxRange, capacity);
         
         return ResponseEntity.ok(compatibleRoutes);

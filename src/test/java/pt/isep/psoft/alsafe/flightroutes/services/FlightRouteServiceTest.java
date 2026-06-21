@@ -17,12 +17,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import pt.isep.psoft.alsafe.airportmanagement.domain.*;
 import pt.isep.psoft.alsafe.airportmanagement.services.AirportService;
-import pt.isep.psoft.alsafe.flightroutes.api.AlternativeRouteResponseDTO;
-import pt.isep.psoft.alsafe.flightroutes.api.CreateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteModelAssembler;
-import pt.isep.psoft.alsafe.flightroutes.api.FlightRouteResponseDTO;
-import pt.isep.psoft.alsafe.flightroutes.api.RouteUtilizationDTO;
-import pt.isep.psoft.alsafe.flightroutes.api.UpdateFlightRouteDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AlternativeRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.CreateFlightRouteDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.FlightRouteResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.RouteUtilizationDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.UpdateFlightRouteDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.FlightRoute;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteRequirement;
 import pt.isep.psoft.alsafe.flightroutes.domain.RouteStatus;
@@ -89,7 +89,7 @@ class FlightRouteServiceTest {
         }
         return airport;
     }
-    
+
     private Airport createFakeAirportWithNullStatus(String iata) {
         Airport airport = createFakeAirport(iata, null);
         ReflectionTestUtils.setField(airport, "status", null);

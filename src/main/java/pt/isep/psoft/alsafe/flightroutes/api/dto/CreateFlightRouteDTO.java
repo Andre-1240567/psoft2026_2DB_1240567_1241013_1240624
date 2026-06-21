@@ -1,4 +1,4 @@
-package pt.isep.psoft.alsafe.flightroutes.api;
+package pt.isep.psoft.alsafe.flightroutes.api.dto;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;

@@ -11,6 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import pt.isep.psoft.alsafe.flightroutes.api.dto.CreateScheduledFlightDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.DeparturesBoardResponseDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.ScheduledFlightResponseDTO;
 import pt.isep.psoft.alsafe.flightroutes.domain.ScheduledFlight;
 import pt.isep.psoft.alsafe.flightroutes.services.ScheduledFlightService;
 

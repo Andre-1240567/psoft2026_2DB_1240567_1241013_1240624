@@ -10,6 +10,9 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import pt.isep.psoft.alsafe.flightroutes.api.dto.AircraftFuelEfficiencyDTO;
+import pt.isep.psoft.alsafe.flightroutes.api.dto.RouteFuelEfficiencyDTO;
 import pt.isep.psoft.alsafe.flightroutes.services.FuelEfficiencyService;
 
 import java.util.List;
