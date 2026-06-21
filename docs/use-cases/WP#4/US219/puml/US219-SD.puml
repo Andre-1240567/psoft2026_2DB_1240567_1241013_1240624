@@ -1,0 +1,25 @@
+@startuml US219-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "MaintenanceRecordRepository" as Repo
+participant "MaintenanceRecordModelAssembler" as Assembler
+
+Controller -> Service : getOngoingActivities()
+
+Service -> Repo : findAllOngoing()
+note right of Repo
+    JPQL: SELECT r FROM MaintenanceRecord r
+          WHERE r.status = PLANNED OR r.status = IN_PROGRESS
+          ORDER BY r.startDate ASC
+end note
+Repo --> Service : List<MaintenanceRecord>
+
+Service --> Controller : List<MaintenanceRecord>
+
+Controller -> Assembler : toModel(record) for each
+Assembler --> Controller : List<MaintenanceRecordResponseDTO>
+
+Controller --> "Supervisor" : 200 OK\nList<MaintenanceRecordResponseDTO>
+
+@enduml

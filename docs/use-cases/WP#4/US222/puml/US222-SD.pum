@@ -1,0 +1,36 @@
+@startuml US222-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "MaintenanceRecordRepository" as Repo
+participant "MaintenanceRecordModelAssembler" as Assembler
+
+alt GET /alerts/due-by-date
+    Controller -> Service : getAlertsDueByDate()
+    Service -> Repo : findDueForMaintenanceByDate(LocalDate.now())
+    note right of Repo
+        JPQL: WHERE r.nextMaintenanceDueDate IS NOT NULL
+              AND r.nextMaintenanceDueDate <= :today
+              ORDER BY r.nextMaintenanceDueDate ASC
+    end note
+    Repo --> Service : List<MaintenanceRecord>
+
+else GET /alerts/due-by-flight-hours
+    Controller -> Service : getAlertsDueByFlightHours()
+    Service -> Repo : findDueForMaintenanceByFlightHours()
+    note right of Repo
+        JPQL: WHERE r.nextMaintenanceDueHours IS NOT NULL
+              AND r.aircraft.totalFlightHours >= r.nextMaintenanceDueHours
+              ORDER BY r.aircraft.totalFlightHours DESC
+    end note
+    Repo --> Service : List<MaintenanceRecord>
+end
+
+Service --> Controller : List<MaintenanceRecord>
+
+Controller -> Assembler : toModel(record) for each
+Assembler --> Controller : List<MaintenanceRecordResponseDTO>
+
+Controller --> "ATCC" : 200 OK\nList<MaintenanceRecordResponseDTO>
+
+@enduml

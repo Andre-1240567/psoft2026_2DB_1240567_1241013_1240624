@@ -1,0 +1,14 @@
+@startuml US222-SSD
+
+actor "ATCC" as ATCC
+participant "AISafe System" as System
+
+alt due by calendar date
+    ATCC -> System : GET /api/maintenance-records/alerts/due-by-date
+    System --> ATCC : 200 OK\nList<MaintenanceRecordResponseDTO>\n(nextMaintenanceDueDate <= today,\nsorted by dueDate ascending — empty means none overdue)
+else due by flight hours
+    ATCC -> System : GET /api/maintenance-records/alerts/due-by-flight-hours
+    System --> ATCC : 200 OK\nList<MaintenanceRecordResponseDTO>\n(aircraft.totalFlightHours >= nextMaintenanceDueHours,\nsorted by flight hours descending — empty means none overdue)
+end
+
+@enduml

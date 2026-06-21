@@ -1,0 +1,62 @@
+@startuml US119-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + completeRecord(id: Long,\ndto: CompleteMaintenanceRecordDTO): ResponseEntity
+    }
+    class CompleteMaintenanceRecordDTO {
+        - completionNotes: String
+        - actualDurationHours: Double
+        - actualCost: Double
+        - version: Long
+    }
+    class MaintenanceRecordResponseDTO {
+        - status: String
+        - completedAt: LocalDateTime
+        - completionNotes: String
+        - actualDurationHours: Double
+        - actualCost: Double
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + completeRecord(recordId, clientVersion,\ncompletionNotes, actualDurationHours,\nactualCost): MaintenanceRecord
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - status: MaintenanceStatus
+        - completedAt: LocalDateTime
+        - completionNotes: String
+        - actualDurationHours: Double
+        - actualCost: Double
+        - version: Long
+        + markAsCompleted(notes, duration, cost)
+    }
+    class Aircraft <<Entity>> {
+        + updateStatus(status: AircraftStatus)
+    }
+    enum MaintenanceStatus {
+        PLANNED
+        IN_PROGRESS
+        COMPLETED
+        CANCELED
+    }
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository
+    interface AircraftRepository
+}
+
+MaintenanceRecordController ..> CompleteMaintenanceRecordDTO : receives
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordService ..> MaintenanceRecordRepository : uses
+MaintenanceRecordService ..> AircraftRepository : restores availability
+MaintenanceRecordService ..> MaintenanceRecord : invokes markAsCompleted()
+MaintenanceRecord --> MaintenanceStatus : has status
+MaintenanceRecord --> Aircraft : performed on
+
+@enduml

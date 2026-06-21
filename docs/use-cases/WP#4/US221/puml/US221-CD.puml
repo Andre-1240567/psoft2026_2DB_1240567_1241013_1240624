@@ -1,0 +1,52 @@
+@startuml US221-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + getAverageTurnaround(): ResponseEntity
+    }
+    class MaintenanceTurnaroundSummaryDTO {
+        - modelName: String
+        - avgDurationHours: Double
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + getAverageTurnaroundPerAircraftModel(): List<MaintenanceTurnaroundSummary>
+    }
+    class MaintenanceTurnaroundSummary <<record>> {
+        - modelName: String
+        - avgDurationHours: Double
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - status: MaintenanceStatus
+        - actualDurationHours: Double
+    }
+    enum MaintenanceStatus {
+        PLANNED
+        IN_PROGRESS
+        COMPLETED
+        CANCELED
+    }
+    class Aircraft <<Entity>>
+    class AircraftModel <<Entity>>
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository {
+        + findAverageTurnaroundPerAircraftModel(): List<Object[]>
+    }
+}
+
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordController ..> MaintenanceTurnaroundSummaryDTO : produces
+MaintenanceRecordService ..> MaintenanceRecordRepository : uses
+MaintenanceRecordService ..> MaintenanceTurnaroundSummary : maps rows into
+MaintenanceRecord --> MaintenanceStatus : has status
+MaintenanceRecord --> Aircraft : performed on
+Aircraft --> AircraftModel : is of model
+
+@enduml

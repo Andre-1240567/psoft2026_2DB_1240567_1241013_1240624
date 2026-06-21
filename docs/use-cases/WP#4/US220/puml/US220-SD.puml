@@ -1,0 +1,43 @@
+@startuml US220-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "MaintenanceRecordRepository" as Repo
+
+alt GET /reports/cost-per-aircraft
+    Controller -> Service : getCostReportPerAircraft()
+    Service -> Repo : findCostReportPerAircraft()
+    note right of Repo
+        JPQL: SELECT r.aircraft.registrationNumber,
+                     SUM(r.estimatedCost), SUM(r.actualCost)
+              FROM MaintenanceRecord r
+              GROUP BY r.aircraft.registrationNumber
+              ORDER BY SUM(r.actualCost) DESC NULLS LAST
+    end note
+    Repo --> Service : List<Object[]>\n[key, estimatedCost, actualCost]
+
+else GET /reports/cost-per-model
+    Controller -> Service : getCostReportPerAircraftModel()
+    Service -> Repo : findCostReportPerAircraftModel()
+    note right of Repo
+        Same shape, grouped by
+        r.aircraft.model.modelName instead
+    end note
+    Repo --> Service : List<Object[]>\n[key, estimatedCost, actualCost]
+end
+
+Service -> Service : map each row to\nMaintenanceCostSummary(key, estimatedCost, actualCost)
+note right of Service
+    Null-safety per column:
+    row[1]/row[2] != null
+    ? ((Number) row[N]).doubleValue()
+    : null
+end note
+
+Service --> Controller : List<MaintenanceCostSummary>
+
+Controller -> Controller : map each summary to\nMaintenanceCostSummaryDTO
+
+Controller --> "ATCC" : 200 OK\nList<MaintenanceCostSummaryDTO>
+
+@enduml

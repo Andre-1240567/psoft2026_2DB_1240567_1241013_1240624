@@ -1,0 +1,10 @@
+@startuml US219-SSD
+
+actor "Maintenance Supervisor" as SUP
+participant "AISafe System" as System
+
+SUP -> System : GET /api/maintenance-records/ongoing
+
+System --> SUP : 200 OK\nList<MaintenanceRecordResponseDTO>\n(status=PLANNED or IN_PROGRESS,\nsorted by startDate ascending — may be empty)
+
+@enduml

@@ -1,0 +1,29 @@
+@startuml US116-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "AircraftRepository" as AircraftRepo
+participant "MaintenanceRecordRepository" as RecordRepo
+participant "MaintenanceRecordModelAssembler" as Assembler
+
+Controller -> Service : getRecordsForAircraft(registrationNumber)
+
+Service -> AircraftRepo : existsById(registrationNumber)
+AircraftRepo --> Service : boolean
+
+alt aircraft not found
+    Service --> Controller : throws ResourceNotFoundException
+    Controller --> "Technician" : 404 Not Found
+else aircraft exists
+    Service -> RecordRepo : findByAircraft_RegistrationNumber(registrationNumber)
+    RecordRepo --> Service : List<MaintenanceRecord>
+
+    Service --> Controller : List<MaintenanceRecord>
+
+    Controller -> Assembler : toModel(record) for each
+    Assembler --> Controller : List<MaintenanceRecordResponseDTO>\n(with HATEOAS links)
+
+    Controller --> "Technician" : 200 OK\nList<MaintenanceRecordResponseDTO>
+end
+
+@enduml

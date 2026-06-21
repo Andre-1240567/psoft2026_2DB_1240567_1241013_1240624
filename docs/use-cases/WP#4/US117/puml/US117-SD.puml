@@ -1,0 +1,32 @@
+@startuml US117-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "MaintenanceRecordRepository" as Repo
+
+Controller -> Service : getTotalMaintenanceHoursPerAircraft()
+
+Service -> Repo : findTotalMaintenanceHoursPerAircraft()
+note right of Repo
+    JPQL: SELECT r.aircraft.registrationNumber,
+                 SUM(r.expectedDurationHours)
+          FROM MaintenanceRecord r
+          GROUP BY r.aircraft.registrationNumber
+          ORDER BY SUM(r.expectedDurationHours) DESC
+end note
+Repo --> Service : List<Object[]>\n[registrationNumber, totalHours]
+
+Service -> Service : map each row to\nMaintenanceHoursSummary(registrationNumber, totalHours)
+note right of Service
+    Null-safety: row[1] != null
+    ? ((Number) row[1]).doubleValue()
+    : 0.0
+end note
+
+Service --> Controller : List<MaintenanceHoursSummary>
+
+Controller -> Controller : map each summary to\nMaintenanceHoursSummaryDTO
+
+Controller --> "ATCC" : 200 OK\nList<MaintenanceHoursSummaryDTO>
+
+@enduml

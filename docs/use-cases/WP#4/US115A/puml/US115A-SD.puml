@@ -1,0 +1,49 @@
+@startuml US115A-SD
+
+participant "MaintenanceTemplateController" as Controller
+participant "MaintenanceTemplateService" as Service
+participant "MaintenanceTemplateRepository" as TemplateRepo
+participant "AircraftModelRepository" as ModelRepo
+participant "MaintenanceTemplateModelAssembler" as Assembler
+
+Controller -> Controller : parseTemplateType(dto.templateType)
+
+Controller -> Service : createTemplate(templateName, type,\ndefaultDurationHours, applicableModelIds,\nchecklistItems)
+
+Service -> TemplateRepo : existsByTemplateName(templateName)
+TemplateRepo --> Service : boolean
+
+alt name already taken
+    Service --> Controller : throws IllegalArgumentException
+    Controller --> "Technician" : 409 Conflict
+else name is available
+    Service -> Service : resolveModels(modelIds)
+    loop for each modelId
+        Service -> ModelRepo : findById(modelId)
+        ModelRepo --> Service : Optional<AircraftModel>
+        alt model not found
+            Service --> Controller : throws ResourceNotFoundException
+            Controller --> "Technician" : 404 Not Found
+        end
+    end
+
+    Service -> Service : new MaintenanceTemplate(templateName, type,\nduration, models, checklistItems)
+    note right of Service
+        Constructor validates: name not blank,
+        type not null, duration > 0,
+        at least 1 model, at least 1 checklist item.
+        Builds ChecklistItem list internally.
+    end note
+
+    Service -> TemplateRepo : save(template)
+    TemplateRepo --> Service : MaintenanceTemplate
+
+    Service --> Controller : MaintenanceTemplate
+
+    Controller -> Assembler : toModel(template)
+    Assembler --> Controller : MaintenanceTemplateResponseDTO\n(with HATEOAS links)
+
+    Controller --> "Technician" : 201 Created\nMaintenanceTemplateResponseDTO
+end
+
+@enduml

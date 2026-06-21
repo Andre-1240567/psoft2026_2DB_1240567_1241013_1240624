@@ -1,0 +1,20 @@
+@startuml US115A-SSD
+
+actor "Maintenance Technician" as TECH
+participant "AISafe System" as System
+
+TECH -> System : POST /api/maintenance-templates\n{templateName, templateType, defaultDurationHours,\napplicableModelIds, checklistItems}
+
+alt missing or invalid fields
+    System --> TECH : 400 Bad Request\n"Template name is mandatory." / etc.
+else templateType is invalid
+    System --> TECH : 400 Bad Request\n"Invalid template type: '...'"
+else one or more aircraft model IDs not found
+    System --> TECH : 404 Not Found\n"Aircraft model with id '...' not found."
+else template name already exists
+    System --> TECH : 409 Conflict\n"A maintenance template with name '...' already exists."
+else success
+    System --> TECH : 201 Created\nMaintenanceTemplateResponseDTO\n(with HATEOAS links)
+end
+
+@enduml

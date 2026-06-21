@@ -1,0 +1,76 @@
+@startuml US115A-CD
+
+package "api" {
+    class MaintenanceTemplateController {
+        + createTemplate(dto: CreateMaintenanceTemplateDTO): ResponseEntity
+        - parseTemplateType(value: String): TemplateType
+    }
+    class CreateMaintenanceTemplateDTO {
+        - templateName: String
+        - templateType: String
+        - defaultDurationHours: Double
+        - applicableModelIds: List<Long>
+        - checklistItems: List<String>
+    }
+    class MaintenanceTemplateResponseDTO {
+        - id: Long
+        - templateName: String
+        - templateType: String
+        - defaultDurationHours: Double
+        - applicableModelNames: List<String>
+        - checklist: List<ChecklistItemDTO>
+        - version: Long
+    }
+    class MaintenanceTemplateModelAssembler {
+        + toModel(template: MaintenanceTemplate): MaintenanceTemplateResponseDTO
+    }
+}
+
+package "services" {
+    class MaintenanceTemplateService {
+        + createTemplate(name, type, duration,\nmodelIds, checklist): MaintenanceTemplate
+        - resolveModels(modelIds: List<Long>): List<AircraftModel>
+    }
+}
+
+package "domain" {
+    class MaintenanceTemplate <<Entity>> {
+        - templateName: String
+        - templateType: TemplateType
+        - defaultDurationHours: Double
+        - applicableModels: List<AircraftModel>
+        - checklist: List<ChecklistItem>
+        - version: Long
+    }
+    class ChecklistItem <<ValueObject>> {
+        - description: String
+        - completed: boolean
+    }
+    enum TemplateType {
+        INSPECTION
+        SCHEDULED_MAINTENANCE
+        OVERHAUL
+        MODIFICATION
+    }
+}
+
+package "repositories" {
+    interface MaintenanceTemplateRepository {
+        + existsByTemplateName(name: String): boolean
+    }
+    interface AircraftModelRepository
+}
+
+MaintenanceTemplateController ..> CreateMaintenanceTemplateDTO : receives
+MaintenanceTemplateController ..> MaintenanceTemplateService : delegates to
+MaintenanceTemplateController ..> MaintenanceTemplateModelAssembler : uses
+MaintenanceTemplateModelAssembler ..> MaintenanceTemplateResponseDTO : produces
+
+MaintenanceTemplateService ..> MaintenanceTemplateRepository : uses
+MaintenanceTemplateService ..> AircraftModelRepository : resolves models
+MaintenanceTemplateService ..> MaintenanceTemplate : creates
+
+MaintenanceTemplate "1" *-- "1..*" ChecklistItem : checklist
+MaintenanceTemplate --> TemplateType : has type
+
+@enduml

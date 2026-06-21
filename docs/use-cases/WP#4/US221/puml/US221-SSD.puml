@@ -1,0 +1,10 @@
+@startuml US221-SSD
+
+actor "Maintenance Supervisor" as SUP
+participant "AISafe System" as System
+
+SUP -> System : GET /api/maintenance-records/reports/avg-turnaround
+
+System --> SUP : 200 OK\nList<MaintenanceTurnaroundSummaryDTO>\n[{modelName, avgDurationHours}, ...]\nsorted descending — empty if no COMPLETED records exist
+
+@enduml

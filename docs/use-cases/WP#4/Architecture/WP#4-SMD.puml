@@ -1,0 +1,27 @@
+@startuml WP#4-SMD
+
+skinparam state {
+    BackgroundColor LightGray
+    BorderColor DarkGray
+    FontStyle bold
+}
+
+title MaintenanceRecord — State Machine Diagram
+
+[*] --> PLANNED : new MaintenanceRecord(...)\n[template applicable to aircraft model]
+
+PLANNED --> IN_PROGRESS : startWork()
+PLANNED --> CANCELED : cancel(reason)
+
+IN_PROGRESS --> COMPLETED : markAsCompleted(notes,\nactualDuration, actualCost)\n[notes not blank,\nactualDuration > 0]
+IN_PROGRESS --> CANCELED : cancel(reason)
+
+COMPLETED --> [*]
+CANCELED --> [*]
+
+PLANNED : adjustExpectedDuration() allowed\nonly in this state
+COMPLETED : cancel() throws\nIllegalStateException
+CANCELED : cancel() throws\nIllegalStateException
+COMPLETED : startWork() throws\nIllegalStateException
+
+@enduml

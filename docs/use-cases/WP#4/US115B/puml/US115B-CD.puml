@@ -1,0 +1,94 @@
+@startuml US115B-CD
+
+package "api" {
+    class MaintenanceRecordController {
+        + createRecord(dto: CreateMaintenanceRecordDTO): ResponseEntity
+        - parseComponent(value: String): MaintenanceComponent
+    }
+    class CreateMaintenanceRecordDTO {
+        - registrationNumber: String
+        - templateId: Long
+        - description: String
+        - startDate: LocalDate
+        - expectedDurationHours: Double
+        - component: String
+        - estimatedCost: Double
+    }
+    class MaintenanceRecordResponseDTO {
+        - id: Long
+        - registrationNumber: String
+        - modelName: String
+        - templateId: Long
+        - status: String
+        - component: String
+        - checklist: List<ChecklistItemDTO>
+        - version: Long
+    }
+    class MaintenanceRecordModelAssembler {
+        + toModel(record: MaintenanceRecord): MaintenanceRecordResponseDTO
+    }
+}
+
+package "services" {
+    class MaintenanceRecordService {
+        + createRecord(registrationNumber, templateId,\ndescription, startDate, expectedDuration,\ncomponent, estimatedCost): MaintenanceRecord
+    }
+}
+
+package "domain" {
+    class MaintenanceRecord <<Entity>> {
+        - description: String
+        - startDate: LocalDate
+        - expectedDurationHours: Double
+        - status: MaintenanceStatus
+        - component: MaintenanceComponent
+        - checklist: List<ChecklistItem>
+        - version: Long
+    }
+    class MaintenanceTemplate <<Entity>> {
+        + isApplicableTo(model: AircraftModel): boolean
+        + cloneChecklist(): List<ChecklistItem>
+        + getDefaultDurationHours(): Double
+    }
+    class ChecklistItem <<ValueObject>>
+    class Aircraft <<Entity>> {
+        + updateStatus(status: AircraftStatus)
+    }
+    enum MaintenanceStatus {
+        PLANNED
+        IN_PROGRESS
+        COMPLETED
+        CANCELED
+    }
+    enum MaintenanceComponent {
+        ENGINE
+        AIRFRAME
+        AVIONICS
+        INTERIOR
+        EXTERIOR
+    }
+}
+
+package "repositories" {
+    interface MaintenanceRecordRepository
+    interface MaintenanceTemplateRepository
+    interface AircraftRepository
+}
+
+MaintenanceRecordController ..> CreateMaintenanceRecordDTO : receives
+MaintenanceRecordController ..> MaintenanceRecordService : delegates to
+MaintenanceRecordController ..> MaintenanceRecordModelAssembler : uses
+MaintenanceRecordModelAssembler ..> MaintenanceRecordResponseDTO : produces
+
+MaintenanceRecordService ..> AircraftRepository : uses
+MaintenanceRecordService ..> MaintenanceTemplateRepository : uses
+MaintenanceRecordService ..> MaintenanceRecordRepository : uses
+MaintenanceRecordService ..> MaintenanceRecord : creates
+
+MaintenanceRecord "1" *-- "1..*" ChecklistItem : checklist (own copy)
+MaintenanceRecord "0..*" --> "1" MaintenanceTemplate : created from
+MaintenanceRecord "0..*" --> "1" Aircraft : performed on
+MaintenanceRecord --> MaintenanceStatus : has status
+MaintenanceRecord --> MaintenanceComponent : categorized by
+
+@enduml

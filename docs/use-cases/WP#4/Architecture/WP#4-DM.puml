@@ -1,0 +1,91 @@
+@startuml WP#4-DM
+
+skinparam classAttributeIconSize 0
+skinparam classFontStyle bold
+
+package "maintenancemanagement.domain" {
+
+    class MaintenanceTemplate <<Entity>> {
+        - templateName : String <<unique>>
+        - templateType : TemplateType
+        - defaultDurationHours : Double
+        - version : Long
+        --
+        + updateDetails(...)
+        + updateApplicableModels(models)
+        + replaceChecklist(descriptions)
+        + cloneChecklist() : List<ChecklistItem>
+        + isApplicableTo(model) : boolean
+    }
+
+    class MaintenanceRecord <<Entity>> {
+        - description : String
+        - startDate : LocalDate
+        - expectedDurationHours : Double
+        - status : MaintenanceStatus
+        - createdAt : LocalDateTime
+        - completedAt : LocalDateTime
+        - completionNotes : String
+        - actualDurationHours : Double
+        - estimatedCost : Double
+        - actualCost : Double
+        - nextMaintenanceDueDate : LocalDate
+        - nextMaintenanceDueHours : Double
+        - version : Long
+        --
+        + startWork()
+        + markAsCompleted(notes, actualDuration, actualCost)
+        + cancel(reason)
+        + scheduleNextMaintenance(dueDate, dueHours)
+        + adjustExpectedDuration(newDuration)
+        + completeChecklistItem(index)
+        + isOngoing() : boolean
+    }
+
+    class ChecklistItem <<ValueObject>> {
+        - description : String
+        - completed : boolean
+        --
+        + copy() : ChecklistItem
+        + markDone()
+    }
+
+    enum TemplateType <<Enumeration>> {
+        INSPECTION
+        SCHEDULED_MAINTENANCE
+        OVERHAUL
+        MODIFICATION
+    }
+
+    enum MaintenanceStatus <<Enumeration>> {
+        PLANNED
+        IN_PROGRESS
+        COMPLETED
+        CANCELED
+    }
+
+    enum MaintenanceComponent <<Enumeration>> {
+        ENGINE
+        AIRFRAME
+        AVIONICS
+        INTERIOR
+        EXTERIOR
+    }
+}
+
+package "aircraftmanagement.domain" {
+    class Aircraft <<Entity>>
+    class AircraftModel <<Entity>>
+}
+
+MaintenanceTemplate "1" *-- "1..*" ChecklistItem : checklist (master copy)
+MaintenanceTemplate "1" --> "1..*" AircraftModel : applicable to
+MaintenanceTemplate --> TemplateType : has type
+
+MaintenanceRecord "1" *-- "1..*" ChecklistItem : checklist (own independent copy)
+MaintenanceRecord "0..*" --> "1" MaintenanceTemplate : created from
+MaintenanceRecord "0..*" --> "1" Aircraft : performed on
+MaintenanceRecord --> MaintenanceStatus : has status
+MaintenanceRecord --> MaintenanceComponent : categorized by
+
+@enduml

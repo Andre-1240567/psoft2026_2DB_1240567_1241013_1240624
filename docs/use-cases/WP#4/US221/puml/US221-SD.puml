@@ -1,0 +1,34 @@
+@startuml US221-SD
+
+participant "MaintenanceRecordController" as Controller
+participant "MaintenanceRecordService" as Service
+participant "MaintenanceRecordRepository" as Repo
+
+Controller -> Service : getAverageTurnaroundPerAircraftModel()
+
+Service -> Repo : findAverageTurnaroundPerAircraftModel()
+note right of Repo
+    JPQL: SELECT r.aircraft.model.modelName,
+                 AVG(r.actualDurationHours)
+          FROM MaintenanceRecord r
+          WHERE r.status = COMPLETED
+            AND r.actualDurationHours IS NOT NULL
+          GROUP BY r.aircraft.model.modelName
+          ORDER BY AVG(r.actualDurationHours) DESC
+end note
+Repo --> Service : List<Object[]>\n[modelName, avgDurationHours]
+
+Service -> Service : map each row to\nMaintenanceTurnaroundSummary(modelName, avgDurationHours)
+note right of Service
+    Null-safety: row[1] != null
+    ? ((Number) row[1]).doubleValue()
+    : 0.0
+end note
+
+Service --> Controller : List<MaintenanceTurnaroundSummary>
+
+Controller -> Controller : map each summary to\nMaintenanceTurnaroundSummaryDTO
+
+Controller --> "Supervisor" : 200 OK\nList<MaintenanceTurnaroundSummaryDTO>
+
+@enduml
