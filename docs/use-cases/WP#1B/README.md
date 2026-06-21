@@ -14,6 +14,10 @@ This package contains the design diagrams, architectural justifications, and det
 | **US205** | View real-time aircraft availability status dashboard. | ATCC | [Read Documentation](US205/README.md) |
 | **US206** | Calculate the total operational hours for each aircraft. | ATCC | [Read Documentation](US206/README.md) |
 
+## Use Case Diagram
+
+![Use Case Diagram](UCD/svg/WP1B-UCD.svg)
+
 ## Quality & Architecture
 - **Domain-Driven Design (DDD):** Clean separation of layers (Domain, Repository, Service, Controller).
 - **HATEOAS:** HAL-compliant relational links injected into Responses.

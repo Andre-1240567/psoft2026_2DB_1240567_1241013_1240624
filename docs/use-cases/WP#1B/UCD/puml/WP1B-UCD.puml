@@ -1,0 +1,25 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Backoffice Operator" as BO
+actor "ATCC" as ATCC
+
+rectangle "WP#1B - Enhanced Aircraft Features" {
+  usecase "US201: Update Aircraft Model Specifications" as UC201
+  usecase "US202: Register Aircraft Model with Image" as UC202
+  usecase "US203: View Compatible Routes for Aircraft" as UC203
+  usecase "US204: Top 5 Most Utilized Aircraft Models" as UC204
+  usecase "US205: View Real-time Aircraft Availability Status" as UC205
+  usecase "US206: Calculate Total Operational Hours" as UC206
+}
+
+BO --> UC201
+BO --> UC202
+BO --> UC204
+
+ATCC --> UC203
+ATCC --> UC205
+ATCC --> UC206
+
+@enduml
