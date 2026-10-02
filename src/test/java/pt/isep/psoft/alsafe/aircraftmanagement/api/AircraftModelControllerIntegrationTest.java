@@ -31,9 +31,6 @@ class AircraftModelControllerIntegrationTest {
     private AircraftModelRepository aircraftModelRepository;
 
     @Autowired
-    private pt.isep.psoft.alsafe.aircraftmanagement.repositories.AircraftRepository aircraftRepository;
-
-    @Autowired
     private ObjectMapper objectMapper;
 
     @BeforeEach
